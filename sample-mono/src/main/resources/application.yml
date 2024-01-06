@@ -1,0 +1,89 @@
+data-migrator:
+  model-base-package: net.osgiliath.domain
+  sequence:
+#    - rows-minimize-1
+#    - column-anonymize-1
+#    - column-anonymize-2
+    - anonymizer-custom-1
+  sequencers:
+#    - name: rows-minimize-1
+#      type: rows-minimize
+#      rows-to-keep: 10
+#    - name: column-anonymize-1
+#      type: column-anonymizers
+#      table: virtuals
+#      column: password
+#      faker: RockBand
+#    - name: column-anonymize-2
+#      type: column-anonymizers
+#      table: virtuals
+#      column: biosspass
+#      faker: Disease
+    - name: anonymizer-custom-1
+      type: custom-logic
+      transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
+      entity-class: Country
+  graph-datasource:
+    type: embedded
+spring:
+  main:
+    lazy-initialization: true
+  jpa:
+    source:
+      generate-ddl: false
+      properties:
+        hibernate:
+          dialect: ${source.jdbc.dialect}
+    sink:
+      generate-ddl: true
+      properties:
+        hibernate:
+          dialect: ${target.jdbc.dialect}
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    show-sql: true
+    properties:
+      hibernate:
+        id.new_generator_mappings: true
+#        cache:
+#          use_second_level_cache: true
+#          use_query_cache: false
+#          region.factory_class: jcache
+        generate_statistics: false
+        # modify batch size as necessary
+        jdbc:
+          batch_size: 25
+          fetch_size: 150
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+        # modify fetch size as necessary
+        criteria.literal_handling_mode: BIND
+        query:
+          fail_on_pagination_over_collection_fetch: true
+          in_clause_parameter_padding: true
+        connection:
+          provider_disables_autocommit: true
+          autocommit: false
+          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  datasource:
+    source:
+      type: com.zaxxer.hikari.HikariDataSource
+      url: ${source.database.baseurl}/${source.datasource.defaultSchemaName}?${source.database.options}
+      username: ${source.datasource.username}
+      password: ${source.datasource.password}
+      hikari:
+        poolName: HikariCPSource
+        auto-commit: false
+    sink:
+      type: com.zaxxer.hikari.HikariDataSource
+      url: ${target.database.baseurl}/${target.datasource.defaultSchemaName}?${target.database.options}
+      username: ${target.datasource.username}
+      password: ${target.datasource.password}
+      hikari:
+        poolName: HikariCPSink
+        auto-commit: false
+  liquibase:
+    enabled: false
