@@ -4,66 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>net.osgiliath</groupId>
+        <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>net.osgiliath</groupId>
+    <groupId>net.osgiliath.datamigrator.sample</groupId>
     <artifactId>sample-mono</artifactId>
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <data-migrator.version>1.0-SNAPSHOT</data-migrator.version>
-        <!--<source.database.driver>org.h2.Driver</source.database.driver>-->
-        <!--<source.database.driver>org.postgresql.Driver</source.database.driver> -->
-        <!--<source.database.driver>org.mariadb.jdbc.Driver</source.database.driver>-->
-        <!--<source.database.driver>oracle.jdbc.OracleDriver</source.database.driver>-->
-        <source.database.driver>com.mysql.cj.jdbc.Driver</source.database.driver>
-        <!--<source.database.url>jdbc:h2:file:${project.build.directory}/h2db/db/pmi</source.database.url>-->
-        <!--<source.database.url>jdbc:postgresql://localhost:5432/database</source.database.url>-->
-        <!--<source.database.url>jdbc:mysql://localhost:3306/test?serverTimezone=UTC</source.database.url>-->
-        <source.database.port>3306</source.database.port>
-        <source.database.baseurl>jdbc:mysql://127.0.0.1:${source.database.port}</source.database.baseurl> <!-- update to testcontainer mysql port to regenerate the entities for orchestrator integration tests -->
-        <source.database.options>zeroDateTimeBehavior=convertToNull</source.database.options>
-        <source.database.url>${source.database.baseurl}?${source.database.options}</source.database.url>
-        <source.datasource.defaultSchemaName>test</source.datasource.defaultSchemaName>
-        <source.datasource.username>test</source.datasource.username>
-        <source.datasource.password>test</source.datasource.password>
-
         <!-- End test configuration-->
         <hibernate.domain.package>${project.groupId}.domain</hibernate.domain.package>
-        <!--<source.jdbc.dialect>org.hibernate.dialect.H2Dialect</source.jdbc.dialect>-->
-        <!-- <source.jdbc.dialect>org.hibernate.dialect.FixedPostgreSQL10Dialect</source.jdbc.dialect> -->
-        <!-- <source.jdbc.dialect>org.hibernate.dialect.Oracle12cDialect</source.jdbc.dialect> -->
-        <!-- <source.jdbc.dialect>org.hibernate.dialect.SQLServer2012Dialect</source.jdbc.dialect> -->
-        <source.jdbc.dialect>org.hibernate.dialect.MySQLDialect</source.jdbc.dialect>
-
-        <!--<target.database.driver>org.h2.Driver</target.database.driver>-->
-        <!--<target.database.driver>org.postgresql.Driver</target.database.driver> -->
-        <!--<target.database.driver>org.mariadb.jdbc.Driver</target.database.driver>-->
-        <!--<target.database.driver>oracle.jdbc.OracleDriver</target.database.driver>-->
-        <target.database.driver>com.mysql.cj.jdbc.Driver</target.database.driver>
-        <!--<target.database.url>jdbc:h2:file:${project.build.directory}/h2db/db/pmi</target.database.url>-->
-        <!--<target.database.url>jdbc:postgresql://localhost:5432/database</target.database.url>-->
-        <!--<target.database.url>jdbc:mysql://localhost:3306/test?serverTimezone=UTC</target.database.url>-->
-        <target.database.baseurl>jdbc:mysql://localhost:3307</target.database.baseurl>
-        <target.database.options>zeroDateTimeBehavior=convertToNull</target.database.options>
-        <target.database.url>${source.database.baseurl}?${source.database.options}</target.database.url>
-        <target.datasource.defaultSchemaName>admusers</target.datasource.defaultSchemaName>
-        <target.datasource.username>root</target.datasource.username>
-        <target.datasource.password>aaaa</target.datasource.password>
-        <!--<target.jdbc.dialect>org.hibernate.dialect.H2Dialect</target.jdbc.dialect>-->
-        <!-- <target.jdbc.dialect>org.hibernate.dialect.FixedPostgreSQL10Dialect</target.jdbc.dialect> -->
-        <!-- <target.jdbc.dialect>org.hibernate.dialect.Oracle12cDialect</target.jdbc.dialect> -->
-        <!-- <target.jdbc.dialect>org.hibernate.dialect.SQLServer2012Dialect</target.jdbc.dialect> -->
-        <target.jdbc.dialect>org.hibernate.dialect.MySQLDialect</target.jdbc.dialect>
     </properties>
         <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>net.osgiliath</groupId>
+                <groupId>net.osgiliath.datamigrator</groupId>
                 <artifactId>data-migrator-bom</artifactId>
                 <version>${data-migrator.version}</version>
                 <type>pom</type>
@@ -145,6 +101,23 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <phase>initialize</phase>
+                    <goals>
+                      <goal>read-project-properties</goal>
+                    </goals>
+                    <configuration>
+                      <files>
+                        <file>${basedir}/database.properties</file>
+                      </files>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -348,6 +321,13 @@
             <id>entities-from-changelog</id>
             <properties>
                 <source.database.docker.image>mysql:8.2</source.database.docker.image>
+                <source.database.spinup.wait.time>10000</source.database.spinup.wait.time>
+                <!--<source.datasource.defaultSchemaName>test</source.datasource.defaultSchemaName>
+                <source.datasource.username>test</source.datasource.username>
+                <source.datasource.password>test</source.datasource.password>
+                <source.database.port>3306</source.database.port>
+                <source.database.url>jdbc:mysql://127.0.0.1:${source.database.port}</source.database.url>
+                <source.database.driver>com.mysql.cj.jdbc.Driver</source.database.driver>-->
             </properties>
             <build>
                 <plugins>
@@ -373,7 +353,7 @@
                                           <name>${source.database.docker.image}</name>
                                           <run>
                                             <wait>
-                                                <time>10000</time>
+                                                <time>${source.database.spinup.wait.time}</time>
                                                 <!-- Do not work no matter the ideal wait <tcp>
                                                     <host>127.0.0.1</host>
                                                     <ports>
@@ -589,8 +569,13 @@
             <artifactId>spring-boot</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.osgiliath</groupId>
+            <groupId>net.osgiliath.datamigrator</groupId>
             <artifactId>data-migrator-core</artifactId>
+            <version>${data-migrator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.osgiliath.datamigrator.modules</groupId>
+            <artifactId>faker</artifactId>
             <version>${data-migrator.version}</version>
         </dependency>
         <dependency>

@@ -8,14 +8,13 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.2.1</version>
 </parent>
-    <groupId>net.osgiliath</groupId>
+    <groupId>net.osgiliath.datamigrator</groupId>
     <artifactId>data-migrator</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>bom</module>
         <module>modules</module>
-<!--        <module>sample</module>-->
         <module>core</module>
         <module>sample-mono</module>
     </modules>
@@ -60,6 +59,18 @@
                 </excludes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>config/liquibase/**/*</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
         <pluginManagement>
             <plugins>
                  <plugin>
@@ -299,36 +310,12 @@
                                 <useDefaultDelimiters>false</useDefaultDelimiters>
                             </configuration>
                         </execution>
-                        <!--<execution>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                <useDefaultDelimiters>false</useDefaultDelimiters>
-                                <resources>
-                                    <resource>
-                                        <directory>${project.build.resources[0].directory}</directory>
-                                        <filtering>true</filtering>
-                                        <includes>
-                                            <include>**/*</include>
-                                        </includes>
-                                        <excludes>
-                                            <exclude>config/liquibase/**/*</exclude>
-                                        </excludes>
-                                    </resource>
-                                    <resource>
-                                        <directory>${project.build.resources[0].directory}</directory>
-                                        <filtering>false</filtering>
-                                        <includes>
-                                            <include>${project.build.resources[0].directory}/config/liquibase/**/*</include>
-                                        </includes>
-                                    </resource>
-                                </resources>
-                            </configuration>
-                        </execution>-->
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.2.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -339,4 +326,8 @@
             </plugin>
         </plugins>
     </build>
+    <organization>
+        <name>Osgiliath Inc.</name>
+    </organization>
+    <inceptionYear>2024</inceptionYear>
 </project>

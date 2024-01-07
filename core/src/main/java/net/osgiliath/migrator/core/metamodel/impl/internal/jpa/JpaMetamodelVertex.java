@@ -1,12 +1,31 @@
 package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
 
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.FieldAndTargetType;
 import org.jgrapht.Graph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -17,8 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JpaMetamodelVertex implements MetamodelVertex {
-
-    private static final Logger log = LoggerFactory.getLogger(JpaMetamodelVertex.class);
 
     private final Class<?> metamodelClass;
 
@@ -51,24 +68,6 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         return outboundEdges.get(graph);
     }
 
-    private class FieldAndTargetType {
-        private final Field field;
-        private final Type targetType;
-
-        public FieldAndTargetType(Field field, Type targetType) {
-            this.field = field;
-            this.targetType = targetType;
-        }
-
-        public Field getField() {
-            return field;
-        }
-
-        public Type getTargetType() {
-            return targetType;
-        }
-    }
-
     private Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph) {
         Collection<OutboundEdge> outboundEdges = new HashSet<>();
         Stream.of(getMetamodelClass().getDeclaredFields()).flatMap(f -> targetTypeOfMetamodelField(f).map(targetType -> new FieldAndTargetType(f, targetType)).stream())
@@ -89,9 +88,17 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         return jpaEntityHelper.getterMethod(getEntityClass(), fieldEdge.getMetamodelField());
     }
 
-    @Override
+    @Override // TODO Should not be here, but in a model Vertex element wrapper
     public Object getId(Object entity) {
         return jpaEntityHelper.getId(getEntityClass(), entity);
+    }
+
+    public Object getFieldValue(Object entity, String attributeName) {
+        return jpaEntityHelper.getFieldValue(getEntityClass(), entity, attributeName);
+    }
+
+    public void setFieldValue(Object entity, String attributeName, Object value) {
+        jpaEntityHelper.setFieldValue(getEntityClass(), entity, attributeName, value);
     }
 
     @Override
@@ -102,6 +109,14 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     @Override
     public String getTypeName() {
         return getEntityClass().getSimpleName();
+    }
+
+    public Optional<Field> getMetamodelAttributeWithName(String fieldName) {
+        return Arrays.stream(getMetamodelClass().getDeclaredFields()).filter(f -> f.getName().equals(fieldName)).findAny();
+    }
+
+    public Optional<Field> getEntityFieldWithName(String fieldName) {
+        return Arrays.stream(getEntityClass().getDeclaredFields()).filter(f -> f.getName().equals(fieldName)).findAny();
     }
 
     private Optional<Type> targetTypeOfMetamodelField(Field f) {

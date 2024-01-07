@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-		( scanBasePackages = { "net.osgiliath.migrator.core", "net.osgiliath.migrator.sample.orchestration", "net.osgiliath.migrator.sample.transformers" })
+		( scanBasePackages = { "net.osgiliath.migrator.core", "net.osgiliath.migrator.modules", "net.osgiliath.migrator.sample.orchestration", "net.osgiliath.migrator.sample.transformers" })
 @EnableConfigurationProperties({ DataMigratorConfiguration.class})
 public class DataMigratorApplication {
 

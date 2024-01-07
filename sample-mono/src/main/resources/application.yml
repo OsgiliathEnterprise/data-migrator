@@ -19,8 +19,9 @@ data-migrator:
 #      table: virtuals
 #      column: biosspass
 #      faker: Disease
+
     - name: anonymizer-custom-1
-      type: custom-logic
+      type: bean
       transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
       entity-class: Country
   graph-datasource:
@@ -33,12 +34,12 @@ spring:
       generate-ddl: false
       properties:
         hibernate:
-          dialect: ${source.jdbc.dialect}
+          dialect: @source.jdbc.dialect@
     sink:
       generate-ddl: true
       properties:
         hibernate:
-          dialect: ${target.jdbc.dialect}
+          dialect: @target.jdbc.dialect@
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -71,17 +72,17 @@ spring:
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource
-      url: ${source.database.baseurl}/${source.datasource.defaultSchemaName}?${source.database.options}
-      username: ${source.datasource.username}
-      password: ${source.datasource.password}
+      url: @source.database.baseurl@/@source.datasource.defaultSchemaName@?@source.database.options@
+      username: @source.datasource.username@
+      password: @source.datasource.password@
       hikari:
         poolName: HikariCPSource
         auto-commit: false
     sink:
       type: com.zaxxer.hikari.HikariDataSource
-      url: ${target.database.baseurl}/${target.datasource.defaultSchemaName}?${target.database.options}
-      username: ${target.datasource.username}
-      password: ${target.datasource.password}
+      url: @target.database.baseurl@/@target.datasource.defaultSchemaName@?@target.database.options@
+      username: @target.datasource.username@
+      password: @target.datasource.password@
       hikari:
         poolName: HikariCPSink
         auto-commit: false

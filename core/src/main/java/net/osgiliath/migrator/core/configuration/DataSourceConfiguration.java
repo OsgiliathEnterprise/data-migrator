@@ -1,5 +1,25 @@
 package net.osgiliath.migrator.core.configuration;
 
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import net.osgiliath.migrator.core.configuration.beans.CustomHikariDatasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -63,7 +83,11 @@ public class DataSourceConfiguration {
             @Qualifier("sourceDataSourceProperties") DataSourceProperties sourceDataSourceProperties,
             @Qualifier("sourceHikariConfigProperties") HikariConfig hikariConfigProperties
     ) {
-        HikariDataSource ds = sourceDataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class).build();
+        return createHikariDatasource(sourceDataSourceProperties, hikariConfigProperties);
+    }
+
+    private static HikariDataSource createHikariDatasource(DataSourceProperties dataSourceProperties, HikariConfig hikariConfigProperties) {
+        HikariDataSource ds = dataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class).build();
         if (null != hikariConfigProperties.getDataSourceClassName()) {
             ds.setDataSourceClassName(hikariConfigProperties.getDataSourceClassName());
         }
@@ -76,13 +100,7 @@ public class DataSourceConfiguration {
     @Primary
     public DataSource sinkDataSource(@Qualifier("sinkDataSourceProperties") DataSourceProperties sinkDataSourceProperties,
                                      @Qualifier("sinkHikariConfigProperties") HikariConfig hikariConfigProperties) {
-        HikariDataSource ds = sinkDataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class).build();
-        if (null != hikariConfigProperties.getDataSourceClassName()) {
-            ds.setDataSourceClassName(hikariConfigProperties.getDataSourceClassName());
-        }
-        ds.setAutoCommit(hikariConfigProperties.isAutoCommit());
-        ds.setPoolName(hikariConfigProperties.getPoolName());
-        return ds;
+        return createHikariDatasource(sinkDataSourceProperties, hikariConfigProperties);
     }
 
 }

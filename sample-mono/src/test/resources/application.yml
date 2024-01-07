@@ -19,8 +19,15 @@ data-migrator:
 #      table: virtuals
 #      column: biosspass
 #      faker: Disease
+    - name: column-anonymize-1
+      type: factory
+      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
+      entity-class: Employee
+      columns:
+       - firstName
+
     - name: anonymizer-custom-1
-      type: custom-logic
+      type: bean
       transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
       entity-class: Country
   graph-datasource:

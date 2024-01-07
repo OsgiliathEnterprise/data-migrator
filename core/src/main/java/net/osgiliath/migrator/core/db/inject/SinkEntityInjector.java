@@ -1,7 +1,28 @@
 package net.osgiliath.migrator.core.db.inject;
 
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -16,7 +37,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.*;
@@ -32,7 +52,6 @@ public class SinkEntityInjector {
         super();
         this.vertexPersister = vertexPersister;
     }
-
 
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
@@ -71,9 +90,8 @@ public class SinkEntityInjector {
     void updateRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         Object sourceEntity = modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
         MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
-
         sourceMetamodelVertex.getOutboundEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
-                        StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldEdge().getFieldName()),0),false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+            StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldEdge().getFieldName()),0),false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
         ).forEach(modelAndMetamodelEdge -> {
             log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
                 try {

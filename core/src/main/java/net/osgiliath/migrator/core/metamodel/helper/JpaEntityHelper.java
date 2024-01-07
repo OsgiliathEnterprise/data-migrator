@@ -1,5 +1,25 @@
 package net.osgiliath.migrator.core.metamodel.helper;
 
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -9,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -37,18 +58,17 @@ public class JpaEntityHelper {
         }
     }
 
-    private void addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(Class<?> entityClass, Method m) {
+    private void addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(Class<?> entityClass, Method manyToManyMethod) {
         if (randomManyToManyOwningSide.contains(entityClass)) {
             return;
         }
-        for (Annotation a: m.getDeclaredAnnotations()) {
-            if (a instanceof ManyToMany) {
-                if (!((ManyToMany) a).mappedBy().isEmpty()) {
-                    return;
-                }
-            }
+        boolean isMappedBy = Arrays.stream(manyToManyMethod.getDeclaredAnnotations())
+            .filter(a -> a instanceof ManyToMany)
+            .anyMatch(a -> !((ManyToMany) a).mappedBy().isEmpty());
+        if (isMappedBy) {
+            return;
         }
-        Class<?> targetEntityClass = (Class<?>) ((ParameterizedType)m.getGenericReturnType()).getActualTypeArguments()[0];
+        Class<?> targetEntityClass = (Class<?>) ((ParameterizedType)manyToManyMethod.getGenericReturnType()).getActualTypeArguments()[0];
         for (Method targetEntityClassMethod: targetEntityClass.getDeclaredMethods()) {
             for (Annotation a : targetEntityClassMethod.getDeclaredAnnotations()) {
                 if (a instanceof ManyToMany && ((ManyToMany) a).mappedBy().isEmpty()) {
@@ -65,7 +85,7 @@ public class JpaEntityHelper {
     public Method getPrimaryKeyGetterMethod(Class<?> entityClass) {
         return Arrays.stream(entityClass.getDeclaredMethods()).filter(
                 m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof jakarta.persistence.Id)
-        ).findAny().get();
+        ).findAny().orElseThrow(() -> new RuntimeException("No getter for primary key in class" + entityClass));
     }
 
     public Object getId(Class<?> entityClass, Object entity) {
@@ -79,7 +99,7 @@ public class JpaEntityHelper {
 
     public Method getterMethod(Class<?> entityClass, Field attribute) {
         final String getterName = fieldToGetter(attribute.getName());
-        return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(getterName)).findAny().get();
+        return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(getterName)).findAny().orElseThrow(() -> new RuntimeException("No getter for field " + attribute.getName() + " in class " + entityClass.getName()));
     }
 
     private static String fieldToGetter(String attributeName) {
@@ -90,7 +110,6 @@ public class JpaEntityHelper {
         return "set" + Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
     }
 
-
     public String getPrimaryKeyFieldName(Class<?> entityClass) {
         String primaryKeyGetterName = getPrimaryKeyGetterMethod(entityClass).getName();
         String primaryKeyFieldName = getterToFieldName(primaryKeyGetterName);
@@ -99,20 +118,6 @@ public class JpaEntityHelper {
 
     private static String getterToFieldName(String getterName) {
         return Character.toLowerCase(getterName.charAt(3)) + getterName.substring(4);
-    }
-
-    public List<String> idAndRelationshipsAttributes(Class<?> entityClass) {
-        List<String> idAndRelationships = new ArrayList<>();
-        idAndRelationships.add(getPrimaryKeyFieldName(entityClass));
-        for (Method m: entityClass.getDeclaredMethods()) {
-            if (m.isAnnotationPresent(OneToMany.class) || m.isAnnotationPresent(ManyToMany.class) || m.isAnnotationPresent(OneToOne.class) || m.isAnnotationPresent(ManyToOne.class)) {
-                String attributeName = getterToFieldName(m.getName());
-                if (!isDerived(entityClass, attributeName)) {
-                    idAndRelationships.add(attributeName);
-                }
-            }
-        }
-        return idAndRelationships;
     }
 
     public RelationshipType relationshipType(Method getterMethod) {
@@ -129,54 +134,55 @@ public class JpaEntityHelper {
         }
     }
 
-    public Method setterMethod(Class<?> entityClass, Field field) {
+    public Optional<Method> setterMethod(Class<?> entityClass, Field field) {
         final String setterName = fieldToSetter(field.getName());
-        return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(setterName)).findAny().get();
+        return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(setterName)).findAny();
     }
 
-    public Field inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass) {
+    public Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass) {
         RelationshipType relationshipType = relationshipType(getterMethod);
         Optional<String> mappedBy = getMappedByValue(getterMethod);
-        return mappedBy.map(
-                mappedByValue -> Arrays.stream(targetEntityClass.getDeclaredFields()).filter(f -> f.getName().equals(mappedByValue)).findAny().get()
-        ).orElseGet(() -> findInverseRelationshipFieldWithoutMappedByInformation(targetEntityClass, getterMethod, relationshipType));
+        Optional<Field> mappedByField = mappedBy.flatMap(mappedByValue -> Arrays.stream(targetEntityClass.getDeclaredFields()).filter(f -> f.getName().equals(mappedByValue)).findAny());
+        if (mappedByField.isPresent()) {
+            return mappedByField;
+        } else {
+            return findInverseRelationshipFieldWithoutMappedByInformation(targetEntityClass, getterMethod, relationshipType);
+        }
     }
 
-    private Field findInverseRelationshipFieldWithoutMappedByInformation(Class<?> targetEntityClass, Method getterMethod, RelationshipType relationshipType) {
+    private Optional<Field> findInverseRelationshipFieldWithoutMappedByInformation(Class<?> targetEntityClass, Method getterMethod, RelationshipType relationshipType) {
         Class<?> sourceClass = getterMethod.getDeclaringClass();
-        for (Field f: targetEntityClass.getDeclaredFields()) {
-            if (f.getGenericType().equals(sourceClass)) {
-                Method getterMethodOfField = getterMethod(targetEntityClass, f);
-                RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
-                if (isInverseRelationshipType(relationshipType, inverseRelationshipType)) {
-                    return f;
-                }
-            } else if(Collection.class.isAssignableFrom(f.getType())) {
-                Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
-                if (typeOfCollection.equals(sourceClass)) {
-                    Method getterMethodOfField = getterMethod(targetEntityClass, f);
-                    RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
-                    if (isInverseRelationshipType(relationshipType, inverseRelationshipType)) {
-                        return f;
+        return Arrays.stream(targetEntityClass.getDeclaredFields())
+            .filter((Field field) -> {
+                if (field.getGenericType().equals(sourceClass)) {
+                    return true;
+                } else if(Collection.class.isAssignableFrom(field.getType())) {
+                    Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                    if (typeOfCollection.equals(sourceClass)) {
+                        return true;
                     }
                 }
-            }
-        }
-        return null;
+                return false;
+            }).map((Field field) -> {
+                Method getterMethodOfField = getterMethod(targetEntityClass, field);
+                RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
+                return new AbstractMap.SimpleEntry<>(field, inverseRelationshipType);
+            }).filter(entry -> isInverseRelationshipType(relationshipType, entry.getValue()))
+            .map(entry -> entry.getKey()).findAny();
     }
 
     private static Optional<String> getMappedByValue(Method getterMethod) {
-        String mappedBy = null;
-        for (Annotation a : getterMethod.getDeclaredAnnotations()) {
-            if (a instanceof ManyToMany && !((ManyToMany) a).mappedBy().isEmpty()) {
-                mappedBy = ((ManyToMany) a).mappedBy();
-            } else if (a instanceof OneToMany && !((OneToMany) a).mappedBy().isEmpty()) {
-                mappedBy = ((OneToMany) a).mappedBy();
-            } else if (a instanceof OneToOne && !((OneToOne) a).mappedBy().isEmpty()) {
-                mappedBy = ((OneToOne) a).mappedBy();
+        return Arrays.stream(getterMethod.getDeclaredAnnotations()).map(a -> {
+            if (a instanceof ManyToMany) {
+                return ((ManyToMany) a).mappedBy();
+            } else if (a instanceof OneToMany) {
+                return ((OneToMany) a).mappedBy();
+            } else if (a instanceof OneToOne) {
+                return ((OneToOne) a).mappedBy();
+            } else {
+                return null;
             }
-        }
-        return Optional.ofNullable(mappedBy);
+        }).filter(mappedBy -> null != mappedBy && !mappedBy.isEmpty()).findAny();
     }
 
     private boolean isInverseRelationshipType(RelationshipType relationshipType, RelationshipType inverseRelationshipType) {
@@ -191,5 +197,42 @@ public class JpaEntityHelper {
         } else {
             throw new RuntimeException("The relationship type " + relationshipType + " is not supported");
         }
+    }
+
+    public Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
+        Optional<Field> field = attributeToField(entityClass, attributeName);
+        return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
+            try {
+                return getterMethod.invoke(entity);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        })
+        .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
+    }
+
+    private Optional<Field> attributeToField(Class<?> entityClass, String attributeName) {
+        return Arrays.stream(entityClass.getDeclaredFields()).filter(f -> f.getName().equals(attributeName)).findAny();
+    }
+
+    public void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value) {
+        Optional<Field> field = attributeToField(entityClass, attributeName);
+        field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {throw new RuntimeException("No field with name "+ attributeName +" in class " + entityClass.getSimpleName());});
+    }
+
+    public void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
+        setterMethod(entityClass, field).ifPresentOrElse(setterMethod -> {
+            try {
+                setterMethod.invoke(entity, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }, () -> {
+            throw new RuntimeException("No setter with name "+ fieldToSetter(field.getName()) +" in class " + entityClass.getSimpleName());
+        });
     }
 }

@@ -1,14 +1,31 @@
 package net.osgiliath.migrator.core.modelgraph;
 
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.metamodel.helper.MetamodelVertexHelper;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
-import net.osgiliath.migrator.core.modelgraph.model.EdgeTargetVertices;
-import net.osgiliath.migrator.core.modelgraph.model.MetamodelVertexAndEntities;
-import net.osgiliath.migrator.core.modelgraph.model.ModelVertex;
-import net.osgiliath.migrator.core.modelgraph.model.SourceVertexEdgeAndTargetVertices;
+import net.osgiliath.migrator.core.modelgraph.model.*;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -64,11 +81,11 @@ public class ModelGraphBuilder {
             return edges.stream().map(edge ->
                 new EdgeTargetVertices(edge, relatedVerticesOfOutgoingEdge(modelVertex, edge, metamodelVertex, modelGraph, entityMetamodelGraph))
             ).map(edgeAndTargetVertex ->
-                new SourceVertexEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex) );
+                new SourceVertexEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
         }).flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.getTargetVertices().stream().map(targetVertex -> new SourceVertexEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)))
-                .forEach(sourceVertexEdgeAndTargetVertex ->
-                    sourceVertexEdgeAndTargetVertex.getSourceVertex().addEdge(sourceVertexEdgeAndTargetVertex.getEdge().getFieldName(), sourceVertexEdgeAndTargetVertex.getTargetVertex()).property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.getEdge().getMetamodelField())
-                );
+        .forEach(sourceVertexEdgeAndTargetVertex ->
+            sourceVertexEdgeAndTargetVertex.getSourceVertex().addEdge(sourceVertexEdgeAndTargetVertex.getEdge().getFieldName(), sourceVertexEdgeAndTargetVertex.getTargetVertex()).property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.getEdge().getMetamodelField())
+        );
     }
 
     private Collection<Vertex> relatedVerticesOfOutgoingEdge(TinkerVertex modelVertex, FieldEdge edge, MetamodelVertex metamodelVertex, GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
@@ -82,8 +99,8 @@ public class ModelGraphBuilder {
                 ).filter(Optional::isPresent).map(Optional::get).toList();
             } else {
                 if (null != targetEntities) {
-                    return Stream.of(targetEdgeVertexOrEmpty(edge, getTargetEntityId(edge, targetEntities, entityMetamodelGraph), modelGraph, entityMetamodelGraph)
-                    ).filter(Optional::isPresent).map(Optional::get).toList();
+                    return Stream.of(targetEdgeVertexOrEmpty(edge, getTargetEntityId(edge, targetEntities, entityMetamodelGraph), modelGraph, entityMetamodelGraph))
+                            .filter(Optional::isPresent).map(Optional::get).toList();
                 }
             }
         } catch (IllegalAccessException e) {
