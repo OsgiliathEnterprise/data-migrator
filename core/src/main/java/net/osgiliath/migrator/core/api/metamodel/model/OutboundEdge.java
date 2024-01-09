@@ -21,27 +21,21 @@ package net.osgiliath.migrator.core.api.metamodel.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
 import jakarta.persistence.Persistence;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import org.jgrapht.Graph;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 public class OutboundEdge {
 
     private final FieldEdge fieldEdge;
     private final MetamodelVertex targetVertex;
-    private final JpaEntityHelper hibernateEntityHelper;
-
-    public OutboundEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, JpaEntityHelper hibernateEntityHelper) {
+    public OutboundEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex) {
         this.fieldEdge = fieldEdge;
         this.targetVertex = targetVertex;
-        this.hibernateEntityHelper = hibernateEntityHelper;
     }
 
     public MetamodelVertex getTargetVertex() {
@@ -52,72 +46,47 @@ public class OutboundEdge {
         return fieldEdge;
     }
 
-    public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, Object sourceEntity, Object targetEntity) throws InvocationTargetException, IllegalAccessException {
-        Field field = fieldEdge.getMetamodelField();
-        Method getterMethod = hibernateEntityHelper.getterMethod(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), field);
-        RelationshipType relationshipType = hibernateEntityHelper.relationshipType(getterMethod);
+    public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge> graph) throws InvocationTargetException, IllegalAccessException {
+        //Field field = fieldEdge.getMetamodelField();
+        //Method getterMethod = sourceMetamodelVertex.relationshipGetter(fieldEdge);
+        RelationshipType relationshipType = fieldEdge.getRelationshipType(sourceMetamodelVertex);
         switch (relationshipType) {
             case ONE_TO_ONE -> {
-                hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), sourceEntity, field, targetEntity);
-                hibernateEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass()).ifPresent(inverseField -> {
-                    hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)targetVertex).getEntityClass(), targetEntity, inverseField, sourceEntity);
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, fieldEdge, targetEntity.getEntity());
+                sourceMetamodelVertex.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity());
                 });
             }
             case ONE_TO_MANY -> {
-                Set<Object> set = (Set<Object>) getterMethod.invoke(sourceEntity);
-                set.add(targetEntity);
-                hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), sourceEntity, field, set);
-                hibernateEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass()).ifPresent(inverseField ->
-                    hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)targetVertex).getEntityClass(), targetEntity, inverseField, sourceEntity));
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, fieldEdge);
+                set.add(targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, fieldEdge, set);
+                sourceMetamodelVertex.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity());
+                });
             }
             case MANY_TO_ONE -> {
-                hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), sourceEntity, field, targetEntity);
-                Optional<Field> inverseField1 = hibernateEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass());
-                inverseField1.ifPresent(inverseField -> {
-                    Method inverseGetterMethod = hibernateEntityHelper.getterMethod(((JpaMetamodelVertex)targetVertex).getEntityClass(), inverseField);
-                    if (inverseGetterMethod != null) {
-                        Set inverseCollection = null;
-                        try {
-                            inverseCollection = (Set) inverseGetterMethod.invoke(targetEntity);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (inverseCollection != null) {
-                            if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseField.getName())) {
-                                inverseCollection = new HashSet(0);
-                            }
-                            inverseCollection.add(sourceEntity);
-                            hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)targetVertex).getEntityClass(), targetEntity, inverseField, inverseCollection);
-                        }
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, fieldEdge, targetEntity.getEntity());
+                sourceMetamodelVertex.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
+                        inverseCollection = new HashSet(0);
                     }
+                    inverseCollection.add(sourceEntity.getEntity());
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
                 });
             }
             case MANY_TO_MANY -> {
-                Set<Object> set = (Set<Object>) getterMethod.invoke(sourceEntity);
-                set.add(targetEntity);
-                hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), sourceEntity, field, set);
-                Optional<Field> inverseField1 = hibernateEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass());
-                inverseField1.ifPresent(inverseField -> {
-                    Method inverseGetterMethod = hibernateEntityHelper.getterMethod(((JpaMetamodelVertex)targetVertex).getEntityClass(), inverseField);
-                    if (inverseGetterMethod != null) {
-                        Set inverseCollection = null;
-                        try {
-                            inverseCollection = (Set) inverseGetterMethod.invoke(targetEntity);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (inverseCollection != null) {
-                            if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseField.getName())) {
-                                inverseCollection = new HashSet(0);
-                            }
-                            inverseCollection.add(sourceEntity);
-                            hibernateEntityHelper.setFieldValue(((JpaMetamodelVertex)targetVertex).getEntityClass(), targetEntity, inverseField, inverseCollection);
-                        }
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, fieldEdge);
+                set.add(targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, fieldEdge, set);
+                sourceMetamodelVertex.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
+                        inverseCollection = new HashSet(0);
                     }
+                    inverseCollection.add(sourceEntity.getEntity());
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
                 });
             }
         }

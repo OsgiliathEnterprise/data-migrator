@@ -24,6 +24,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -69,7 +70,7 @@ public class SinkEntityInjector {
         if (!leafElements.hasNext()) {
             modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(v -> {
                 TinkerVertex modelVertex = (TinkerVertex) v;
-                vertexPersister.persistVertex(modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
+                vertexPersister.persistVertex((ModelElement)modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
             });
             return;
         }
@@ -81,27 +82,22 @@ public class SinkEntityInjector {
                 return modelVertex;
             }).forEach(e -> {
                 TinkerVertex modelVertex = (TinkerVertex) e;
-                vertexPersister.persistVertex(modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
+                vertexPersister.persistVertex((ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
                 processedVertices.add(modelVertex);
             });
         processEntities(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
     void updateRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
-        Object sourceEntity = modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+        ModelElement sourceEntity = (ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
         MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
-        sourceMetamodelVertex.getOutboundEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
-            StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldEdge().getFieldName()),0),false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+        sourceMetamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
+            StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()),0),false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
         ).forEach(modelAndMetamodelEdge -> {
             log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
-                try {
-                    Object targetEntity = modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-                    modelAndMetamodelEdge.getMetamodelEdge().setEdgeBetweenEntities(sourceMetamodelVertex, sourceEntity, targetEntity);
-                } catch (InvocationTargetException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
+            ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+            modelAndMetamodelEdge.getMetamodelEdge().setEdgeBetweenEntities(sourceMetamodelVertex, sourceEntity, targetEntity, entityMetamodelGraph);
+
         });
     }
 

@@ -20,15 +20,17 @@ package net.osgiliath.migrator.core.api.metamodel.model;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import org.jgrapht.Graph;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 public interface MetamodelVertex {
 
-    Collection<OutboundEdge> getOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph);
+    Collection<FieldEdge> getOutboundFieldEdges(Graph<MetamodelVertex, FieldEdge> graph);
 
     String getTypeName();
 
@@ -42,4 +44,10 @@ public interface MetamodelVertex {
      * @return Additional properties to display in the model graph (Key: property name, Value: property value).
      */
     Map<String, Object> getAdditionalModelVertexProperties(Object entity);
+
+    RelationshipType relationshipType(Method getterMethod);
+
+    Optional<FieldEdge> getInverseFieldEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge> graph);
+
+    Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph);
 }

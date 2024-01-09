@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.modelgraph.model;
+package net.osgiliath.migrator.core.modelgraph;
 
 /*-
  * #%L
@@ -20,24 +20,20 @@ package net.osgiliath.migrator.core.modelgraph.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import org.springframework.stereotype.Component;
 
-public class ModelVertex {
-    private final MetamodelVertex metamodelVertex;
-    private final Object entity;
+@Component
+public class ModelElementFactory {
 
-    public ModelVertex(MetamodelVertex metamodelVertex, Object entity) {
-        this.metamodelVertex = metamodelVertex;
-        this.entity = entity;
+    private final JpaEntityHelper jpaEntityHelper;
+
+    public ModelElementFactory(JpaEntityHelper jpaEntityHelper) {
+        this.jpaEntityHelper = jpaEntityHelper;
     }
 
-    public MetamodelVertex getMetamodelVertex() {
-        return metamodelVertex;
+    public ModelElement createModelElement(Object entity) {
+        return new ModelElement(entity, jpaEntityHelper);
     }
-
-
-    public Object getEntity() {
-        return entity;
-    }
-
 }

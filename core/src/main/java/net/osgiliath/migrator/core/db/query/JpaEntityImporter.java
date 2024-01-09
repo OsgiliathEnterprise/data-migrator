@@ -31,6 +31,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import net.osgiliath.migrator.core.modelgraph.ModelElementFactory;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -45,20 +47,19 @@ import java.util.Optional;
 public class JpaEntityImporter implements EntityImporter {
 
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(JpaEntityImporter.class);
-    private final LocalContainerEntityManagerFactoryBean sessionFactory;
     private final JpaEntityHelper hibernateEntityHelper;
+    private final ModelElementFactory modelElementFactory;
 
     @PersistenceContext(unitName = "source")
     private EntityManager entityManager;
 
-    public JpaEntityImporter(@Qualifier("sourceEntityManagerFactory")LocalContainerEntityManagerFactoryBean sourceSessionFactory, JpaEntityHelper hibernateEntityHelper) {
-        this.sessionFactory = sourceSessionFactory;
+    public JpaEntityImporter(JpaEntityHelper hibernateEntityHelper, ModelElementFactory modelElementFactory) {
         this.hibernateEntityHelper = hibernateEntityHelper;
+        this.modelElementFactory = modelElementFactory;
     }
 
-    public List<?> importEntities(MetamodelVertex entityVertex, List<Object> objectToExclude) {
+    public List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
-        EntityManagerFactory emf = sessionFactory.getObject();
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = builder.createQuery(((JpaMetamodelVertex)entityVertex).getEntityClass());
         Root root = query.from(((JpaMetamodelVertex)entityVertex).getEntityClass());
@@ -70,29 +71,17 @@ public class JpaEntityImporter implements EntityImporter {
         }
         List<?> resultList = entityManager.createQuery(select).getResultList();
         log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
-        return resultList;
+        return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
     }
 
-    private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<Object> objectToExclude, CriteriaBuilder builder, Root root) {
-        String primaryKeyField = hibernateEntityHelper.getPrimaryKeyFieldName(((JpaMetamodelVertex)entityVertex).getEntityClass());
-        Method primaryKeyGetter = hibernateEntityHelper.getPrimaryKeyGetterMethod(((JpaMetamodelVertex)entityVertex).getEntityClass());
+    private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
+        String primaryKeyField = ((JpaMetamodelVertex)entityVertex).getPrimaryKeyField();
         return objectToExclude.stream()
             .map(object ->
-            {
-                try {
-                    return Optional.of(
                         builder.not(
                             builder.equal(
-                                root.get(primaryKeyField), primaryKeyGetter.invoke(object))));
-                } catch (IllegalAccessException e) {
-                    log.info("Error while trying to exclude already loaded entities, looks like the primary key getter is not accessible", e);
-                    // Do nothing
-                } catch (InvocationTargetException e) {
-                    log.info("Error while trying to exclude already loaded entities, looks like the the primary key getter does not exists", e);
-                    // Do nothing
-                }
-                return Optional.<Predicate> empty();
-            }).filter(Optional::isPresent).map(Optional::get).toList();
+                                root.get(primaryKeyField), object.getId()))
+            ).toList();
 
     }
 }

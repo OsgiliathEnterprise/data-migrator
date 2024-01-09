@@ -235,4 +235,8 @@ public class JpaEntityHelper {
             throw new RuntimeException("No setter with name "+ fieldToSetter(field.getName()) +" in class " + entityClass.getSimpleName());
         });
     }
+
+    public Object getId(Object entity) {
+        return getId(entity.getClass(), entity);
+    }
 }

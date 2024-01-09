@@ -27,9 +27,9 @@ import java.util.Collection;
 public class MetamodelVertexAndEntities {
 
     private final MetamodelVertex metamodelVertex;
-    private final Collection<?> entities;
+    private final Collection<ModelElement> entities;
 
-    public MetamodelVertexAndEntities(MetamodelVertex metamodelVertex, Collection<?> entities) {
+    public MetamodelVertexAndEntities(MetamodelVertex metamodelVertex, Collection<ModelElement> entities) {
         this.metamodelVertex = metamodelVertex;
         this.entities = entities;
     }
@@ -38,7 +38,7 @@ public class MetamodelVertexAndEntities {
         return metamodelVertex;
     }
 
-    public Collection<?> getEntities() {
+    public Collection<ModelElement> getEntities() {
         return entities;
     }
 

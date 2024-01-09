@@ -20,18 +20,20 @@ package net.osgiliath.migrator.core.api.transformers.internal.model;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 
-public class MetamodelVertexAndEntityAndColumnNameAndFieldValue<ENTITY_TYPE, FIELD_TYPE> {
+public class MetamodelVertexAndEntityAndColumnNameAndFieldValue<FIELD_TYPE> {
     private final MetamodelVertex jpaMetamodelVertex;
-    private final ENTITY_TYPE entity;
-    private final String columnName;
+    private final ModelElement entity;
+    private final FieldEdge column;
     private final FIELD_TYPE fieldValue;
 
-    public MetamodelVertexAndEntityAndColumnNameAndFieldValue(MetamodelVertex jpaMetamodelVertex, ENTITY_TYPE entity, String columnName, FIELD_TYPE fieldValue) {
+    public MetamodelVertexAndEntityAndColumnNameAndFieldValue(MetamodelVertex jpaMetamodelVertex, ModelElement entity, FieldEdge column, FIELD_TYPE fieldValue) {
         this.jpaMetamodelVertex = jpaMetamodelVertex;
         this.entity = entity;
-        this.columnName = columnName;
+        this.column = column;
         this.fieldValue = fieldValue;
     }
 
@@ -39,12 +41,12 @@ public class MetamodelVertexAndEntityAndColumnNameAndFieldValue<ENTITY_TYPE, FIE
         return jpaMetamodelVertex;
     }
 
-    public ENTITY_TYPE getEntity() {
+    public ModelElement getEntity() {
         return entity;
     }
 
-    public String getColumnName() {
-        return columnName;
+    public FieldEdge getColumn() {
+        return column;
     }
 
     public FIELD_TYPE getFieldValue() {

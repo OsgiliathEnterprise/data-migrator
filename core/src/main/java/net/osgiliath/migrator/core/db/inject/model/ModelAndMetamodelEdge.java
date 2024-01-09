@@ -20,14 +20,15 @@ package net.osgiliath.migrator.core.db.inject.model;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 
 public class ModelAndMetamodelEdge {
     private final Edge edge;
-    private final OutboundEdge metamodelEdge;
+    private final FieldEdge metamodelEdge;
 
-    public ModelAndMetamodelEdge(Edge modelEdge, OutboundEdge metamodelEdge) {
+    public ModelAndMetamodelEdge(Edge modelEdge, FieldEdge metamodelEdge) {
         this.edge = modelEdge;
         this.metamodelEdge = metamodelEdge;
     }
@@ -36,7 +37,7 @@ public class ModelAndMetamodelEdge {
         return edge;
     }
 
-    public OutboundEdge getMetamodelEdge() {
+    public FieldEdge getMetamodelEdge() {
         return metamodelEdge;
     }
 }

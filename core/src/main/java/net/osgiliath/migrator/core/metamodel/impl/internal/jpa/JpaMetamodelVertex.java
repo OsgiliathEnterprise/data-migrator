@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
@@ -44,7 +45,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     private final JpaMetamodelVertexFactory jpaMetamodelVertexFactory;
 
 
-    private Map<Graph, Collection<OutboundEdge>> outboundEdges = new HashMap<>();
+    private Map<Graph, Collection<FieldEdge>> outboundEdges = null;
 
     public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityHelper jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
         this.metamodelClass = metamodelClass;
@@ -61,22 +62,21 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         return metamodelClass;
     }
 
-    public Collection<OutboundEdge> getOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph) {
-        if (!outboundEdges.containsKey(graph)) {
-            outboundEdges.put(graph, computeOutboundEdges(graph));
-        }
-        return outboundEdges.get(graph);
+    public Collection<FieldEdge> getOutboundFieldEdges(Graph<MetamodelVertex, FieldEdge> graph) {
+        return graph.outgoingEdgesOf(this);
     }
 
-    private Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph) {
-        Collection<OutboundEdge> outboundEdges = new HashSet<>();
-        Stream.of(getMetamodelClass().getDeclaredFields()).flatMap(f -> targetTypeOfMetamodelField(f).map(targetType -> new FieldAndTargetType(f, targetType)).stream())
+    public Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph) {
+       return Stream.of(getMetamodelClass().getDeclaredFields())
+               .flatMap(f -> targetTypeOfMetamodelField(f)
+                       .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
             .flatMap(t ->
                 graph.vertexSet().stream().filter(candidateVertex -> ((JpaMetamodelVertex)candidateVertex).getEntityClass().equals(t.getTargetType()))
                     .filter(targetMetamodelVertex -> !jpaEntityHelper.isDerived(getEntityClass(), t.getField().getName()))
-                    .map(targetMetamodelVertex -> jpaMetamodelVertexFactory.createMetamodelEdge(new FieldEdge(t.getField()), targetMetamodelVertex))
-            ).collect(Collectors.toCollection(() -> outboundEdges));
-        return outboundEdges;
+                    .map(targetMetamodelVertex ->
+                        jpaMetamodelVertexFactory.createMetamodelEdge(new FieldEdge(t.getField()), targetMetamodelVertex)
+                    )
+            ).collect(Collectors.toSet());
     }
 
     public boolean isEntity() {
@@ -104,6 +104,20 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     @Override
     public Map<String, Object> getAdditionalModelVertexProperties(Object entity) {
         return new HashMap<>();
+    }
+
+    @Override
+    public RelationshipType relationshipType(Method getterMethod) {
+        return jpaEntityHelper.relationshipType(getterMethod);
+    }
+
+
+    @Override
+    public Optional<FieldEdge> getInverseFieldEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge> graph) {
+        Method getterMethod = this.relationshipGetter(fieldEdge);
+        return jpaEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass()).flatMap(
+                f -> targetVertex.getOutboundFieldEdges(graph).stream().filter(e -> e.getFieldName().equals(f.getName())).findAny()
+        );
     }
 
     @Override
@@ -137,5 +151,9 @@ public class JpaMetamodelVertex implements MetamodelVertex {
             "metamodelClass=" + metamodelClass.getName() +
             ", entityClass=" + entityClass.getName() +
             '}';
+    }
+
+    public String getPrimaryKeyField() {
+        return jpaEntityHelper.getPrimaryKeyFieldName(this.getEntityClass());
     }
 }

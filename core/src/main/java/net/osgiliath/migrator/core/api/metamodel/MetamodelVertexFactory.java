@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.api.metamodel;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 
 public interface MetamodelVertexFactory {

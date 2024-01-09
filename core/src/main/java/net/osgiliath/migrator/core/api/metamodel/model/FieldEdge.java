@@ -20,9 +20,16 @@ package net.osgiliath.migrator.core.api.metamodel.model;
  * #L%
  */
 
+import jakarta.persistence.Persistence;
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class FieldEdge extends DefaultEdge {
     private final Field metamodelField;
@@ -37,5 +44,63 @@ public class FieldEdge extends DefaultEdge {
 
     public String getFieldName() {
         return metamodelField.getName();
+    }
+
+    public MetamodelVertex getSource() {
+        return (MetamodelVertex) super.getSource();
+    }
+
+    public MetamodelVertex getTarget() {
+        return (MetamodelVertex) super.getTarget();
+    }
+
+    public RelationshipType getRelationshipType(MetamodelVertex sourceMetamodelVertex) {
+        Method getterMethod = sourceMetamodelVertex.relationshipGetter(this);
+        return sourceMetamodelVertex.relationshipType(getterMethod);
+    }
+
+    public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge> graph) {
+        RelationshipType relationshipType = getRelationshipType(sourceMetamodelVertex);
+        MetamodelVertex targetVertex = graph.getEdgeTarget(this);
+        switch (relationshipType) {
+            case ONE_TO_ONE -> {
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getEntity());
+                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity());
+                });
+            }
+            case ONE_TO_MANY -> {
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, this);
+                set.add(targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
+                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity());
+                });
+            }
+            case MANY_TO_ONE -> {
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getEntity());
+                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
+                        inverseCollection = new HashSet(0);
+                    }
+                    inverseCollection.add(sourceEntity.getEntity());
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
+                });
+            }
+            case MANY_TO_MANY -> {
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, this);
+                set.add(targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
+                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
+                        inverseCollection = new HashSet(0);
+                    }
+                    inverseCollection.add(sourceEntity.getEntity());
+                    targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
+                });
+            }
+        }
     }
 }

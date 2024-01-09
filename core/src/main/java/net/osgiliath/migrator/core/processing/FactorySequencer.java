@@ -23,10 +23,11 @@ package net.osgiliath.migrator.core.processing;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.configuration.AbstractTransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import org.jgrapht.Graph;
 
 public interface FactorySequencer {
     boolean canHandle(Class beanClass);
 
-    Object createSequencerBean(Class beanClass, AbstractTransformationConfigurationDefinition definition, Class entityClass, Object entity, String columnName, Graph<MetamodelVertex, FieldEdge> metamodelGraph);
+    Object createSequencerBean(Class beanClass, AbstractTransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName);
 }

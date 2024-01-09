@@ -1,0 +1,153 @@
+package net.osgiliath.migrator.core.modelgraph.model;
+
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerVertex;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+public class ModelElement {
+
+    private Object entity;
+    private final JpaEntityHelper jpaEntityHelper;
+
+    public ModelElement(Object entity, JpaEntityHelper jpaEntityHelper) {
+        this.entity = entity;
+        this.jpaEntityHelper = jpaEntityHelper;
+    }
+
+    public Object getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Object entity) {
+        this.entity = entity;
+    }
+
+    public void setFieldRawValue(MetamodelVertex entityClass, String fieldName, Object value) {
+        if (entityClass != null) {
+            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex)entityClass).getEntityClass(), entity, fieldName, value);
+        } else {
+            jpaEntityHelper.setFieldValue(entity.getClass(), entity, fieldName, value);
+        }
+    }
+
+    public void setEdgeRawValue(MetamodelVertex metamodelVertex, FieldEdge field, Object value) {
+        if (metamodelVertex != null) {
+            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex)metamodelVertex).getEntityClass(), entity, field.getFieldName(), value);
+        } else {
+            jpaEntityHelper.setFieldValue(entity.getClass(), entity, field.getFieldName(), value);
+        }
+    }
+
+    public void setEdgeValue(FieldEdge field, ModelElement value) {
+        if (field.getSource() != null) {
+            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex)field.getSource()).getEntityClass(), entity, field.getFieldName(), value.getEntity());
+        } else {
+            jpaEntityHelper.setFieldValue(entity.getClass(), entity, field.getFieldName(), value.getEntity());
+        }
+    }
+
+    public void setEdgeValues(FieldEdge field, Collection<ModelElement> value) {
+        if (field.getSource() != null) {
+            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex)field.getSource()).getEntityClass(), entity, field.getFieldName(), value.stream().map(ModelElement::getEntity).collect(Collectors.toSet()));
+        } else {
+            jpaEntityHelper.setFieldValue(entity.getClass(), entity, field.getFieldName(), value.stream().map(ModelElement::getEntity).collect(Collectors.toSet()));
+        }
+    }
+
+    public String toString() {
+        return entity.toString();
+    }
+
+    /**
+     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
+     * @param sourceMetamodelVertex
+     * @param fieldEdge
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
+     */
+    public Object getEdgeRawValue(MetamodelVertex sourceMetamodelVertex, FieldEdge fieldEdge) {
+        Method getterMethod = sourceMetamodelVertex.relationshipGetter(fieldEdge);
+        try {
+            return getterMethod.invoke(this.getEntity());
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+        /**
+     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
+     * @param sourceMetamodelVertex
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
+     */
+    public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName) {
+        return ((JpaMetamodelVertex)sourceMetamodelVertex).getFieldValue(entity, fieldName);
+    }
+
+    /**
+     * get the target vertex or vertices corresponding to the entity referenced by the fieldEdge
+     * @param fieldEdge
+     * @param modelGraph
+     * @return
+     */
+    public Object getEdgeValueFromModelElementRelationShip(FieldEdge fieldEdge, GraphTraversalSource modelGraph) {
+        Method getterMethod = fieldEdge.getSource().relationshipGetter(fieldEdge);
+        MetamodelVertex targetVertex = fieldEdge.getTarget();
+        try {
+            Object res =  getterMethod.invoke(this.getEntity());
+            if (res instanceof Collection) {
+                return ((Collection)res).stream()
+                        .flatMap(o -> modelGraph.V().hasLabel(targetVertex.getTypeName()).has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, jpaEntityHelper.getId(o)).toStream())
+                        .map(vx -> ((TinkerVertex)vx).values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next()).collect(Collectors.toSet());
+            } else if (res != null) {
+                return modelGraph.V().hasLabel(targetVertex.getTypeName()).has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, jpaEntityHelper.getId(res)).values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public Object getId() {
+        return getId(null);
+    }
+
+    public Object getId(MetamodelVertex metamodelVertex) {
+        if (metamodelVertex != null) {
+            return jpaEntityHelper.getId(((JpaMetamodelVertex)metamodelVertex).getEntityClass(), getEntity());
+        } else {
+            return jpaEntityHelper.getId(this.getClass(), getEntity());
+        }
+    }
+}

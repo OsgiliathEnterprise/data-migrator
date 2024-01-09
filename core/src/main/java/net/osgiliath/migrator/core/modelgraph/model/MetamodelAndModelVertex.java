@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.sourcedb;
+package net.osgiliath.migrator.core.modelgraph.model;
 
 /*-
  * #%L
@@ -21,11 +21,23 @@ package net.osgiliath.migrator.core.api.sourcedb;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 
-import java.util.List;
+public class MetamodelAndModelVertex {
+    private final MetamodelVertex metamodelVertex;
+    private final ModelElement entity;
 
-public interface EntityImporter {
+    public MetamodelAndModelVertex(MetamodelVertex metamodelVertex, ModelElement entity) {
+        this.metamodelVertex = metamodelVertex;
+        this.entity = entity;
+    }
 
-    List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude);
+    public MetamodelVertex getMetamodelVertex() {
+        return metamodelVertex;
+    }
+
+
+    public ModelElement getModelElement() {
+        return entity;
+    }
+
 }

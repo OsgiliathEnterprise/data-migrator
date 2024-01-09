@@ -11,6 +11,7 @@ import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import net.osgiliath.repository.CountryRepository;
@@ -133,7 +134,7 @@ class MetamodelT {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
         MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals("Employee")).findFirst().get();
-        List<?> entities = entityImporter.importEntities(entityVertex, new ArrayList<>());
+        List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>());
         assertThat(entities).isNotEmpty();
     }
 }

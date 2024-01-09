@@ -24,10 +24,11 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.jgrapht.Graph;
 
-public class ColumnFaker extends AbstractFaker<Object, Object> {
+public class ColumnFaker extends AbstractFaker<Object> {
 
-	public ColumnFaker(String entityName, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
-		super(entityName, columnName, metaModelGraph);
+
+	public ColumnFaker(MetamodelVertex metamodel, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
+		super(metamodel, columnName, metaModelGraph);
 	}
 
 	@Override

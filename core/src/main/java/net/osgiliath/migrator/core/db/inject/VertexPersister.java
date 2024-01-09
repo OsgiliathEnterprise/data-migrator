@@ -22,6 +22,7 @@ package net.osgiliath.migrator.core.db.inject;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,7 @@ public class VertexPersister {
     private EntityManager entityManager;
 
     @Transactional(transactionManager = "sinkTransactionManager")
-    public void persistVertex(Object entity) {
-        entityManager.persist(entity);
+    public void persistVertex(ModelElement entity) {
+        entityManager.persist(entity.getEntity());
     }
 }

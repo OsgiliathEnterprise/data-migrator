@@ -49,9 +49,9 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
         return metamodelClassToEntityVertexAdapter(metamodelClass).orElseThrow(() -> new IllegalArgumentException("Cannot create a metamodel vertex for metamodel class " + metamodelClass.getName()));
     }
 
-        public OutboundEdge createMetamodelEdge(FieldEdge fieldEdge, MetamodelVertex targetMetamodelVertex) {
+    public OutboundEdge createMetamodelEdge(FieldEdge fieldEdge, MetamodelVertex targetMetamodelVertex) {
         log.info("Creating a new field edge {} with target metamodel class {}", fieldEdge.getFieldName(), targetMetamodelVertex.getTypeName());
-        return new OutboundEdge(fieldEdge, targetMetamodelVertex, hibernateEntityHelper);
+        return new OutboundEdge(fieldEdge, targetMetamodelVertex);
     }
 
 

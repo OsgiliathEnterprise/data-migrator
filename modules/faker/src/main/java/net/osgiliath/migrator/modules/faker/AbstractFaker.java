@@ -36,9 +36,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Random;
 
-public abstract class AbstractFaker<TABLE, COLUMN_TYPE> extends JpaEntityColumnTransformer<TABLE, COLUMN_TYPE> {
-	public AbstractFaker(String entityName, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
-		super(entityName, columnName, metaModelGraph);
+public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransformer<COLUMN_TYPE> {
+
+	public AbstractFaker(MetamodelVertex metamodel, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
+		super(metamodel, columnName, metaModelGraph);
 	}
 
 	protected String fake(String value) {

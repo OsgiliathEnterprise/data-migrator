@@ -27,8 +27,8 @@ import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransform
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
 import net.osgiliath.migrator.core.processing.model.VertexAndSequencerBeanClass;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -37,7 +37,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -69,23 +68,23 @@ public class SequenceProcessor {
                 ).flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.getSequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .forEach(vertexAndSequencerBean -> {
-                    Class entityClass = ((JpaMetamodelVertex) vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX)).getEntityClass();
+                    MetamodelVertex metamodelVertex = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
                     Collection beans = new HashSet<>();
-                    Object entity = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+                    ModelElement entity = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
                     if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
                         beans.addAll(context.getBeansOfType(vertexAndSequencerBean.getBeanClass()).values());
                     } else if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.FACTORY)) {
                         if (vertexAndSequencerBean.getDefinition().getColumns().isEmpty()) {
-                            beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), entityClass, entity, null, metamodelGraph));
+                            beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, null));
                         } else {
                             for (String columnName : vertexAndSequencerBean.getDefinition().getColumns()) {
-                                beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), entityClass, entity, columnName, metamodelGraph));
+                                beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, columnName));
                             }
                         }
                     }
                     for (Object bean : beans) {
                         if (bean instanceof MetamodelColumnCellTransformer) {
-                            processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) bean, entity, entityClass);
+                            processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) bean, entity, metamodelVertex);
                         } else if (bean instanceof JpaEntityColumnTransformer) {
                             processJpaEntityColumnTransformer((JpaEntityColumnTransformer) bean, entity);
                         }
@@ -93,18 +92,13 @@ public class SequenceProcessor {
                 });
     }
 
-    private void processJpaEntityColumnTransformer(JpaEntityColumnTransformer<Object, Object> bean, Object entity) {
+    private void processJpaEntityColumnTransformer(JpaEntityColumnTransformer<Object> bean, ModelElement entity) {
         bean.evaluate(entity);
     }
 
-    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, Object entity, Class entityClass) {
-        try {
-            Field attributeField = entityClass.getDeclaredField(String.valueOf(transformerBean.columnName()));
-            Object value = jpaEntityHelper.getFieldValue(entityClass, entity, String.valueOf(transformerBean.columnName()));
-            Object transformedValue = transformerBean.evaluate(value);
-            jpaEntityHelper.setFieldValue(entityClass, entity, attributeField, transformedValue);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
+    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity, MetamodelVertex metamodelVertex) {
+        Object value = entity.getFieldRawValue(metamodelVertex, transformerBean.columnName());
+        Object transformedValue = transformerBean.evaluate(value);
+        entity.setFieldRawValue(metamodelVertex, transformerBean.columnName(), transformedValue);
     }
 }
