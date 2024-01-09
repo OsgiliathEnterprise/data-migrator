@@ -25,23 +25,17 @@ import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import net.osgiliath.migrator.core.modelgraph.ModelElementFactory;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class JpaEntityImporter implements EntityImporter {

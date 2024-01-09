@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.modelgraph;
  */
 
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.springframework.stereotype.Component;
 
 @Component

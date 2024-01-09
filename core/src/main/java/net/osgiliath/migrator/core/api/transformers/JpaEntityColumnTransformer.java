@@ -23,7 +23,7 @@ package net.osgiliath.migrator.core.api.transformers;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.transformers.internal.CamelExchangeWrapper;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

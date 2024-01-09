@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.modelgraph;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;

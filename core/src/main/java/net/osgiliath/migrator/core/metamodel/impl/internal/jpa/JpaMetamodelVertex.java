@@ -71,7 +71,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
                 graph.vertexSet().stream().filter(candidateVertex -> ((JpaMetamodelVertex)candidateVertex).getEntityClass().equals(t.getTargetType()))
                     .filter(targetMetamodelVertex -> !jpaEntityHelper.isDerived(getEntityClass(), t.getField().getName()))
                     .map(targetMetamodelVertex ->
-                        jpaMetamodelVertexFactory.createMetamodelEdge(new FieldEdge(t.getField()), targetMetamodelVertex)
+                        jpaMetamodelVertexFactory.createOutboundEdge(jpaMetamodelVertexFactory.createFieldEdge(t.getField()), targetMetamodelVertex)
                     )
             ).collect(Collectors.toSet());
     }
@@ -98,7 +98,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
 
     @Override
     public Optional<FieldEdge> getInverseFieldEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge> graph) {
-        Method getterMethod = this.relationshipGetter(fieldEdge);
+        Method getterMethod = fieldEdge.relationshipGetter();
         return jpaEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex)targetVertex).getEntityClass()).flatMap(
                 f -> targetVertex.getOutboundFieldEdges(graph).stream().filter(e -> e.getFieldName().equals(f.getName())).findAny()
         );

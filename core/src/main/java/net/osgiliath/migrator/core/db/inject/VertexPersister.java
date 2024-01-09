@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.db.inject;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

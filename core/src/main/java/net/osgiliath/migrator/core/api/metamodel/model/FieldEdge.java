@@ -22,7 +22,9 @@ package net.osgiliath.migrator.core.api.metamodel.model;
 
 import jakarta.persistence.Persistence;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -33,9 +35,11 @@ import java.util.HashSet;
 
 public class FieldEdge extends DefaultEdge {
     private final Field metamodelField;
+    private final JpaEntityHelper jpaEntityHelper;
 
-    public FieldEdge(Field metamodelField) {
-        this.metamodelField = metamodelField;
+    public FieldEdge(JpaEntityHelper jpaEntityHelper, Field field) {
+        this.metamodelField = field;
+        this.jpaEntityHelper = jpaEntityHelper;
     }
 
     public Field getMetamodelField() {
@@ -54,13 +58,17 @@ public class FieldEdge extends DefaultEdge {
         return (MetamodelVertex) super.getTarget();
     }
 
-    public RelationshipType getRelationshipType(MetamodelVertex sourceMetamodelVertex) {
-        Method getterMethod = sourceMetamodelVertex.relationshipGetter(this);
-        return sourceMetamodelVertex.relationshipType(getterMethod);
+    public Method relationshipGetter() {
+        return jpaEntityHelper.getterMethod(((JpaMetamodelVertex)this.getSource()).getEntityClass(), this.getMetamodelField());
+    }
+
+    public RelationshipType getRelationshipType() {
+        Method getterMethod = relationshipGetter();
+        return this.getSource().relationshipType(getterMethod);
     }
 
     public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge> graph) {
-        RelationshipType relationshipType = getRelationshipType(sourceMetamodelVertex);
+        RelationshipType relationshipType = getRelationshipType();
         MetamodelVertex targetVertex = graph.getEdgeTarget(this);
         switch (relationshipType) {
             case ONE_TO_ONE -> {
@@ -70,7 +78,7 @@ public class FieldEdge extends DefaultEdge {
                 });
             }
             case ONE_TO_MANY -> {
-                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, this);
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
                 set.add(targetEntity.getEntity());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
@@ -80,7 +88,7 @@ public class FieldEdge extends DefaultEdge {
             case MANY_TO_ONE -> {
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getEntity());
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
-                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);
                     }
@@ -89,11 +97,11 @@ public class FieldEdge extends DefaultEdge {
                 });
             }
             case MANY_TO_MANY -> {
-                Collection set = (Collection) sourceEntity.getEdgeRawValue(sourceMetamodelVertex, this);
+                Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
                 set.add(targetEntity.getEntity());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
-                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(targetVertex, inverseFieldEdge);
+                    Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity,inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);
                     }

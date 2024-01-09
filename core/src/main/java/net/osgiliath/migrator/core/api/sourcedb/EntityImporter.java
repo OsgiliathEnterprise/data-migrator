@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.api.sourcedb;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 
 import java.util.List;
 

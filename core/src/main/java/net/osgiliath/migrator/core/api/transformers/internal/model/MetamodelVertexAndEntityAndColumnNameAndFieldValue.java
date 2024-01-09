@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.api.transformers.internal.model;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 
 public class MetamodelVertexAndEntityAndColumnNameAndFieldValue<FIELD_TYPE> {
     private final MetamodelVertex jpaMetamodelVertex;

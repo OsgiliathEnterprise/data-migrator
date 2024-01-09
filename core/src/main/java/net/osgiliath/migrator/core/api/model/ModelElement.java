@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.modelgraph.model;
+package net.osgiliath.migrator.core.api.model;
 
 /*-
  * #%L
@@ -93,8 +93,8 @@ public class ModelElement {
      * @param fieldEdge
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
      */
-    public Object getEdgeRawValue(MetamodelVertex sourceMetamodelVertex, FieldEdge fieldEdge) {
-        Method getterMethod = sourceMetamodelVertex.relationshipGetter(fieldEdge);
+    public Object getEdgeRawValue(FieldEdge fieldEdge) {
+        Method getterMethod = fieldEdge.relationshipGetter();
         try {
             return getterMethod.invoke(this.getEntity());
         } catch (IllegalAccessException e) {
@@ -120,7 +120,7 @@ public class ModelElement {
      * @return
      */
     public Object getEdgeValueFromModelElementRelationShip(FieldEdge fieldEdge, GraphTraversalSource modelGraph) {
-        Method getterMethod = fieldEdge.getSource().relationshipGetter(fieldEdge);
+        Method getterMethod = fieldEdge.relationshipGetter();
         MetamodelVertex targetVertex = fieldEdge.getTarget();
         try {
             Object res =  getterMethod.invoke(this.getEntity());

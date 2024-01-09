@@ -23,7 +23,7 @@ package net.osgiliath.migrator.modules.faker;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.configuration.AbstractTransformationConfigurationDefinition;
-import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.processing.FactorySequencer;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Component;

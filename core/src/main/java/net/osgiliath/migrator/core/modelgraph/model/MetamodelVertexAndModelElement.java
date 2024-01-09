@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.modelgraph.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 
 public class MetamodelVertexAndModelElement {
     private final MetamodelVertex metamodelVertex;
