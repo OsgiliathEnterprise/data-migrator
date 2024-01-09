@@ -20,18 +20,33 @@ package net.osgiliath.migrator.core.modelgraph.model;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-public class SourceVertexEdgeAndTargetVertices extends EdgeTargetVertices {
-    private final Vertex sourceVertex;
+import java.util.Collection;
 
-    public SourceVertexEdgeAndTargetVertices(Vertex sourceVertex, EdgeTargetVertices edgeAndTargetVertices) {
-        super(edgeAndTargetVertices.getEdge(), edgeAndTargetVertices.getTargetVertices());
-        this.sourceVertex = sourceVertex;
+public class FieldEdgeTargetVertices {
+    private FieldEdge edge;
+    private Collection<Vertex> targetVertices;
+
+    public FieldEdgeTargetVertices(FieldEdge edge, Collection<Vertex> targetVertices) {
+        this.edge = edge;
+        this.targetVertices = targetVertices;
     }
 
-    public Vertex getSourceVertex() {
-        return sourceVertex;
+    public FieldEdge getEdge() {
+        return edge;
     }
 
+    public void setEdge(FieldEdge edge) {
+        this.edge = edge;
+    }
+
+    public Collection<Vertex> getTargetVertices() {
+        return targetVertices;
+    }
+
+    public void setTargetVertices(Collection<Vertex> targetVertices) {
+        this.targetVertices = targetVertices;
+    }
 }

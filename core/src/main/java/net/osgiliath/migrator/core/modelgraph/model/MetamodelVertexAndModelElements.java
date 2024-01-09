@@ -22,22 +22,24 @@ package net.osgiliath.migrator.core.modelgraph.model;
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 
-public class MetamodelAndModelVertex {
-    private final MetamodelVertex metamodelVertex;
-    private final ModelElement entity;
+import java.util.Collection;
 
-    public MetamodelAndModelVertex(MetamodelVertex metamodelVertex, ModelElement entity) {
+public class MetamodelVertexAndModelElements {
+
+    private final MetamodelVertex metamodelVertex;
+    private final Collection<ModelElement> entities;
+
+    public MetamodelVertexAndModelElements(MetamodelVertex metamodelVertex, Collection<ModelElement> entities) {
         this.metamodelVertex = metamodelVertex;
-        this.entity = entity;
+        this.entities = entities;
     }
 
     public MetamodelVertex getMetamodelVertex() {
         return metamodelVertex;
     }
 
-
-    public ModelElement getModelElement() {
-        return entity;
+    public Collection<ModelElement> getEntities() {
+        return entities;
     }
 
 }

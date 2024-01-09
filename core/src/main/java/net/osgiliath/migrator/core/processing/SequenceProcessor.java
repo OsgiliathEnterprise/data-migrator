@@ -29,7 +29,9 @@ import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.modelgraph.model.ModelElement;
+import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
+import net.osgiliath.migrator.core.processing.model.SequencersBeansMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.VertexAndSequencerBeanClass;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -44,13 +46,11 @@ import java.util.HashSet;
 public class SequenceProcessor {
     private final DataMigratorConfiguration dataMigratorConfiguration;
     private final ApplicationContext context;
-    private final JpaEntityHelper jpaEntityHelper;
     private final SequencerFactory sequencerFactory;
 
-    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, JpaEntityHelper jpaEntityHelper, SequencerFactory sequencerFactory) {
+    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.context = context;
-        this.jpaEntityHelper = jpaEntityHelper;
         this.sequencerFactory = sequencerFactory;
     }
 
@@ -59,18 +59,18 @@ public class SequenceProcessor {
         dataMigratorConfiguration.getSequence().stream()
             .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
                 .map(seq -> {
-                            try {
-                                return new SequencerDefinitionAndBean(seq, Class.forName(seq.getTransformerClass()));
-                            } catch (ClassNotFoundException e) {
-                                throw new RuntimeException(e);
-                            }
+                        try {
+                            return new SequencerDefinitionAndBean(seq, Class.forName(seq.getTransformerClass()));
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
                         }
+                    }
                 ).flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.getSequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
-                .forEach(vertexAndSequencerBean -> {
+                .map(vertexAndSequencerBean -> {
                     MetamodelVertex metamodelVertex = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-                    Collection beans = new HashSet<>();
                     ModelElement entity = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+                    Collection beans = new HashSet<>();
                     if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
                         beans.addAll(context.getBeansOfType(vertexAndSequencerBean.getBeanClass()).values());
                     } else if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.FACTORY)) {
@@ -82,13 +82,17 @@ public class SequenceProcessor {
                             }
                         }
                     }
-                    for (Object bean : beans) {
-                        if (bean instanceof MetamodelColumnCellTransformer) {
-                            processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) bean, entity, metamodelVertex);
-                        } else if (bean instanceof JpaEntityColumnTransformer) {
-                            processJpaEntityColumnTransformer((JpaEntityColumnTransformer) bean, entity);
+                    return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
+                }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
+                        sequencersBeansMetamodelVertexAndEntity.getBeans().stream()
+                                .map(bean -> new SequencerBeanMetamodelVertexAndEntity(bean, sequencersBeansMetamodelVertexAndEntity.getMetamodelVertex(), sequencersBeansMetamodelVertexAndEntity.getEntity())))
+                .forEach(sbmvae -> {
+                        SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
+                        if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof MetamodelColumnCellTransformer) {
+                            processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.getBean(), sequencerBeanMetamodelVertexAndEntity.getEntity(), sequencerBeanMetamodelVertexAndEntity.getMetamodelVertex());
+                        } else if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof JpaEntityColumnTransformer) {
+                            processJpaEntityColumnTransformer((JpaEntityColumnTransformer) sequencerBeanMetamodelVertexAndEntity.getBean(), sequencerBeanMetamodelVertexAndEntity.getEntity());
                         }
-                    }
                 });
     }
 

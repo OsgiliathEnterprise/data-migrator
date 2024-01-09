@@ -44,9 +44,6 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     private final JpaEntityHelper jpaEntityHelper;
     private final JpaMetamodelVertexFactory jpaMetamodelVertexFactory;
 
-
-    private Map<Graph, Collection<FieldEdge>> outboundEdges = null;
-
     public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityHelper jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
         this.metamodelClass = metamodelClass;
         this.entityClass = entityClass;
@@ -86,19 +83,6 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     @Override
     public Method relationshipGetter(FieldEdge fieldEdge) {
         return jpaEntityHelper.getterMethod(getEntityClass(), fieldEdge.getMetamodelField());
-    }
-
-    @Override // TODO Should not be here, but in a model Vertex element wrapper
-    public Object getId(Object entity) {
-        return jpaEntityHelper.getId(getEntityClass(), entity);
-    }
-
-    public Object getFieldValue(Object entity, String attributeName) {
-        return jpaEntityHelper.getFieldValue(getEntityClass(), entity, attributeName);
-    }
-
-    public void setFieldValue(Object entity, String attributeName, Object value) {
-        jpaEntityHelper.setFieldValue(getEntityClass(), entity, attributeName, value);
     }
 
     @Override

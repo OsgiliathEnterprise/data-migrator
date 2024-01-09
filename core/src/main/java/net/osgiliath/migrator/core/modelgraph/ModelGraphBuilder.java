@@ -22,7 +22,6 @@ package net.osgiliath.migrator.core.modelgraph;
 
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
-import net.osgiliath.migrator.core.metamodel.helper.MetamodelVertexHelper;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.modelgraph.model.*;
@@ -51,12 +50,10 @@ public class ModelGraphBuilder {
     public static final String MODEL_GRAPH_EDGE_METAMODEL_FIELD = "field";
     public static final String MODEL_GRAPH_EDGE_METAMODEL_FIELD_NAME = "field_name";
     private final EntityImporter entityImporter;
-    private final MetamodelVertexHelper metamodelVertexHelper;
     private final GraphTraversalSourceProvider graphTraversalSource;
 
-    public ModelGraphBuilder(EntityImporter entityImporter, MetamodelVertexHelper metamodelVertexHelper, GraphTraversalSourceProvider graphTraversalSource) {
+    public ModelGraphBuilder(EntityImporter entityImporter, GraphTraversalSourceProvider graphTraversalSource) {
         this.entityImporter = entityImporter;
-        this.metamodelVertexHelper = metamodelVertexHelper;
         this.graphTraversalSource = graphTraversalSource;
     }
 
@@ -78,9 +75,9 @@ public class ModelGraphBuilder {
             log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.values(MODEL_GRAPH_VERTEX_ENTITY_ID).next());
             Collection<FieldEdge> edges = metamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().collect(Collectors.toList());
             return edges.stream().map(edge ->
-                new EdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
+                new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
             ).map(edgeAndTargetVertex ->
-                new SourceVertexEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
+                new SourceVertexFieldEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
         }).flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.getTargetVertices().stream().map(targetVertex -> new SourceVertexEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)))
         .forEach(sourceVertexEdgeAndTargetVertex ->
             sourceVertexEdgeAndTargetVertex.getSourceVertex().addEdge(sourceVertexEdgeAndTargetVertex.getEdge().getFieldName(), sourceVertexEdgeAndTargetVertex.getTargetVertex()).property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.getEdge().getMetamodelField())
@@ -128,8 +125,8 @@ public class ModelGraphBuilder {
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
         metamodelVertices.stream()
-            .map(mv -> new MetamodelVertexAndEntities(mv, entityImporter.importEntities(mv, new ArrayList<>())))
-            .flatMap(mvae -> mvae.getEntities().stream().map(entity -> new MetamodelAndModelVertex(mvae.getMetamodelVertex(), entity)))
+            .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
+            .flatMap(mvae -> mvae.getEntities().stream().map(entity -> new MetamodelVertexAndModelElement(mvae.getMetamodelVertex(), entity)))
             .forEach(
                 mvae -> {
                     Object entityId = mvae.getModelElement().getId(mvae.getMetamodelVertex());

@@ -110,7 +110,7 @@ public class ModelElement {
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
      */
     public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName) {
-        return ((JpaMetamodelVertex)sourceMetamodelVertex).getFieldValue(entity, fieldName);
+        return jpaEntityHelper.getFieldValue(((JpaMetamodelVertex)sourceMetamodelVertex).getEntityClass(), entity, fieldName);
     }
 
     /**

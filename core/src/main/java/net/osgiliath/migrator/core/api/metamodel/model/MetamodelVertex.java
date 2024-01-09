@@ -38,8 +38,6 @@ public interface MetamodelVertex {
 
     Method relationshipGetter(FieldEdge fieldEdge);
 
-    Object getId(Object entity);
-
     /**
      * @return Additional properties to display in the model graph (Key: property name, Value: property value).
      */
