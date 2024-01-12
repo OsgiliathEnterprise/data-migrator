@@ -56,7 +56,7 @@ jobs:
           release:perform \
           javadoc:jar \
           source:jar \
-          -s ./mvn/settings.xml \
+          -s ./.mvn/settings.xml \
           -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }} \
           -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
           -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
