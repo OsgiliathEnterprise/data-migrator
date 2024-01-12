@@ -45,7 +45,7 @@
 <scm>
   <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
   <url>https://github.com/OsgiliathEnterprise/data-migrator</url>
-  <developerConnection>scm:git:https://github.com:OsgiliathEnterprise/data-migrator.git</developerConnection>
+  <developerConnection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</developerConnection>
   <tag>HEAD</tag>
 </scm>
     <developers>
