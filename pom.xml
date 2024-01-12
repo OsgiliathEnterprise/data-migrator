@@ -3,20 +3,68 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-<parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.1</version>
-</parent>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.1</version>
+    </parent>
     <groupId>net.osgiliath.datamigrator</groupId>
     <artifactId>data-migrator</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <ciManagement>
+		<system>Github actions</system>
+		<url>https://github.com/OsgiliathEnterprise/data-migrator/actions</url>
+	</ciManagement>
+    <issueManagement>
+		<system>Github tickets</system>
+		<url>https://github.com/OsgiliathEnterprise/data-migrator/issues</url>
+	</issueManagement>
+    <licenses>
+		<license>
+			<name>Apache Licence 2.0</name>
+			<distribution>repo</distribution>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+		</license>
+	</licenses>
+        <distributionManagement>
+        <site>
+			<id>github-pages</id>
+			<name>Github GH Pages</name>
+			<url>scm:git:git@github.com:OsgiliathEnterprise/data-migrator.git</url>
+		</site>
+        <snapshotRepository>
+             <id>ossrh</id>
+             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          </snapshotRepository>
+          <repository>
+             <id>ossrh</id>
+             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+          </repository>
+    </distributionManagement>
+<scm>
+  <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
+  <url>https://github.com/OsgiliathEnterprise/data-migrator</url>
+  <developerConnection>scm:https://github.com:OsgiliathEnterprise/data-migrator.git</developerConnection>
+  <tag>HEAD</tag>
+</scm>
+    <developers>
+		<developer>
+			<id>cmordant</id>
+			<name>Charlie mordant</name>
+			<organization>Osgiliath.net</organization>
+			<organizationUrl>https://github.com/OsgiliathEnterprise</organizationUrl>
+            <email>cmordant1@gmail.com</email>
+			<roles>
+				<role>Architect</role>
+			</roles>
+		</developer>
+	</developers>
     <modules>
         <module>bom</module>
         <module>modules</module>
         <module>core</module>
-        <module>sample-mono</module>
+        <!-- <module>sample-mono</module> -->
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -73,6 +121,23 @@
         </testResources>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.6.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                  <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
@@ -317,6 +382,11 @@
                     <artifactId>properties-maven-plugin</artifactId>
                     <version>1.2.1</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -326,6 +396,85 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.13</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+                            <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5.3</version>
+                        <configuration>
+                            <tagNameFormat>@{project.version}</tagNameFormat>
+                            </configuration>
+                        <executions>
+                            <execution>
+                            <id>default</id>
+                            <goals>
+                               <goal>perform</goal>
+                            </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+					<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+                                <configuration>
+                                   <gpgArguments>
+                                      <arg>--pinentry-mode</arg>
+                                      <arg>loopback</arg>
+                                   </gpgArguments>
+                                </configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+    </profiles>
     <organization>
         <name>Osgiliath Inc.</name>
     </organization>
