@@ -36,8 +36,8 @@ The source and target database are started using test-containers when executing 
 
 ## Additional usefull commands
 
-* ./mvnw clean verify -Ptarget-data-changelog-target-db a liquibase schema changelog (including data) from target database for manual processing
-* ./mvnw clean verify -Ptarget-db-from-target-data-changelog a liquibase schema changelog (including data) from target database for manual processing
+* ./mvnw process-classes -Ptarget-data-changelog-target-db a liquibase schema changelog (including data) from target database for manual processing (unfortunately, the target/classes/config/liquibase-sink/changelog will have to be modified manually to remove the absolute path part of the <loadData/> sections)
+* ./mvnw process-classes -Ptarget-db-from-target-data-changelog -Dliquibase.duplicateFileMode=WARN a liquibase schema changelog (including data) from target database for manual processing
 
 
 * ./mvnw clean verify -Pdata-changelog-from-source-db to generate a liquibase changelog from source DATA

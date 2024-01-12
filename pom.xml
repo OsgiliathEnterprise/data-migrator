@@ -25,7 +25,7 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
 		</license>
 	</licenses>
-        <distributionManagement>
+    <distributionManagement>
         <site>
 			<id>github-pages</id>
 			<name>Github GH Pages</name>
@@ -40,12 +40,12 @@
              <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
           </repository>
     </distributionManagement>
-<scm>
-  <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
-  <url>https://github.com/OsgiliathEnterprise/data-migrator</url>
-  <developerConnection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</developerConnection>
-  <tag>HEAD</tag>
-</scm>
+    <scm>
+      <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
+      <url>https://github.com/OsgiliathEnterprise/data-migrator</url>
+      <developerConnection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</developerConnection>
+      <tag>HEAD</tag>
+    </scm>
     <developers>
 		<developer>
 			<id>cmordant</id>
@@ -284,8 +284,7 @@
                          <!--<referenceDriver>${source.database.driver}</referenceDriver>-->
                          <!--<referenceUsername>${source.datasource.username}</referenceUsername>-->
                          <!--<referencePassword>${source.datasource.password}</referencePassword>-->
-                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
-                         <!-- <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl> -->
+                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
                          <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                          <contexts>!test</contexts>
                          <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>

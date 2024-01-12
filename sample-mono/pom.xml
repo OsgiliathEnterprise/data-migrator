@@ -550,30 +550,87 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                         <!--set values for Liquibase properties and settings
-                         for example, the location of a properties file to use-->
-                         <changeLogFile>/config/liquibase/master-sink.xml</changeLogFile>
-                         <diffChangeLogFile>/config/liquibase/changelog-sink/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
-                         <outputChangeLogFile>/config/liquibase/changelog-sink/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
-                         <dataDir>/config/liquibase/data-sink</dataDir>
-                         <driver>${target.database.driver}</driver>
-                         <url>${target.database.url}</url>
-                         <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
-                         <username>${target.datasource.username}</username>
-                         <password>${target.datasource.password}</password>
-                         <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
-                         <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
-                         <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
-                         <!-- <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl> -->
-                         <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
-                         <contexts>!test</contexts>
-                         <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
-                         <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
-                         <includeCatalog>true</includeCatalog>
-                         <outputDirectory>/config/liquibase/changelogtarget</outputDirectory>
-                     </configuration>
+                            <configuration>
+                             <!--set values for Liquibase properties and settings
+                             for example, the location of a properties file to use-->
+                            <duplicateFileMode>WARN</duplicateFileMode>
+                             <changeLogFile>${project.build.directory}/classes/config/liquibase-sink/master.xml</changeLogFile>
+                             <diffChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
+                             <outputChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
+                             <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
+                             <driver>${target.database.driver}</driver>
+                             <url>${target.database.url}</url>
+                             <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
+                             <username>${target.datasource.username}</username>
+                             <password>${target.datasource.password}</password>
+                             <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
+                             <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
+                             <!--<referencePassword>${target.datasource.password}</referencePassword>-->
+                             <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                             <overwriteOutputFile>true</overwriteOutputFile>
+                             <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
+                             <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
+                             <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
+                             <includeCatalog>true</includeCatalog>
+                             <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink</outputDirectory>
+                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${spring-boot.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>target-db-from-target-data-changelog</id>
+            <build>
+                <plugins>
+                    <plugin>
+                         <groupId>org.liquibase</groupId>
+                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-changelog</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                            <configuration>
+                             <!--set values for Liquibase properties and settings
+                             for example, the location of a properties file to use-->
+                             <changeLogFile>/config/liquibase-sink/master.xml</changeLogFile>
+                             <diffChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
+                             <outputChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
+                             <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
+                             <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink</outputDirectory>
+                             <driver>${target.database.driver}</driver>
+                             <url>${target.database.url}</url>
+                             <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
+                             <username>${target.datasource.username}</username>
+                             <password>${target.datasource.password}</password>
+                             <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
+                             <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
+                             <!--<referencePassword>${target.datasource.password}</referencePassword>-->
+                             <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                             <overwriteOutputFile>true</overwriteOutputFile>
+                             <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
+                             <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
+                             <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
+                             <includeCatalog>true</includeCatalog>
+                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${spring-boot.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>

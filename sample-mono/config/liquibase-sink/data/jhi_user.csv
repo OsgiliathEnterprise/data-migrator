@@ -1,0 +1,3 @@
+"activated","created_date","id","last_modified_date","reset_date","lang_key","activation_key","reset_key","created_by","first_name","last_modified_by","last_name","login","password_hash","email","image_url"
+"1","NULL","1","NULL","NULL","en","NULL","NULL","system","Administrator","system","Administrator","admin","$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC","admin@localhost",""
+"1","NULL","2","NULL","NULL","en","NULL","NULL","system","User","system","User","user","$2a$10$VEjxo0jq2YG9Rbk2HmX9S.k1uZBGYUHdUcid3g/vfiEl7lwWgOH/K","user@localhost",""
