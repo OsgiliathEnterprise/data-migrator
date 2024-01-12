@@ -25,28 +25,42 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.Collection;
 
+/**
+ * Field edge and target vertices (entity definition).
+ */
 public class FieldEdgeTargetVertices {
+    /**
+     * Field edge.
+     */
     private FieldEdge edge;
+    /**
+     * Target vertices (entity definitions).
+     */
     private Collection<Vertex> targetVertices;
 
+    /**
+     * Constructor.
+     * @param edge the field edge.
+     * @param targetVertices the target vertices (entity definitions).
+     */
     public FieldEdgeTargetVertices(FieldEdge edge, Collection<Vertex> targetVertices) {
         this.edge = edge;
         this.targetVertices = targetVertices;
     }
 
+    /**
+     * Gets the field edge.
+     * @return the field edge.
+     */
     public FieldEdge getEdge() {
         return edge;
     }
 
-    public void setEdge(FieldEdge edge) {
-        this.edge = edge;
-    }
-
+    /**
+     * Get the target vertices (entity definitions).
+     * @return the target vertices (entity definitions).
+     */
     public Collection<Vertex> getTargetVertices() {
         return targetVertices;
-    }
-
-    public void setTargetVertices(Collection<Vertex> targetVertices) {
-        this.targetVertices = targetVertices;
     }
 }

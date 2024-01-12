@@ -36,14 +36,36 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * JPA implementation of a metamodel vertex.
+ */
 public class JpaMetamodelVertex implements MetamodelVertex {
 
+    /**
+     * The JPA metamodel class.
+     */
     private final Class<?> metamodelClass;
 
+    /**
+     * The entity class.
+     */
     private final Class<?> entityClass;
+    /**
+     * JPA entity helper.
+     */
     private final JpaEntityHelper jpaEntityHelper;
+    /**
+     * JPA metamodel vertex factory.
+     */
     private final JpaMetamodelVertexFactory jpaMetamodelVertexFactory;
 
+    /**
+     * Constructor.
+     * @param metamodelClass The JPA metamodel class.
+     * @param entityClass The entity class.
+     * @param jpaEntityHelper JPA entity helper.
+     * @param jpaMetamodelVertexFactory JPA metamodel vertex factory.
+     */
     public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityHelper jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
         this.metamodelClass = metamodelClass;
         this.entityClass = entityClass;
@@ -51,18 +73,34 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         this.jpaMetamodelVertexFactory = jpaMetamodelVertexFactory;
     }
 
+    /**
+     * Get the entity class.
+     * @return The entity class.
+     */
     public Class<?> getEntityClass() {
         return entityClass;
     }
 
+    /**
+     * Get the metamodel class.
+     * @return The metamodel class.
+     */
     private Class<?> getMetamodelClass() {
         return metamodelClass;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<FieldEdge> getOutboundFieldEdges(Graph<MetamodelVertex, FieldEdge> graph) {
         return graph.outgoingEdgesOf(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph) {
        return Stream.of(getMetamodelClass().getDeclaredFields())
                .flatMap(f -> targetTypeOfMetamodelField(f)
@@ -76,26 +114,33 @@ public class JpaMetamodelVertex implements MetamodelVertex {
             ).collect(Collectors.toSet());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isEntity() {
         return getEntityClass().isAnnotationPresent(jakarta.persistence.Entity.class);
     }
 
-    @Override
-    public Method relationshipGetter(FieldEdge fieldEdge) {
-        return jpaEntityHelper.getterMethod(getEntityClass(), fieldEdge.getMetamodelField());
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getAdditionalModelVertexProperties(Object entity) {
         return new HashMap<>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public RelationshipType relationshipType(Method getterMethod) {
         return jpaEntityHelper.relationshipType(getterMethod);
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<FieldEdge> getInverseFieldEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge> graph) {
         Method getterMethod = fieldEdge.relationshipGetter();
@@ -104,19 +149,17 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getTypeName() {
         return getEntityClass().getSimpleName();
     }
 
-    public Optional<Field> getMetamodelAttributeWithName(String fieldName) {
-        return Arrays.stream(getMetamodelClass().getDeclaredFields()).filter(f -> f.getName().equals(fieldName)).findAny();
-    }
-
-    public Optional<Field> getEntityFieldWithName(String fieldName) {
-        return Arrays.stream(getEntityClass().getDeclaredFields()).filter(f -> f.getName().equals(fieldName)).findAny();
-    }
-
+    /**
+     * Get the Java Type of the target of a field.
+     */
     private Optional<Type> targetTypeOfMetamodelField(Field f) {
         Type t  = f.getGenericType();
         if (t instanceof ParameterizedType) {
@@ -129,6 +172,9 @@ public class JpaMetamodelVertex implements MetamodelVertex {
         return Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
         @Override
     public String toString() {
         return "ClassVertex{" +
@@ -137,6 +183,9 @@ public class JpaMetamodelVertex implements MetamodelVertex {
             '}';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getPrimaryKeyField() {
         return jpaEntityHelper.getPrimaryKeyFieldName(this.getEntityClass());
     }

@@ -22,12 +22,30 @@ package net.osgiliath.migrator.core.processing;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.configuration.AbstractTransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.jgrapht.Graph;
 
+/**
+ * Factory for sequencers: will create a dedicated object to handle the model element anonymization.
+ */
 public interface FactorySequencer {
+    /**
+     * Checks if the factory can handle the bean class.
+     * @param beanClass the bean class.
+     * @return true if the factory can handle the bean class.
+     */
     boolean canHandle(Class beanClass);
 
-    Object createSequencerBean(Class beanClass, AbstractTransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName);
+    /**
+     * Creates the sequencer bean.
+     * @param beanClass class of the sequencer.
+     * @param definition the Configuration of the sequencer.
+     * @param graph the metamodel graph.
+     * @param metamodelVertex the metamodel vertex representing the entity definition   .
+     * @param entity the entity to be handled by the sequencer.
+     * @param columnName the column name to be handled by the sequencer.
+     * @return the resulting configured sequencer bean.
+     */
+    Object createSequencerBean(Class beanClass, TransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName);
 }

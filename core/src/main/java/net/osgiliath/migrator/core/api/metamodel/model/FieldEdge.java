@@ -33,40 +33,86 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Metamodel edge representing a relationship between two tables.
+ */
 public class FieldEdge extends DefaultEdge {
+
+    /**
+     * Entity field representing to call in order to get the relationship.
+     */
     private final Field metamodelField;
+    /**
+     * JPA entity helper bean.
+     */
     private final JpaEntityHelper jpaEntityHelper;
 
+    /**
+     * Constructor.
+     * @param jpaEntityHelper JPA entity helper.
+     * @param field entity field representing to call in order to get the relationship.
+     */
     public FieldEdge(JpaEntityHelper jpaEntityHelper, Field field) {
         this.metamodelField = field;
         this.jpaEntityHelper = jpaEntityHelper;
     }
 
+    /**
+     * Gets the JPA metamodel field.
+     * @return the JPA metamodel field.
+     */
     public Field getMetamodelField() {
         return metamodelField;
     }
 
+    /**
+     * Gets the field name.
+     * @return the field name.
+     */
     public String getFieldName() {
         return metamodelField.getName();
     }
 
+    /**
+     * Gets the source vertex (entity definition).
+     * @return the source vertex.
+     */
     public MetamodelVertex getSource() {
         return (MetamodelVertex) super.getSource();
     }
 
+    /**
+     * Gets the target vertex (entity definition).
+     * @return the target vertex.
+     */
     public MetamodelVertex getTarget() {
         return (MetamodelVertex) super.getTarget();
     }
 
+    /**
+     * returns the getter method of the entity's relationship.
+     * @return the getter method of the entity's relationship.
+     */
     public Method relationshipGetter() {
         return jpaEntityHelper.getterMethod(((JpaMetamodelVertex)this.getSource()).getEntityClass(), this.getMetamodelField());
     }
 
+    /**
+     * Get the type of the relationship (one to one, one to many, many to one, many to many).
+     * @return the type of the relationship.
+     */
     public RelationshipType getRelationshipType() {
         Method getterMethod = relationshipGetter();
         return this.getSource().relationshipType(getterMethod);
     }
 
+    /**
+     * Sets a relationship between two entities.
+     * @param sourceMetamodelVertex the source entity definition.
+     * @param sourceEntity the source entity.
+     * @param targetEntity the target entity.
+     * @param graph the metamodel graph.
+     */
     public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge> graph) {
         RelationshipType relationshipType = getRelationshipType();
         MetamodelVertex targetVertex = graph.getEdgeTarget(this);

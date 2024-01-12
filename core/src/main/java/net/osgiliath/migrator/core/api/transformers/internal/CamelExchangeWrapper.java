@@ -25,12 +25,28 @@ import org.apache.camel.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Wraps the processor into .
+ * @param <COLUMN_TYPE>
+ */
 public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
 
+    /**
+     * Logger.
+     */
     private static final Logger log = LoggerFactory.getLogger(CamelExchangeWrapper.class);
 
+    /**
+     * Evaluate the data transformation on the given column.
+     * @param toBeTransformed the column to be transformed.
+     * @return the transformed column.
+     */
     public abstract COLUMN_TYPE evaluate(COLUMN_TYPE toBeTransformed);
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <T> T evaluate(Exchange exchange, Class<T> type) {
         log.debug("Transforming cell with transformer {}", this.getClass().getName());
         COLUMN_TYPE preValue = (COLUMN_TYPE) exchange.getIn().getBody(type);

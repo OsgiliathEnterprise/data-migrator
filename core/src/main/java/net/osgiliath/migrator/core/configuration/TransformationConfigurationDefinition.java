@@ -24,55 +24,108 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Should be extended by all data transformer
+ * Configuration of the transformation sequences.
  */
-public class AbstractTransformationConfigurationDefinition {
+public class TransformationConfigurationDefinition {
+    /**
+     * Name of the transformation sequencer.
+     */
     private String name;
 
+    /**
+     * Type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
+     */
     private TRANSFORMER_TYPE type = TRANSFORMER_TYPE.BEAN;
 
+    /**
+     *
+     */
     private String transformerClass;
 
+    /**
+     * Entity class to ben handled by the transformer.
+     */
     private String entityClass = "*";
 
+    /**
+     * Columns to be handled by the transformer.
+     */
     private Collection<String> columns = new HashSet<>();
 
+    /**
+     * Get name of the sequencer to be referenced by the sequence.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set name of the sequencer to be referenced by the sequence.
+     * @param name name of the sequencer to be referenced by the sequence.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Get type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
+     */
     public TRANSFORMER_TYPE getType() {
         return type;
     }
 
+    /**
+     * Set type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
+     * @param type the type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
+     */
     public void setType(TRANSFORMER_TYPE type) {
         this.type = type;
     }
 
+    /**
+     * Get the transformer class.
+     * @return
+     */
     public String getTransformerClass() {
         return transformerClass;
     }
 
+    /**
+     * Set the transformer class.
+     * @param transformerClass the transformer class.
+     */
     public void setTransformerClass(String transformerClass) {
         this.transformerClass = transformerClass;
     }
 
+    /**
+     * Get the entity class simple name that will be processed by the sequencer.
+     * @return the entity class.
+     */
     public String getEntityClass() {
         return entityClass;
     }
 
+    /**
+     * Set the entity class simple name that will be processed by the sequencer.
+     * @param entityClass the entity class.
+     */
     public void setEntityClass(String entityClass) {
         this.entityClass = entityClass;
     }
 
+    /**
+     * Get the columns to be handled by the transformer.
+     * @return
+     */
     public Collection<String> getColumns() {
         return columns;
     }
 
+    /**
+     * Set the columns to be handled by the transformer.
+     * @param columns the columns to be handled by the transformer.
+     */
     public void setColumns(Collection<String> columns) {
         this.columns = columns;
     }

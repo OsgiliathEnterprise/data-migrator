@@ -20,7 +20,14 @@ package net.osgiliath.migrator.core.api.transformers;
  * #L%
  */
 
+/**
+ * Transforms a column of a table.
+ */
 public interface ColumnTransformer {
 
+    /**
+     * The column name that should have its rows transformed.
+     * @return the column name.
+     */
     String columnName();
 }

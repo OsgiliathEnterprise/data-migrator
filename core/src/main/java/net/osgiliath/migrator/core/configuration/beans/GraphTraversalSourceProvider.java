@@ -28,17 +28,28 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.springframework.stereotype.Component;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
-
+/**
+ * Tinkerpop Graph traversal source provider.
+ */
 @Component
 public class GraphTraversalSourceProvider {
 
+    /**
+     * The data migrator configuration.
+     */
     private final DataMigratorConfiguration dataMigratorConfiguration;
 
+    /**
+     * Constructor.
+     * @param dataMigratorConfiguration the data migrator configuration.
+     */
     public GraphTraversalSourceProvider(DataMigratorConfiguration dataMigratorConfiguration) {
-
         this.dataMigratorConfiguration = dataMigratorConfiguration;
     }
-    
+    /**
+     * Gets the graph traversal source (graph instance) in regards to configuration.
+     * @return the graph traversal source.
+     */
     public GraphTraversalSource getGraph() {
        if (dataMigratorConfiguration.getGraphDatasource().getType() == GraphDatasourceType.EMBEDDED) {
             Graph graph = TinkerGraph.open();

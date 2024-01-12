@@ -20,16 +20,30 @@ package net.osgiliath.migrator.core.configuration.model;
  * #L%
  */
 
+/**
+ * Graph datasource type embedded or remote.
+ */
 public enum GraphDatasourceType {
     EMBEDDED("embedded"),
     REMOTE("remote");
 
+    /**
+     * The value of the type.
+     */
     private final String value;
 
+    /**
+     * Constructor.
+     * @param value the value of the type.
+     */
     GraphDatasourceType(String value) {
         this.value = value;
     }
 
+    /**
+     * Gets the value of the type.
+     * @return the value of the type.
+     */
     @Override
     public String toString() {
         return value;

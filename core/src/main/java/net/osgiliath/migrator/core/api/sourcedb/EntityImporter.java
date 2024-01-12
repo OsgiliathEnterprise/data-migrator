@@ -25,7 +25,16 @@ import net.osgiliath.migrator.core.api.model.ModelElement;
 
 import java.util.List;
 
+/**
+ * Imports entities from the source database.
+ */
 public interface EntityImporter {
 
+    /**
+     * Imports entities from the source database.
+     * @param entityVertex the metamodel vertex representing the entity.
+     * @param objectToExclude list of objects to exclude from the import.
+     * @return the list of imported entities from the DB.
+     */
     List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude);
 }

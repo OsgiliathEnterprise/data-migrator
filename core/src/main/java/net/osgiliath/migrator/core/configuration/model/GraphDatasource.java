@@ -20,18 +20,36 @@ package net.osgiliath.migrator.core.configuration.model;
  * #L%
  */
 
+/**
+ * The tinkerpop Graph datasource configuration.
+ */
 public class GraphDatasource {
 
+    /**
+     * The datasource type (embedded or remote).
+     */
     private GraphDatasourceType type;
 
+    /**
+     * Constructor.
+     * @param graphDatasourceType the datasource type (embedded or remote).
+     */
     public GraphDatasource(GraphDatasourceType graphDatasourceType) {
         this.type = graphDatasourceType;
     }
 
+    /**
+     * Gets the datasource type (embedded or remote).
+     * @return the datasource type (embedded or remote).
+     */
     public GraphDatasourceType getType() {
         return type;
     }
 
+    /**
+     * Sets the datasource type (embedded or remote).
+     * @param type the datasource type (embedded or remote).
+     */
     public void setType(GraphDatasourceType type) {
         this.type = type;
     }

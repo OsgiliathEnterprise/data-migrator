@@ -29,16 +29,28 @@ import javax.sql.XADataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Wrapper over Hikari datasource pooling to avoid using username and password.
+ */
 public class CustomHikariDatasource extends HikariDataSource {
 
+    /**
+     * {@inheritDoc}
+     */
     public CustomHikariDatasource() {
         super();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CustomHikariDatasource(HikariConfig configuration) {
         super(configuration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return super.getConnection();

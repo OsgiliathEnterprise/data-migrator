@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.processing;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.configuration.AbstractTransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Component;
@@ -39,7 +39,7 @@ public class SequencerFactory {
     }
 
 
-    public Object createSequencerBean(Class beanClass, AbstractTransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName) {
+    public Object createSequencerBean(Class beanClass, TransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName) {
         return factorySequencers.stream().filter(factorySequencer -> factorySequencer.canHandle(beanClass)).findFirst().orElseThrow(() -> new RuntimeException("No factory sequencer found for " + beanClass)).createSequencerBean(beanClass, definition, graph, metamodelVertex, entity, columnName);
     }
 }

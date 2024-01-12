@@ -23,19 +23,41 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+/**
+ * Entity field and target type.
+ */
 public class FieldAndTargetType {
+    /**
+     * Entity field.
+     */
     private final Field field;
+    /**
+     * Target type of the field.
+     */
     private final Type targetType;
 
+    /**
+     * Constructor.
+     * @param field the field.
+     * @param targetType the target type.
+     */
     public FieldAndTargetType(Field field, Type targetType) {
         this.field = field;
         this.targetType = targetType;
     }
 
+    /**
+     * Gets the field.
+     * @return the field.
+     */
     public Field getField() {
         return field;
     }
 
+    /**
+     * Gets the target type.
+     * @return the target type.
+     */
     public Type getTargetType() {
         return targetType;
     }

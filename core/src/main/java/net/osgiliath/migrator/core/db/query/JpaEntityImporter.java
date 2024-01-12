@@ -37,21 +37,43 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Imports entities from the database.
+ */
 @Component
 public class JpaEntityImporter implements EntityImporter {
 
+    /**
+     * Logger.
+     */
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(JpaEntityImporter.class);
-    private final JpaEntityHelper hibernateEntityHelper;
+    /**
+     * Model element factory (to create model elements from the entries.
+     */
     private final ModelElementFactory modelElementFactory;
 
+    /**
+     * Source Entity manager.
+     */
     @PersistenceContext(unitName = "source")
     private EntityManager entityManager;
 
-    public JpaEntityImporter(JpaEntityHelper hibernateEntityHelper, ModelElementFactory modelElementFactory) {
-        this.hibernateEntityHelper = hibernateEntityHelper;
+    /**
+     * Constructor.
+     *
+     * @param modelElementFactory model element factory
+     */
+    public JpaEntityImporter(ModelElementFactory modelElementFactory) {
         this.modelElementFactory = modelElementFactory;
     }
 
+    /**
+     * Imports entities from the database.
+     *
+     * @param entityVertex     entity vertex (definition of the entity to import)
+     * @param objectToExclude  objects to exclude
+     * @return list of model elements
+     */
     public List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -68,6 +90,15 @@ public class JpaEntityImporter implements EntityImporter {
         return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
     }
 
+    /**
+     * Excludes already loaded objects from the database query.
+     *
+     * @param entityVertex     entity vertex (definition of the entity to import)
+     * @param objectToExclude  objects to exclude
+     * @param builder          criteria builder
+     * @param root             root
+     * @return list of predicates
+     */
     private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
         String primaryKeyField = ((JpaMetamodelVertex)entityVertex).getPrimaryKeyField();
         return objectToExclude.stream()

@@ -24,11 +24,24 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.AnnotationMetadata;
 
+/**
+ * Spring classpath scanner that also scans abstract classes.
+ */
 public class AbstractClassAwareClassPathScanningCandidateComponentProvider extends ClassPathScanningCandidateComponentProvider {
+
+    /**
+     * Constructor.
+     * @param useDefaultFilters use default spring component filters
+     */
     public AbstractClassAwareClassPathScanningCandidateComponentProvider(boolean useDefaultFilters) {
         super(useDefaultFilters);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param beanDefinition the bean definition to check
+     * @return annotated bean definition and abstract components classes (useful for JPA metamodel)
+     */
     @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
 		AnnotationMetadata metadata = beanDefinition.getMetadata();

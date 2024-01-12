@@ -22,7 +22,7 @@ package net.osgiliath.migrator.modules.faker;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.configuration.AbstractTransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.processing.FactorySequencer;
 import org.jgrapht.Graph;
@@ -36,7 +36,7 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
     }
 
     @Override
-    public Object createSequencerBean(Class beanClass, AbstractTransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName) {
+    public Object createSequencerBean(Class beanClass, TransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName) {
         return new ColumnFaker(metamodelVertex, columnName, graph);
     }
 }

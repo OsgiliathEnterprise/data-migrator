@@ -26,45 +26,92 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
+/**
+ * Data migrator configuration.
+ */
 @ConfigurationProperties(prefix = "data-migrator")
 public class DataMigratorConfiguration {
 
+    /**
+     * Package to scan the JPA entities representing tables.
+     */
     private String modelBasePackage;
 
+    /**
+     * TinkerGraph datasource configuration.
+     */
     private GraphDatasource graphDatasource = new GraphDatasource(GraphDatasourceType.EMBEDDED);
+    /**
+     * Sequence of transformations to apply.
+     */
     private List<String> sequence;
 
-    private List<? extends AbstractTransformationConfigurationDefinition> sequencers;
+    /**
+     * List of sequencers being able to handle the sequence.
+     */
+    private List<? extends TransformationConfigurationDefinition> sequencers;
 
+    /**
+     * Graph datasource configuration.
+     * @return
+     */
     public GraphDatasource getGraphDatasource() {
         return graphDatasource;
     }
 
+    /**
+     * Graph datasource configuration.
+     * @param graphDatasource the graph datasource technology to set.
+     */
     public void setGraphDatasource(GraphDatasource graphDatasource) {
         this.graphDatasource = graphDatasource;
     }
 
+    /**
+     * Package to scan the JPA entities representing tables.
+     * @return the package to scan.
+     */
     public String getModelBasePackage() {
         return modelBasePackage;
     }
 
+    /**
+     * Package to scan the JPA entities representing tables.
+     * @param modelBasePackage the package to scan.
+     */
     public void setModelBasePackage(String modelBasePackage) {
         this.modelBasePackage = modelBasePackage;
     }
 
+    /**
+     * Sequence of transformations to apply.
+     * @return the sequence of transformations to apply.
+     */
     public List<String> getSequence() {
         return sequence;
     }
 
+    /**
+     * Sequence of transformations to apply.
+     * @param sequence the sequence of transformations to apply.
+     */
     public void setSequence(List<String> sequence) {
         this.sequence = sequence;
     }
 
-    public List<? extends AbstractTransformationConfigurationDefinition> getSequencers() {
+    /**
+     * List of sequencers being able to handle the sequence.
+     * @return the list of sequencers.
+     */
+    public List<? extends TransformationConfigurationDefinition> getSequencers() {
         return sequencers;
     }
 
-    public void setSequencers(List<? extends AbstractTransformationConfigurationDefinition> sequencers) {
+    /**
+     * List of sequencers being able to handle the sequence.
+     * @param sequencers the list of sequencers.
+     */
+    public void setSequencers(List<? extends TransformationConfigurationDefinition> sequencers) {
         this.sequencers = sequencers;
     }
 }

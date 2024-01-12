@@ -28,24 +28,52 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A vertex in the metamodel graph.
+ */
 public interface MetamodelVertex {
 
+    /**
+     * The edges going out of this vertex.
+     */
     Collection<FieldEdge> getOutboundFieldEdges(Graph<MetamodelVertex, FieldEdge> graph);
 
+    /**
+     * Type of the vertex
+     */
     String getTypeName();
 
+    /**
+     * Is the vertex an entity
+     */
     boolean isEntity();
-
-    Method relationshipGetter(FieldEdge fieldEdge);
 
     /**
      * @return Additional properties to display in the model graph (Key: property name, Value: property value).
      */
     Map<String, Object> getAdditionalModelVertexProperties(Object entity);
 
+    /**
+     * Type of the relationship between the two vertices.
+     * @param getterMethod Method of the relaitionship to get the type from.
+     * @return Type of the relationship between the two vertices.
+     */
     RelationshipType relationshipType(Method getterMethod);
 
+    /**
+     * Get the inverse relationship of an edge.
+     * @param fieldEdge Edge to get the inverse of.
+     *                  The edge must be an outbound edge of this vertex.
+     * @param targetVertex Target vertex of the edge.
+     * @param graph The metamodel graph.
+     * @return The inverse edge.
+     */
     Optional<FieldEdge> getInverseFieldEdge(FieldEdge fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge> graph);
 
+    /**
+     * Compute the outbound edges of this vertex from the entity class.
+     * @param graph The metamodel graph.
+     * @return The outbound edges of this vertex.
+     */
     Collection<OutboundEdge> computeOutboundEdges(Graph<MetamodelVertex, FieldEdge> graph);
 }
