@@ -19,7 +19,7 @@ import java.util.Objects;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-  basePackages = "net.osgiliath.repository",
+  basePackages = "net.osgiliath.datamigrator.sample.repository",
   entityManagerFactoryRef = "sinkEntityManagerFactory",
   transactionManagerRef = "sinkTransactionManager"
 )

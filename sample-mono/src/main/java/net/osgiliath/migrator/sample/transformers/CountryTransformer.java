@@ -1,8 +1,8 @@
 package net.osgiliath.migrator.sample.transformers;
 
 import jakarta.persistence.metamodel.SingularAttribute;
-import net.osgiliath.domain.Country;
-import net.osgiliath.domain.Country_;
+import net.osgiliath.datamigrator.sample.domain.Country;
+import net.osgiliath.datamigrator.sample.domain.Country_;
 import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransformer;
 import org.springframework.stereotype.Component;
 

@@ -284,8 +284,8 @@
                          <!--<referenceDriver>${source.database.driver}</referenceDriver>-->
                          <!--<referenceUsername>${source.datasource.username}</referenceUsername>-->
                          <!--<referencePassword>${source.datasource.password}</referencePassword>-->
-                        <!-- <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>-->
-                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                         <!-- <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl> -->
                          <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                          <contexts>!test</contexts>
                          <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>

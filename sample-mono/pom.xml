@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -153,7 +153,7 @@
     </build>
     <profiles>
         <profile>
-            <id>entities-from-source-db</id>
+            <id>entities-from-source-schema</id>
             <build>
                 <plugins>
                     <plugin>
@@ -322,12 +322,6 @@
             <properties>
                 <source.database.docker.image>mysql:8.2</source.database.docker.image>
                 <source.database.spinup.wait.time>10000</source.database.spinup.wait.time>
-                <!--<source.datasource.defaultSchemaName>test</source.datasource.defaultSchemaName>
-                <source.datasource.username>test</source.datasource.username>
-                <source.datasource.password>test</source.datasource.password>
-                <source.database.port>3306</source.database.port>
-                <source.database.url>jdbc:mysql://127.0.0.1:${source.database.port}</source.database.url>
-                <source.database.driver>com.mysql.cj.jdbc.Driver</source.database.driver>-->
             </properties>
             <build>
                 <plugins>
@@ -405,11 +399,6 @@
                                 </goals>
                                 <configuration>
                                     <changeLogFile>/config/liquibase/master.xml</changeLogFile>
-                                    <!--<url>${source.database.url}</url>
-                                    <driver>${source.database.driver}</driver>
-                                    <username>${source.datasource.username}</username>
-                                    <password>${source.datasource.password}</password>
-                                    <defaultSchemaName>${source.datasource.defaultSchemaName}</defaultSchemaName>-->
                                     <contexts>test</contexts>
                                 </configuration>
                             </execution>
@@ -541,6 +530,50 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>target-data-changelog-target-db</id>
+            <build>
+                <plugins>
+                    <plugin>
+                         <groupId>org.liquibase</groupId>
+                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-changelog</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>generateChangeLog</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                         <!--set values for Liquibase properties and settings
+                         for example, the location of a properties file to use-->
+                         <changeLogFile>/config/liquibase/master-sink.xml</changeLogFile>
+                         <diffChangeLogFile>/config/liquibase/changelog-sink/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
+                         <outputChangeLogFile>/config/liquibase/changelog-sink/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
+                         <dataDir>/config/liquibase/data-sink</dataDir>
+                         <driver>${target.database.driver}</driver>
+                         <url>${target.database.url}</url>
+                         <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
+                         <username>${target.datasource.username}</username>
+                         <password>${target.datasource.password}</password>
+                         <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
+                         <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
+                         <!--<referencePassword>${target.datasource.password}</referencePassword>-->
+                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                         <!-- <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl> -->
+                         <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
+                         <contexts>!test</contexts>
+                         <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
+                         <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
+                         <includeCatalog>true</includeCatalog>
+                         <outputDirectory>/config/liquibase/changelogtarget</outputDirectory>
+                     </configuration>
                     </plugin>
                 </plugins>
             </build>
