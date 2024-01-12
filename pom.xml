@@ -440,7 +440,8 @@
                         <version>2.5.3</version>
                         <configuration>
                             <tagNameFormat>@{project.version}</tagNameFormat>
-                            </configuration>
+                            <goals>deploy</goals>
+                        </configuration>
                         <executions>
                             <execution>
                             <id>default</id>
