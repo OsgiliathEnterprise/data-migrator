@@ -172,6 +172,11 @@
                         </executions>
                         <dependencies>
                             <dependency>
+                                <groupId>org.mariadb.jdbc</groupId>
+                                <artifactId>mariadb-java-client</artifactId>
+                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                            </dependency>
+                            <dependency>
                                 <groupId>com.mysql</groupId>
                                 <artifactId>mysql-connector-j</artifactId>
                                 <version>${jdbc.mysql.version}</version>
@@ -185,6 +190,11 @@
                                 <groupId>com.oracle.database.jdbc</groupId>
                                 <artifactId>ojdbc11</artifactId>
                                 <version>${jdbc.oracle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.microsoft.sqlserver</groupId>
+                                <artifactId>mssql-jdbc</artifactId>
+                                <version>${jdbc.mssql.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -409,6 +419,11 @@
                         </executions>
                         <dependencies>
                             <dependency>
+                                <groupId>org.mariadb.jdbc</groupId>
+                                <artifactId>mariadb-java-client</artifactId>
+                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                            </dependency>
+                            <dependency>
                                 <groupId>com.mysql</groupId>
                                 <artifactId>mysql-connector-j</artifactId>
                                 <version>${mysql.version}</version>
@@ -422,6 +437,11 @@
                                 <groupId>com.oracle.database.jdbc</groupId>
                                 <artifactId>ojdbc11</artifactId>
                                 <version>${jdbc.oracle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.microsoft.sqlserver</groupId>
+                                <artifactId>mssql-jdbc</artifactId>
+                                <version>${jdbc.mssql.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -442,6 +462,11 @@
                         </executions>
                         <dependencies>
                             <dependency>
+                                <groupId>org.mariadb.jdbc</groupId>
+                                <artifactId>mariadb-java-client</artifactId>
+                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                            </dependency>
+                            <dependency>
                                 <groupId>com.mysql</groupId>
                                 <artifactId>mysql-connector-j</artifactId>
                                 <version>${jdbc.mysql.version}</version>
@@ -455,6 +480,11 @@
                                 <groupId>com.oracle.database.jdbc</groupId>
                                 <artifactId>ojdbc11</artifactId>
                                 <version>${jdbc.oracle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.microsoft.sqlserver</groupId>
+                                <artifactId>mssql-jdbc</artifactId>
+                                <version>${jdbc.mssql.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -652,17 +682,29 @@
     </profiles>
     <dependencies>
         <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
+            <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate.orm</groupId>
@@ -764,5 +806,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
