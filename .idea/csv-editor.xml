@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/sample-mono/config/liquibase-sink/data/jhi_authority.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/sample-mono/src/main/resources/config/liquibase-sink/data/department.csv">
           <value>
             <Attribute>
@@ -11,6 +18,13 @@
           </value>
         </entry>
         <entry key="/sample-mono/src/main/resources/config/liquibase-sink/data/employee.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sample-mono/src/main/resources/config/liquibase/data/authority.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

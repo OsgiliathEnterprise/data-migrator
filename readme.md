@@ -6,7 +6,7 @@ This tool aims to help the developer or business analyst to gather production da
 
 ## Procedure/capabilities
 
-1. Configure your machine prerequisites: java 21 (11 should be feasible by recompiling the project on this target), docker. 
+1. Configure your machine prerequisites: java 17+ (or 21), docker. 
 2. Start a container of your using your source database technology (optional if you have access to the remote database)
 3. Import your production dump into your local database (optional if you have access to the remote database)
 4. Create a new anonymization project for your context from the maven data-migrator maven archetype.

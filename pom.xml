@@ -65,9 +65,9 @@
         <!-- <module>sample-mono</module> -->
     </modules>
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <java.version>21</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
         <maven.version>3.3.9</maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
@@ -187,12 +187,12 @@
                     <configuration>
                         <rules>
                             <requireMavenVersion>
-                                <message>You are running an older version of Maven. JHipster requires at least Maven ${maven.version}</message>
+                                <message>You are running an older version of Maven. Data migrator requires at least Maven ${maven.version}</message>
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. Data migrator supports JDK 11 to 21.</message>
-                                <version>[11,12),[12,13),[13,14),[14,15),[15,16),[16,17),[17,18),[18,19),[19,20),[20,21)[21,22)</version>
+                                <message>You are running an incompatible version of Java. Data migrator supports JDK 17 to 21.</message>
+                                <version>[17,18),[18,19),[19,20),[20,21)[21,22)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>

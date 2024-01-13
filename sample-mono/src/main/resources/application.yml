@@ -1,5 +1,5 @@
 data-migrator:
-  model-base-package: net.osgiliath.datamigrator.sample.domain
+  model-base-package: @jpa.domain.package@
   sequence:
 #    - rows-minimize-1
 #    - column-anonymize-1
