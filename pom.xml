@@ -80,6 +80,7 @@
         <jdbc.h2.version>2.1.214</jdbc.h2.version>
         <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
         <jdbc.mysql.version>8.2.0</jdbc.mysql.version>
+        <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
         <hibernate.version>6.4.1.Final</hibernate.version>
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
@@ -119,6 +120,11 @@
         </testResources>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>com.cmeza</groupId>
+                    <artifactId>spring-data-generator</artifactId>
+                    <version>2.0.1</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -284,7 +290,7 @@
                          <!--<referenceDriver>${source.database.driver}</referenceDriver>-->
                          <!--<referenceUsername>${source.datasource.username}</referenceUsername>-->
                          <!--<referencePassword>${source.datasource.password}</referencePassword>-->
-                         <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                         <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
                          <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                          <contexts>!test</contexts>
                          <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>

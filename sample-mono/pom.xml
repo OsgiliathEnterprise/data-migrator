@@ -14,7 +14,7 @@
     <properties>
         <data-migrator.version>1.0-SNAPSHOT</data-migrator.version>
         <!-- End test configuration-->
-        <hibernate.domain.package>${project.groupId}.domain</hibernate.domain.package>
+        <jpa.domain.package>${project.groupId}.domain</jpa.domain.package>
     </properties>
         <dependencyManagement>
         <dependencies>
@@ -37,7 +37,6 @@
                 <plugin>
                     <groupId>com.cmeza</groupId>
                     <artifactId>spring-data-generator</artifactId>
-                    <version>2.0.1</version>
                     <configuration>
                         <entity-package>
                             <param>${project.groupId}.domain</param>
@@ -181,6 +180,11 @@
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
                                 <version>${jdbc.postgresql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc11</artifactId>
+                                <version>${jdbc.oracle.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -414,6 +418,11 @@
                                 <artifactId>postgresql</artifactId>
                                 <version>${postgresql.version}</version>
                             </dependency>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc11</artifactId>
+                                <version>${jdbc.oracle.version}</version>
+                            </dependency>
                         </dependencies>
                     </plugin>
                     <plugin>
@@ -441,6 +450,11 @@
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
                                 <version>${jdbc.postgresql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc11</artifactId>
+                                <version>${jdbc.oracle.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -566,7 +580,7 @@
                              <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
                              <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
                              <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                             <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                             <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
                              <overwriteOutputFile>true</overwriteOutputFile>
                              <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                              <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
@@ -617,7 +631,7 @@
                              <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
                              <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
                              <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                             <referenceUrl>hibernate:spring:${hibernate.domain.package}?dialect=${source.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                             <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
                              <overwriteOutputFile>true</overwriteOutputFile>
                              <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                              <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
@@ -641,6 +655,11 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

@@ -109,7 +109,7 @@ class CustomProcessingIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
-            List<Country> countries = countryRepository.findAll();
+        List<Country> countries = countryRepository.findAll();
             assertThat(countries).hasSize(10);
             countries.stream().forEach(c -> {
                 assertThat(c.getCountryName()).isEmpty();
