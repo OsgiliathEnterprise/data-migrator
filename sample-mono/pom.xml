@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.11-SNAPSHOT</version>
+        <version>1.15-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
     <artifactId>sample-mono</artifactId>
     <properties>
-        <data-migrator.version>1.11-SNAPSHOT</data-migrator.version>
+        <data-migrator.version>1.15-SNAPSHOT</data-migrator.version>
         <!-- End test configuration-->
         <jpa.domain.package>${project.groupId}.domain</jpa.domain.package>
     </properties>
