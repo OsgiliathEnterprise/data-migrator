@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.11-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>${archetypeVersion}</version>
     </parent>
-    <groupId>net.osgiliath.datamigrator.sample</groupId>
-    <artifactId>sample-mono</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
     <properties>
-        <data-migrator.version>1.11-SNAPSHOT</data-migrator.version>
+        <data-migrator.version>${archetypeVersion}</data-migrator.version>
         <!-- End test configuration-->
-        <jpa.domain.package>${project.groupId}.domain</jpa.domain.package>
+        <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
-        <dependencyManagement>
+    <version>${version}</version>
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>net.osgiliath.datamigrator</groupId>
@@ -87,11 +85,11 @@
                     <artifactId>spring-data-generator</artifactId>
                     <configuration>
                         <entity-package>
-                            <param>${project.groupId}.domain</param>
+                            <param>${project.groupId}.${project.artifactId}.domain</param>
                         </entity-package>
-                        <repository-package>${project.groupId}.repository</repository-package>
+                        <repository-package>${project.groupId}.${project.artifactId}.repository</repository-package>
                         <repository-postfix>Repository</repository-postfix>
-                        <manager-package>${project.groupId}.managers</manager-package>
+                        <manager-package>${project.groupId}.${project.artifactId}.managers</manager-package>
                         <manager-postfix>Manager</manager-postfix>
                         <only-annotations>false</only-annotations>
                         <overwrite>false</overwrite>
@@ -159,7 +157,7 @@
                     </goals>
                     <configuration>
                       <files>
-                        <file>${basedir}/database.properties</file>
+                        <file>${project.basedir}/database.properties</file>
                       </files>
                     </configuration>
                   </execution>

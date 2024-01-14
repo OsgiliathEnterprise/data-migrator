@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/archetype/src/main/resources/archetype-resources" includeSubdirectories="true" />
+    </excludeFromCompile>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" procOnly="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
@@ -9,6 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="faker" />
         <module name="data-migrator-core" />
+        <module name="archetype" />
       </profile>
       <profile name="Annotation profile for sample-mono" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -77,12 +81,19 @@
         <module name="sample-mono" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="sample-mono-archetype" target="17" />
+      <module name="test-datamigration" target="17" />
+      <module name="test-datamigrator" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="data-migrator-core" options="-parameters" />
       <module name="faker" options="-parameters" />
       <module name="sample-mono" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
+      <module name="test-datamigration" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
+      <module name="test-datamigrator" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
     </option>
   </component>
 </project>
