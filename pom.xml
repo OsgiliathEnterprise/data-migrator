@@ -8,7 +8,7 @@
   </parent>
   <groupId>net.osgiliath.datamigrator</groupId>
   <artifactId>data-migrator</artifactId>
-  <version>1.14</version>
+  <version>1.15-SNAPSHOT</version>
   <packaging>pom</packaging>
   <ciManagement>
     <system>Github actions</system>
@@ -44,7 +44,7 @@
     <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
     <url>https://github.com/OsgiliathEnterprise/data-migrator</url>
     <developerConnection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</developerConnection>
-    <tag>1.14</tag>
+    <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
