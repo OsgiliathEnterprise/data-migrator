@@ -9,7 +9,7 @@ This tool aims to help the developer or business analyst to gather production da
 1. Configure your machine prerequisites: java 17+ (or 21), docker and maven. 
 2. Start a container of your using your source database technology (optional if you have access to the remote database)
 3. Import your production dump into your local database (optional if you have access to the remote database)
-4. Create a new anonymization project for your context from the maven data-migrator maven archetype (`mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=archetype -Dversion=1.12-SNAPSHOT`), ensure to choose a name without special characters (e.g. myanonymizationproject, without '-', '_', ...).
+4. Create a new anonymization project for your context from the maven data-migrator maven archetype (`mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=datamigrator-archetype -DarchetypeVersion=<current version of the archetype>`), ensure to choose a name without special characters (e.g. myanonymizationproject, without '-', '_', ...).
 5. Configure the project database.properties with your database information.
 6. Generate the java entities, java tables metamodel and repositories from the root of your generated project using the `./mvnw clean process-classes -Pentities-from-source-schema` command: doing so, new classes will appear on the `/target/generated-sources`directory.
 7. Create your custom business logic (java code) on top of the spring-data-repositories and queries (optional if you use common modules that do ot need any customization.

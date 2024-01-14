@@ -62,7 +62,7 @@
     <module>bom</module>
     <module>modules</module>
     <module>core</module>
-    <module>archetype</module>
+    <module>datamigrator-archetype</module>
     <!-- <module>sample-mono</module> -->
   </modules>
   <properties>
