@@ -1,8 +1,10 @@
+![tests and snapshot deployment](https://github.com/OsgiliathEnterprise/data-migrator/actions/workflows/maven.yml/badge.svg)
+
 # Welcome anonymous!
 
 ## Data Migrator tool
 
-This tool aims to help the developer or business analyst to gather production data from a source datasource of any vendor, create the same structure in target database  (same technology or other vendor or version, thanks to orm) then to execute the data transfer with a data value transformation sequence in between: standard anonymization (i.e. replacing column values with random values), custom scripted anonymization, e.g. executing tailor-made java custom business on top of spring data repositories and ai-driven or advanced customization.
+This tool aims to help the developer or business analyst to gather production data from a source datasource of any vendor, create the same structure in target database  (same technology or other vendor or version, thanks to orm) then to execute the data transfer with a data value transformation sequence in between: standard anonymization (i.e. replacing column values with random values), or custom scripted anonymization, e.g. executing tailor-made java custom business on top of spring data repositories or Tinkerpop's graph queries and even ai-driven.
 
 ## Procedure
 
@@ -14,8 +16,8 @@ This tool aims to help the developer or business analyst to gather production da
 6. Generate the java entities, java tables metamodel and repositories from the root of your generated project using the `./mvnw clean process-classes -Pentities-from-source-schema` command: doing so, new classes will appear on the `/target/generated-sources`directory.
 7. Create your custom business logic (java code) on top of the spring-data-repositories and queries (optional if you use common modules that do ot need any customization).
 8. Configure your anonymization sequence using the `src/main/resources/application.yml`  property file with data-migrator sequence and sequencers.
-9. Start your target database container (optional if you have access to the remote database)
-10. create the target schema by executing the `./mvnw clean process-classes -Pcreate-target-schema` command.
+9. Start your target database container (optional if you have access to the remote database).
+10. Launch the sequencing: `./mvnw package && cd target && java <yourjar>.jar`.
 
 ## Additional useful commands
 

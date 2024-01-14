@@ -8,12 +8,6 @@
         <option value="$PROJECT_DIR$/sample-mono/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/test-datamigration/pom.xml" />
-        <option value="$PROJECT_DIR$/test-datamigrator/pom.xml" />
-      </set>
-    </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="Current" project-jdk-type="JavaSDK" />

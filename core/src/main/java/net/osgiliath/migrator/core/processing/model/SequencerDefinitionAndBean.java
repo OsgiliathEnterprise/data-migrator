@@ -20,18 +20,18 @@ package net.osgiliath.migrator.core.processing.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.SequencerDefinition;
 
 public class SequencerDefinitionAndBean {
-    private final TransformationConfigurationDefinition sequencerConfiguration;
+    private final SequencerDefinition sequencerConfiguration;
     private final Class transformerClass;
 
-    public SequencerDefinitionAndBean(TransformationConfigurationDefinition sequencerConfiguration, Class transformerClass) {
+    public SequencerDefinitionAndBean(SequencerDefinition sequencerConfiguration, Class transformerClass) {
         this.sequencerConfiguration = sequencerConfiguration;
         this.transformerClass = transformerClass;
     }
 
-    public TransformationConfigurationDefinition getSequencerConfiguration() {
+    public SequencerDefinition getSequencerConfiguration() {
         return sequencerConfiguration;
     }
 

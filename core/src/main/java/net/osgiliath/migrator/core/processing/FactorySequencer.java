@@ -22,7 +22,8 @@ package net.osgiliath.migrator.core.processing;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
+import net.osgiliath.migrator.core.configuration.SequencerDefinition;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.jgrapht.Graph;
 
@@ -44,8 +45,8 @@ public interface FactorySequencer {
      * @param graph the metamodel graph.
      * @param metamodelVertex the metamodel vertex representing the entity definition   .
      * @param entity the entity to be handled by the sequencer.
-     * @param columnName the column name to be handled by the sequencer.
+     * @param columnTransformationDefinition the column name and options to be handled by the sequencer.
      * @return the resulting configured sequencer bean.
      */
-    Object createSequencerBean(Class beanClass, TransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName);
+    Object createSequencerBean(Class beanClass, SequencerDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, ColumnTransformationDefinition columnTransformationDefinition);
 }

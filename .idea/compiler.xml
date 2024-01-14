@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <addNotNullAssertions enabled="false" />
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/datamigrator-archetype/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" procOnly="true" />
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -81,26 +82,12 @@
         <module name="sample-mono" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="archetype" target="17" />
-      <module name="datamigratortests" target="1.5" />
-      <module name="sample-mono-archetype" target="17" />
-      <module name="test-datamigration" target="17" />
-      <module name="test-datamigrator" target="17" />
-      <module name="testdatamig" target="17" />
-      <module name="testdatamigation" target="1.5" />
-      <module name="testdatamigration" target="1.5" />
-      <module name="testmig" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="data-migrator-core" options="-parameters" />
       <module name="faker" options="-parameters" />
       <module name="sample-mono" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
-      <module name="test-datamigration" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
-      <module name="test-datamigrator" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
-      <module name="testdatamig" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
     </option>
   </component>
 </project>

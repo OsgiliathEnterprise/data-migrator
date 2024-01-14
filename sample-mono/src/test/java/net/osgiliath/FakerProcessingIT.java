@@ -2,8 +2,8 @@ package net.osgiliath;
 
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
-import net.osgiliath.datamigrator.sample.domain.Country;
 import net.osgiliath.datamigrator.sample.domain.Employee;
+import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
@@ -12,8 +12,6 @@ import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
-import net.osgiliath.datamigrator.sample.repository.CountryRepository;
-import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Test;
@@ -36,16 +34,17 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(classes = { DataMigratorApplication.class })
+@SpringBootTest(classes = {DataMigratorApplication.class})
 class FakerProcessingIT {
     static {
-      System.setProperty("liquibase.duplicateFileMode", "WARN");
+        System.setProperty("liquibase.duplicateFileMode", "WARN");
     }
+
     private static final Logger logger = LoggerFactory.getLogger(FakerProcessingIT.class);
 
     @Container
     static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:latest"));
-            // .withExposedPorts(64449);
+    // .withExposedPorts(64449);
 
     @Container
     static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:latest"));
@@ -67,12 +66,12 @@ class FakerProcessingIT {
         registry.add("spring.datasource.sink.type", () -> "com.zaxxer.hikari.HikariDataSource");
         registry.add("spring.datasource.sink.hikari.poolName", () -> "sinkHikari");
         registry.add("spring.datasource.sink.hikari.auto-commit", () -> false);
-        DataSource  ds = DataSourceBuilder.create()
-            .url(mySQLSourceContainer.getJdbcUrl())
-            .username(mySQLSourceContainer.getUsername())
-            .password(mySQLSourceContainer.getPassword())
-            .driverClassName(mySQLSourceContainer.getDriverClassName())
-            .build();
+        DataSource ds = DataSourceBuilder.create()
+                .url(mySQLSourceContainer.getJdbcUrl())
+                .username(mySQLSourceContainer.getUsername())
+                .password(mySQLSourceContainer.getPassword())
+                .driverClassName(mySQLSourceContainer.getDriverClassName())
+                .build();
         try {
             logger.warn("Starting Liquibase import");
             SpringLiquibase liquibase = new SpringLiquibase();
@@ -114,8 +113,11 @@ class FakerProcessingIT {
             assertThat(employees).hasSize(9);
             List<String> firstNames = employees.stream().map(Employee::getFirstName).toList();
             assertThat(firstNames).doesNotContain("Shanny", "Chaz", "Horace", "Korbin", "Israel", "Javon", "Beryl", "Everett", "Destiny", "Sandrine");
-            firstNames.stream().forEach(c ->
-                assertThat(c).isNotEmpty()
+            firstNames.stream().forEach(c -> {
+
+                        logger.warn("faked values {}", c);
+                        assertThat(c).isNotEmpty();
+                    }
             );
         }
     }

@@ -20,7 +20,7 @@ package net.osgiliath.migrator.core.processing.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.configuration.TransformationConfigurationDefinition;
+import net.osgiliath.migrator.core.configuration.SequencerDefinition;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 public class VertexAndSequencerBeanClass {
@@ -40,7 +40,7 @@ public class VertexAndSequencerBeanClass {
         return definitionAndBeanClass.getBeanClass();
     }
 
-    public TransformationConfigurationDefinition getDefinition() {
+    public SequencerDefinition getDefinition() {
         return definitionAndBeanClass.getSequencerConfiguration();
     }
 }

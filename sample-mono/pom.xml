@@ -16,7 +16,7 @@
         <!-- End test configuration-->
         <jpa.domain.package>${project.groupId}.domain</jpa.domain.package>
     </properties>
-        <dependencyManagement>
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>net.osgiliath.datamigrator</groupId>
@@ -124,26 +124,11 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
-                    <compilerArgs>
-                        <arg>-Aquerydsl.entityAccessors=true</arg>
-                        <arg>-Aquerydsl.useFields=false</arg>
-                    </compilerArgs>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
                             <version>${spring-boot.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${hibernate.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>com.querydsl</groupId>
-                            <artifactId>querydsl-apt</artifactId>
-                            <version>${querydsl.version}</version>
-                            <classifier>jakarta</classifier>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                 </configuration>
@@ -152,19 +137,19 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <executions>
-                  <execution>
-                    <phase>initialize</phase>
-                    <goals>
-                      <goal>read-project-properties</goal>
-                    </goals>
-                    <configuration>
-                      <files>
-                        <file>${basedir}/database.properties</file>
-                      </files>
-                    </configuration>
-                  </execution>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${basedir}/database.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
                 </executions>
-              </plugin>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -247,6 +232,37 @@
                         </dependencies>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
+                            <compilerArgs>
+                                <arg>-Aquerydsl.entityAccessors=true</arg>
+                                <arg>-Aquerydsl.useFields=false</arg>
+                            </compilerArgs>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-configuration-processor</artifactId>
+                                    <version>${spring-boot.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>org.hibernate</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <version>${hibernate.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>com.querydsl</groupId>
+                                    <artifactId>querydsl-apt</artifactId>
+                                    <version>${querydsl.version}</version>
+                                    <classifier>jakarta</classifier>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.google.code.maven-replacer-plugin</groupId>
                         <artifactId>replacer</artifactId>
                         <executions>
@@ -296,15 +312,18 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <phase>generate-sources</phase>
                                 <configuration>
                                     <target>
-                                        <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                        <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                         <move todir="${project.build.directory}/generated-sources/repositories">
-                                            <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                            <fileset dir="${project.basedir}/src/main/java"
+                                                     includes="**/repository/*.java"/>
                                         </move>
                                     </target>
                                 </configuration>
@@ -341,8 +360,8 @@
             <build>
                 <plugins>
                     <plugin>
-                         <groupId>org.liquibase</groupId>
-                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-changelog</id>
@@ -353,7 +372,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints</diffTypes>
+                            <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints
+                            </diffTypes>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -364,8 +384,8 @@
             <build>
                 <plugins>
                     <plugin>
-                         <groupId>org.liquibase</groupId>
-                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-changelog</id>
@@ -388,6 +408,37 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
+                            <compilerArgs>
+                                <arg>-Aquerydsl.entityAccessors=true</arg>
+                                <arg>-Aquerydsl.useFields=false</arg>
+                            </compilerArgs>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-configuration-processor</artifactId>
+                                    <version>${spring-boot.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>org.hibernate</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <version>${hibernate.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>com.querydsl</groupId>
+                                    <artifactId>querydsl-apt</artifactId>
+                                    <version>${querydsl.version}</version>
+                                    <classifier>jakarta</classifier>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
                         <executions>
@@ -405,31 +456,33 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                          <alias>database</alias>
-                                          <name>${source.database.docker.image}</name>
-                                          <run>
-                                            <wait>
-                                                <time>${source.database.spinup.wait.time}</time>
-                                                <!-- Do not work no matter the ideal wait <tcp>
-                                                    <host>127.0.0.1</host>
-                                                    <ports>
-                                                        <port>3306</port>
-                                                    </ports>
-                                                </tcp>
-                                                <log>mysqld: ready for connections</log>
-                                                <time>20000</time>-->
-                                            </wait>
-                                            <env>
-                                                <MYSQL_ROOT_PASSWORD>${source.datasource.password}</MYSQL_ROOT_PASSWORD>
-                                                <MYSQL_DATABASE>${source.datasource.defaultSchemaName}</MYSQL_DATABASE>
-                                                <MYSQL_USER>${source.datasource.username}</MYSQL_USER>
-                                                <MYSQL_PASSWORD>${source.datasource.password}</MYSQL_PASSWORD>
-                                            </env>
-                                              <ports>
-                                                <port>${source.database.port}:${source.database.port}</port>
-                                              </ports>
-                                              <!--<network><mode>bridge</mode></network>-->
-                                          </run>
+                                            <alias>database</alias>
+                                            <name>${source.database.docker.image}</name>
+                                            <run>
+                                                <wait>
+                                                    <time>${source.database.spinup.wait.time}</time>
+                                                    <!-- Do not work no matter the ideal wait <tcp>
+                                                        <host>127.0.0.1</host>
+                                                        <ports>
+                                                            <port>3306</port>
+                                                        </ports>
+                                                    </tcp>
+                                                    <log>mysqld: ready for connections</log>
+                                                    <time>20000</time>-->
+                                                </wait>
+                                                <env>
+                                                    <MYSQL_ROOT_PASSWORD>${source.datasource.password}
+                                                    </MYSQL_ROOT_PASSWORD>
+                                                    <MYSQL_DATABASE>${source.datasource.defaultSchemaName}
+                                                    </MYSQL_DATABASE>
+                                                    <MYSQL_USER>${source.datasource.username}</MYSQL_USER>
+                                                    <MYSQL_PASSWORD>${source.datasource.password}</MYSQL_PASSWORD>
+                                                </env>
+                                                <ports>
+                                                    <port>${source.database.port}:${source.database.port}</port>
+                                                </ports>
+                                                <!--<network><mode>bridge</mode></network>-->
+                                            </run>
                                         </image>
                                     </images>
                                 </configuration>
@@ -592,9 +645,10 @@
                                 <phase>generate-sources</phase>
                                 <configuration>
                                     <target>
-                                        <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                        <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                         <move todir="${project.build.directory}/generated-sources/repositories">
-                                            <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                            <fileset dir="${project.basedir}/src/main/java"
+                                                     includes="**/repository/*.java"/>
                                         </move>
                                     </target>
                                 </configuration>
@@ -631,8 +685,8 @@
             <build>
                 <plugins>
                     <plugin>
-                         <groupId>org.liquibase</groupId>
-                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-changelog</id>
@@ -642,30 +696,39 @@
                                 </goals>
                             </execution>
                         </executions>
-                            <configuration>
-                             <!--set values for Liquibase properties and settings
-                             for example, the location of a properties file to use-->
+                        <configuration>
+                            <!--set values for Liquibase properties and settings
+                            for example, the location of a properties file to use-->
                             <duplicateFileMode>WARN</duplicateFileMode>
-                             <changeLogFile>${project.build.directory}/classes/config/liquibase-sink/master.xml</changeLogFile>
-                             <diffChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
-                             <outputChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
-                             <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
-                             <driver>${target.database.driver}</driver>
-                             <url>${target.database.url}</url>
-                             <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
-                             <username>${target.datasource.username}</username>
-                             <password>${target.datasource.password}</password>
-                             <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
-                             <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
-                             <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                             <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
-                             <overwriteOutputFile>true</overwriteOutputFile>
-                             <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
-                             <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
-                             <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
-                             <includeCatalog>true</includeCatalog>
-                             <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink</outputDirectory>
-                         </configuration>
+                            <changeLogFile>${project.build.directory}/classes/config/liquibase-sink/master.xml
+                            </changeLogFile>
+                            <diffChangeLogFile>
+                                ${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml
+                            </diffChangeLogFile>
+                            <outputChangeLogFile>
+                                ${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml
+                            </outputChangeLogFile>
+                            <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
+                            <driver>${target.database.driver}</driver>
+                            <url>${target.database.url}</url>
+                            <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
+                            <username>${target.datasource.username}</username>
+                            <password>${target.datasource.password}</password>
+                            <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
+                            <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
+                            <!--<referencePassword>${target.datasource.password}</referencePassword>-->
+                            <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                            <overwriteOutputFile>true</overwriteOutputFile>
+                            <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
+                            <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data
+                            </diffTypes>
+                            <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details,
+                                oauth_client_token, oauth_code, oauth_refresh_token
+                            </diffExcludeObjects>
+                            <includeCatalog>true</includeCatalog>
+                            <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink
+                            </outputDirectory>
+                        </configuration>
                         <dependencies>
                             <dependency>
                                 <groupId>org.springframework.boot</groupId>
@@ -682,8 +745,8 @@
             <build>
                 <plugins>
                     <plugin>
-                         <groupId>org.liquibase</groupId>
-                         <artifactId>liquibase-maven-plugin</artifactId>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-changelog</id>
@@ -693,29 +756,37 @@
                                 </goals>
                             </execution>
                         </executions>
-                            <configuration>
-                             <!--set values for Liquibase properties and settings
-                             for example, the location of a properties file to use-->
-                             <changeLogFile>/config/liquibase-sink/master.xml</changeLogFile>
-                             <diffChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml</diffChangeLogFile>
-                             <outputChangeLogFile>${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml</outputChangeLogFile>
-                             <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
-                             <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink</outputDirectory>
-                             <driver>${target.database.driver}</driver>
-                             <url>${target.database.url}</url>
-                             <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
-                             <username>${target.datasource.username}</username>
-                             <password>${target.datasource.password}</password>
-                             <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
-                             <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
-                             <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                             <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
-                             <overwriteOutputFile>true</overwriteOutputFile>
-                             <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
-                             <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data</diffTypes>
-                             <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token</diffExcludeObjects>
-                             <includeCatalog>true</includeCatalog>
-                         </configuration>
+                        <configuration>
+                            <!--set values for Liquibase properties and settings
+                            for example, the location of a properties file to use-->
+                            <changeLogFile>/config/liquibase-sink/master.xml</changeLogFile>
+                            <diffChangeLogFile>
+                                ${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_diff.xml
+                            </diffChangeLogFile>
+                            <outputChangeLogFile>
+                                ${project.build.directory}/classes/config/liquibase-sink/changelog/${maven.build.timestamp}_changelog.xml
+                            </outputChangeLogFile>
+                            <dataDir>${project.build.directory}/classes/config/liquibase-sink/data</dataDir>
+                            <outputDirectory>${project.build.directory}/classes/config/liquibase/changelog-sink
+                            </outputDirectory>
+                            <driver>${target.database.driver}</driver>
+                            <url>${target.database.url}</url>
+                            <defaultSchemaName>${target.datasource.defaultSchemaName}</defaultSchemaName>
+                            <username>${target.datasource.username}</username>
+                            <password>${target.datasource.password}</password>
+                            <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
+                            <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
+                            <!--<referencePassword>${target.datasource.password}</referencePassword>-->
+                            <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                            <overwriteOutputFile>true</overwriteOutputFile>
+                            <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
+                            <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data
+                            </diffTypes>
+                            <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details,
+                                oauth_client_token, oauth_code, oauth_refresh_token
+                            </diffExcludeObjects>
+                            <includeCatalog>true</includeCatalog>
+                        </configuration>
                         <dependencies>
                             <dependency>
                                 <groupId>org.springframework.boot</groupId>

@@ -24,6 +24,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
 import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransformer;
+import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
@@ -73,10 +74,10 @@ public class SequenceProcessor {
                     if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
                         beans.addAll(context.getBeansOfType(vertexAndSequencerBean.getBeanClass()).values());
                     } else if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.FACTORY)) {
-                        if (vertexAndSequencerBean.getDefinition().getColumns().isEmpty()) {
+                        if (vertexAndSequencerBean.getDefinition().getColumnTransformationDefinitions().isEmpty()) {
                             beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, null));
                         } else {
-                            for (String columnName : vertexAndSequencerBean.getDefinition().getColumns()) {
+                            for (ColumnTransformationDefinition columnName : vertexAndSequencerBean.getDefinition().getColumnTransformationDefinitions()) {
                                 beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, columnName));
                             }
                         }

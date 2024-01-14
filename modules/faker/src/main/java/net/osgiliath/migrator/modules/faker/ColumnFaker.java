@@ -20,15 +20,14 @@ package net.osgiliath.migrator.modules.faker;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import org.jgrapht.Graph;
+import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 
 public class ColumnFaker extends AbstractFaker<Object> {
 
 
-	public ColumnFaker(MetamodelVertex metamodel, String columnName) {
-		super(metamodel, columnName);
+	public ColumnFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
+		super(metamodel, columnTransformationDefinition);
 	}
 
 	@Override

@@ -1,29 +1,28 @@
 data-migrator:
   model-base-package: @jpa.domain.package@
   sequence:
-#    - rows-minimize-1
-#    - column-anonymize-1
-#    - column-anonymize-2
+    #    - rows-minimize-1
+    #    - column-anonymize-1
+    #    - column-anonymize-2
     - anonymizer-custom-1
   sequencers:
-#    - name: rows-minimize-1
-#      type: rows-minimize
-#      rows-to-keep: 10
-#    - name: column-anonymize-1
-#      type: column-anonymizers
-#      table: virtuals
-#      column: password
-#      faker: RockBand
-#    - name: column-anonymize-2
-#      type: column-anonymizers
-#      table: virtuals
-#      column: biosspass
-#      faker: Disease
+  # TODO    - name: rows-minimize-1
+  #      type: rows-minimize
+  #      rows-to-keep: 10
+  # Included   - name: column-anonymize-1
+  #      type: factory
+  #      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
+  #      entity-class: Employee
+  #      column-transformation-definitions:
+  #        - column-name: firstName
+  #          options:
+  #            - faker-class: net.datafaker.providers.entertainment.Dragonball
+  #              faker-function: character # https://www.datafaker.net/documentation/getting-started/ for options, will default to a dragonball character if not set
 
-#    - name: anonymizer-custom-1
-#      type: bean
-#      transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
-#      entity-class: Country
+  #    - name: anonymizer-custom-1
+  #      type: bean
+  #      transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
+  #      entity-class: Country
   graph-datasource:
     type: embedded
 spring:
@@ -48,10 +47,10 @@ spring:
     properties:
       hibernate:
         id.new_generator_mappings: true
-#        cache:
-#          use_second_level_cache: true
-#          use_query_cache: false
-#          region.factory_class: jcache
+        #        cache:
+        #          use_second_level_cache: true
+        #          use_query_cache: false
+        #          region.factory_class: jcache
         generate_statistics: false
         # modify batch size as necessary
         jdbc:

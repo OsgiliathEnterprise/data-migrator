@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.metamodel.helper;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,11 @@ package net.osgiliath.migrator.core.metamodel.helper;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
@@ -47,19 +47,20 @@ public class JpaEntityHelper {
 
     /**
      * Assess if the class relationship is derived (not the owner side).
-     * @param entityClass the entity class.
+     *
+     * @param entityClass   the entity class.
      * @param attributeName the attribute name.
      * @return the entity class name.
      */
     public boolean isDerived(Class<?> entityClass, String attributeName) {
         try {
             Method m = entityClass.getDeclaredMethod(fieldToGetter(attributeName));
-            for (Annotation a: m.getDeclaredAnnotations()) {
+            for (Annotation a : m.getDeclaredAnnotations()) {
                 if (a instanceof OneToMany) {
                     return !((OneToMany) a).mappedBy().isEmpty();
                 } else if (a instanceof ManyToMany) {
                     addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(entityClass, m);
-                    return !((ManyToMany) a).mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType)m.getGenericReturnType()).getActualTypeArguments()[0]);
+                    return !((ManyToMany) a).mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
                 } else if (a instanceof OneToOne) {
                     return !((OneToOne) a).mappedBy().isEmpty();
                 }
@@ -72,7 +73,8 @@ public class JpaEntityHelper {
 
     /**
      * selects the owning side of a many to many relationship.
-     * @param entityClass the entity class.
+     *
+     * @param entityClass      the entity class.
      * @param manyToManyMethod the many to many method.
      */
     private void addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(Class<?> entityClass, Method manyToManyMethod) {
@@ -80,16 +82,16 @@ public class JpaEntityHelper {
             return;
         }
         boolean isMappedBy = Arrays.stream(manyToManyMethod.getDeclaredAnnotations())
-            .filter(a -> a instanceof ManyToMany)
-            .anyMatch(a -> !((ManyToMany) a).mappedBy().isEmpty());
+                .filter(a -> a instanceof ManyToMany)
+                .anyMatch(a -> !((ManyToMany) a).mappedBy().isEmpty());
         if (isMappedBy) {
             return;
         }
-        Class<?> targetEntityClass = (Class<?>) ((ParameterizedType)manyToManyMethod.getGenericReturnType()).getActualTypeArguments()[0];
-        for (Method targetEntityClassMethod: targetEntityClass.getDeclaredMethods()) {
+        Class<?> targetEntityClass = (Class<?>) ((ParameterizedType) manyToManyMethod.getGenericReturnType()).getActualTypeArguments()[0];
+        for (Method targetEntityClassMethod : targetEntityClass.getDeclaredMethods()) {
             for (Annotation a : targetEntityClassMethod.getDeclaredAnnotations()) {
                 if (a instanceof ManyToMany && ((ManyToMany) a).mappedBy().isEmpty()) {
-                    Class<?> targetEntityClassManyToManyTargetEntity = (Class<?>) ((ParameterizedType)targetEntityClassMethod.getGenericReturnType()).getActualTypeArguments()[0];
+                    Class<?> targetEntityClassManyToManyTargetEntity = (Class<?>) ((ParameterizedType) targetEntityClassMethod.getGenericReturnType()).getActualTypeArguments()[0];
                     if (targetEntityClassManyToManyTargetEntity.equals(entityClass) && !randomManyToManyOwningSide.contains(targetEntityClass)) {
                         randomManyToManyOwningSide.add(entityClass);
                         break;
@@ -101,34 +103,40 @@ public class JpaEntityHelper {
 
     /**
      * Gets the primary key getter entity method.
+     *
      * @param entityClass the entity class.
      * @return the primary key getter method.
      */
-    public Method getPrimaryKeyGetterMethod(Class<?> entityClass) {
+    public Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
         return Arrays.stream(entityClass.getDeclaredMethods()).filter(
                 m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof jakarta.persistence.Id)
-        ).findAny().orElseThrow(() -> new RuntimeException("No getter for primary key in class" + entityClass));
+        ).findAny();
     }
 
     /**
      * Gets the primary key value.
+     *
      * @param entityClass the entity class.
-     * @param entity the entity.
+     * @param entity      the entity.
      * @return the primary key value.
      */
     public Object getId(Class<?> entityClass, Object entity) {
-        Method primaryKeyGetterMethod = getPrimaryKeyGetterMethod(entityClass);
-        try {
-            return primaryKeyGetterMethod.invoke(entity);
-        } catch (Exception e) {
-            throw new RuntimeException("The primary key getter method couldn't be invoked", e);
-        }
+        return getPrimaryKeyGetterMethod(entityClass).map(
+                primaryKeyGetterMethod -> {
+                    try {
+                        return primaryKeyGetterMethod.invoke(entity);
+                    } catch (Exception e) {
+                        throw new RuntimeException("The primary key getter method couldn't be invoked", e);
+                    }
+                }
+        );
     }
 
     /**
      * Gets the getter method for a field.
+     *
      * @param entityClass the entity class.
-     * @param attribute the attribute.
+     * @param attribute   the attribute.
      * @return the getter method.
      */
     public Method getterMethod(Class<?> entityClass, Field attribute) {
@@ -138,6 +146,7 @@ public class JpaEntityHelper {
 
     /**
      * Gets the getter method name for a field.
+     *
      * @param attributeName the attribute name to get the getter name.
      * @return the getter name.
      */
@@ -147,6 +156,7 @@ public class JpaEntityHelper {
 
     /**
      * Gets the setter method name for a field.
+     *
      * @param attributeName the attribute name to get the setter name.
      * @return the setter name.
      */
@@ -156,17 +166,17 @@ public class JpaEntityHelper {
 
     /**
      * Gets the primary key field name.
+     *
      * @param entityClass the entity class.
      * @return the primary key field name.
      */
     public String getPrimaryKeyFieldName(Class<?> entityClass) {
-        String primaryKeyGetterName = getPrimaryKeyGetterMethod(entityClass).getName();
-        String primaryKeyFieldName = getterToFieldName(primaryKeyGetterName);
-        return primaryKeyFieldName;
+        return getPrimaryKeyGetterMethod(entityClass).map(primaryKeyGetter -> getterToFieldName(primaryKeyGetter.getName())).get();
     }
 
     /**
      * Gets the field name from a getter method name.
+     *
      * @param getterName the getter name.
      * @return the field name.
      */
@@ -176,6 +186,7 @@ public class JpaEntityHelper {
 
     /**
      * Gets Relationship type of a relationship between two entities.
+     *
      * @param getterMethod the getter method of the relationship.
      * @return the type of the relationship (one to one, one to many, many to many).
      */
@@ -195,8 +206,9 @@ public class JpaEntityHelper {
 
     /**
      * Gets the Setter method for a field
+     *
      * @param entityClass the entity class.
-     * @param field the field.
+     * @param field       the field.
      * @return the setter method.
      */
     public Optional<Method> setterMethod(Class<?> entityClass, Field field) {
@@ -206,7 +218,8 @@ public class JpaEntityHelper {
 
     /**
      * Gets the inverse relationship field.
-     * @param getterMethod the getter method that targets an entity (relationship).
+     *
+     * @param getterMethod      the getter method that targets an entity (relationship).
      * @param targetEntityClass the target entity class.
      * @return the inverse relationship field.
      */
@@ -223,34 +236,36 @@ public class JpaEntityHelper {
 
     /**
      * Finds the inverse relationship field without mappedBy information.
+     *
      * @param targetEntityClass the target entity class.
-     * @param getterMethod the getter method that targets the target entity.
-     * @param relationshipType the relationship type.
+     * @param getterMethod      the getter method that targets the target entity.
+     * @param relationshipType  the relationship type.
      * @return the inverse relationship field.
      */
     private Optional<Field> findInverseRelationshipFieldWithoutMappedByInformation(Class<?> targetEntityClass, Method getterMethod, RelationshipType relationshipType) {
         Class<?> sourceClass = getterMethod.getDeclaringClass();
         return Arrays.stream(targetEntityClass.getDeclaredFields())
-            .filter((Field field) -> {
-                if (field.getGenericType().equals(sourceClass)) {
-                    return true;
-                } else if(Collection.class.isAssignableFrom(field.getType())) {
-                    Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                    if (typeOfCollection.equals(sourceClass)) {
+                .filter((Field field) -> {
+                    if (field.getGenericType().equals(sourceClass)) {
                         return true;
+                    } else if (Collection.class.isAssignableFrom(field.getType())) {
+                        Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        if (typeOfCollection.equals(sourceClass)) {
+                            return true;
+                        }
                     }
-                }
-                return false;
-            }).map((Field field) -> {
-                Method getterMethodOfField = getterMethod(targetEntityClass, field);
-                RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
-                return new AbstractMap.SimpleEntry<>(field, inverseRelationshipType);
-            }).filter(entry -> isInverseRelationshipType(relationshipType, entry.getValue()))
-            .map(entry -> entry.getKey()).findAny();
+                    return false;
+                }).map((Field field) -> {
+                    Method getterMethodOfField = getterMethod(targetEntityClass, field);
+                    RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
+                    return new AbstractMap.SimpleEntry<>(field, inverseRelationshipType);
+                }).filter(entry -> isInverseRelationshipType(relationshipType, entry.getValue()))
+                .map(entry -> entry.getKey()).findAny();
     }
 
     /**
      * Gets the mappedBy value.
+     *
      * @param getterMethod the getter method to get the information from (the annotation value).
      * @return the mappedBy value.
      */
@@ -270,8 +285,9 @@ public class JpaEntityHelper {
 
     /**
      * Checks if the inverse relationship type is the inverse type of a the relationship type.
-     * @param relationshipType the relationship type.
-     *                         (one to one, one to many, many to many, many to one).
+     *
+     * @param relationshipType        the relationship type.
+     *                                (one to one, one to many, many to many, many to one).
      * @param inverseRelationshipType the inverse relationship type.
      * @return the inverse relationship field.
      */
@@ -291,27 +307,29 @@ public class JpaEntityHelper {
 
     /**
      * Gets the field value.
-     * @param entityClass the entity class.
-     * @param entity the entity.
+     *
+     * @param entityClass   the entity class.
+     * @param entity        the entity.
      * @param attributeName the attribute name to get value from.
      * @return the field value.
      */
     public Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
-            try {
-                return getterMethod.invoke(entity);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        })
-        .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
+                    try {
+                        return getterMethod.invoke(entity);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
     }
 
     /**
      * Gets the field value regarding an attribute name.
+     *
      * @param entityClass the entity class.
      * @return the field.
      */
@@ -321,22 +339,26 @@ public class JpaEntityHelper {
 
     /**
      * Sets the field value.
-     * @param entityClass the entity class.
-     * @param entity the entity to set value.
+     *
+     * @param entityClass   the entity class.
+     * @param entity        the entity to set value.
      * @param attributeName the attribute name to set value.
-     * @param value the value to set.
+     * @param value         the value to set.
      */
     public void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
-        field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {throw new RuntimeException("No field with name "+ attributeName +" in class " + entityClass.getSimpleName());});
+        field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {
+            throw new RuntimeException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
+        });
     }
 
     /**
      * Sets the field value.
+     *
      * @param entityClass the entity class.
-     * @param entity the entity to set value.
-     * @param field the field to set value.
-     * @param value the value to set.
+     * @param entity      the entity to set value.
+     * @param field       the field to set value.
+     * @param value       the value to set.
      */
     public void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
         setterMethod(entityClass, field).ifPresentOrElse(setterMethod -> {
@@ -348,12 +370,13 @@ public class JpaEntityHelper {
                 throw new RuntimeException(e);
             }
         }, () -> {
-            throw new RuntimeException("No setter with name "+ fieldToSetter(field.getName()) +" in class " + entityClass.getSimpleName());
+            throw new RuntimeException("No setter with name " + fieldToSetter(field.getName()) + " in class " + entityClass.getSimpleName());
         });
     }
 
     /**
      * Gets the primary key value of an entity.
+     *
      * @param entity the entity.
      * @return the primary key value.
      */

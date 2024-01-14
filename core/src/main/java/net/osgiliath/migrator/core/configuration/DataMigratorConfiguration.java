@@ -49,7 +49,7 @@ public class DataMigratorConfiguration {
     /**
      * List of sequencers being able to handle the sequence.
      */
-    private List<? extends TransformationConfigurationDefinition> sequencers;
+    private List<? extends SequencerDefinition> sequencers;
 
     /**
      * Graph datasource configuration.
@@ -103,7 +103,7 @@ public class DataMigratorConfiguration {
      * List of sequencers being able to handle the sequence.
      * @return the list of sequencers.
      */
-    public List<? extends TransformationConfigurationDefinition> getSequencers() {
+    public List<? extends SequencerDefinition> getSequencers() {
         return sequencers;
     }
 
@@ -111,7 +111,7 @@ public class DataMigratorConfiguration {
      * List of sequencers being able to handle the sequence.
      * @param sequencers the list of sequencers.
      */
-    public void setSequencers(List<? extends TransformationConfigurationDefinition> sequencers) {
+    public void setSequencers(List<? extends SequencerDefinition> sequencers) {
         this.sequencers = sequencers;
     }
 }

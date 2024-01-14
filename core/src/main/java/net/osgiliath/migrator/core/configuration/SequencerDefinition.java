@@ -26,7 +26,7 @@ import java.util.HashSet;
 /**
  * Configuration of the transformation sequences.
  */
-public class TransformationConfigurationDefinition {
+public class SequencerDefinition {
     /**
      * Name of the transformation sequencer.
      */
@@ -50,7 +50,7 @@ public class TransformationConfigurationDefinition {
     /**
      * Columns to be handled by the transformer.
      */
-    private Collection<String> columns = new HashSet<>();
+    private Collection<ColumnTransformationDefinition> columnTransformationDefinitions = new HashSet<>();
 
     /**
      * Get name of the sequencer to be referenced by the sequence.
@@ -118,15 +118,15 @@ public class TransformationConfigurationDefinition {
      * Get the columns to be handled by the transformer.
      * @return
      */
-    public Collection<String> getColumns() {
-        return columns;
+    public Collection<ColumnTransformationDefinition> getColumnTransformationDefinitions() {
+        return columnTransformationDefinitions;
     }
 
     /**
      * Set the columns to be handled by the transformer.
-     * @param columns the columns to be handled by the transformer.
+     * @param columnTransformationDefinitions the columns to be handled by the transformer.
      */
-    public void setColumns(Collection<String> columns) {
-        this.columns = columns;
+    public void setColumnTransformationDefinitions(Collection<ColumnTransformationDefinition> columnTransformationDefinitions) {
+        this.columnTransformationDefinitions = columnTransformationDefinitions;
     }
 }
