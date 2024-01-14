@@ -32,12 +32,10 @@ public abstract class JpaEntityColumnTransformer<FIELD_TYPE> extends CamelExchan
     private static final Logger log = LoggerFactory.getLogger(MetamodelColumnCellTransformer.class);
     private final MetamodelVertex metamodel;
     private final String columnName;
-    private final Graph<MetamodelVertex, FieldEdge> metaModelGraph;
 
-    public JpaEntityColumnTransformer(MetamodelVertex metamodel, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
+    public JpaEntityColumnTransformer(MetamodelVertex metamodel, String columnName) {
         this.metamodel = metamodel;
         this.columnName = columnName;
-        this.metaModelGraph = metaModelGraph;
     }
 
     public String columnName() {
