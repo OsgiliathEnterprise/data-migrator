@@ -27,8 +27,8 @@ import org.jgrapht.Graph;
 public class ColumnFaker extends AbstractFaker<Object> {
 
 
-	public ColumnFaker(MetamodelVertex metamodel, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
-		super(metamodel, columnName, metaModelGraph);
+	public ColumnFaker(MetamodelVertex metamodel, String columnName) {
+		super(metamodel, columnName);
 	}
 
 	@Override

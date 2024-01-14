@@ -37,6 +37,6 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     @Override
     public Object createSequencerBean(Class beanClass, TransformationConfigurationDefinition definition, Graph<MetamodelVertex, FieldEdge> graph, MetamodelVertex metamodelVertex, ModelElement entity, String columnName) {
-        return new ColumnFaker(metamodelVertex, columnName, graph);
+        return new ColumnFaker(metamodelVertex, columnName);
     }
 }

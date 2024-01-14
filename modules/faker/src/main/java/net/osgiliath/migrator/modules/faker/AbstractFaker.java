@@ -38,8 +38,8 @@ import java.util.Random;
 
 public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransformer<COLUMN_TYPE> {
 
-	public AbstractFaker(MetamodelVertex metamodel, String columnName, Graph<MetamodelVertex, FieldEdge> metaModelGraph) {
-		super(metamodel, columnName, metaModelGraph);
+	public AbstractFaker(MetamodelVertex metamodel, String columnName) {
+		super(metamodel, columnName);
 	}
 
 	protected String fake(String value) {
