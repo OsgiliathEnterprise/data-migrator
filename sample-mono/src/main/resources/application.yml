@@ -24,8 +24,7 @@ data-migrator:
     #      column-transformation-definitions:
     #        - column-name: firstName
     #          options:
-    #            - faker-class: net.datafaker.providers.entertainment.Dragonball
-    #              faker-function: character # https://www.datafaker.net/documentation/getting-started/ for options, will default to a dragonball character if not set
+    #            - faker: dragon_ball.characters # https://www.datafaker.net/documentation/getting-started/ for options, will default to a dragonball character if not set
 
     - name: anonymizer-custom-1
       type: bean

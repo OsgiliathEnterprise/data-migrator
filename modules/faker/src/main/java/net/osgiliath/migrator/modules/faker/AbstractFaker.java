@@ -22,19 +22,16 @@ package net.osgiliath.migrator.modules.faker;
 
 
 import net.datafaker.Faker;
-import net.datafaker.providers.base.AbstractProvider;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Function;
 
 public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransformer<COLUMN_TYPE> {
 
@@ -55,23 +52,9 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
 
     private String getRandomString() {
         Faker faker = new Faker().getFaker();
-        if (columnTransformationDefinition.getOptions().containsKey("faker-class")) {
-            Class<?> clzz = null;
-            try {
-                clzz = Class.forName(columnTransformationDefinition.getOptions().get("faker-class"));
-                AbstractProvider reg = faker.getProvider((Class) clzz, (Function) clzz.getDeclaredConstructor().newInstance(faker));
-                return reg.getFaker().resolve(columnTransformationDefinition.getOptions().get("faker-function"));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
+        if (columnTransformationDefinition.getOptions().containsKey("faker")) {
+            String fakerAlg = columnTransformationDefinition.getOptions().get("faker");
+            return faker.resolve(fakerAlg);
         }
         return new StringBuilder()
                 .append(faker.dragonBall().character())
