@@ -39,6 +39,10 @@ jobs:
       with:
         gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+    - name: Test the sample
+      id: test
+      run: |
+        ./mvnw install && cd sample-mono && ../mvnw verify -Pentities-from-changelog
     - name: Verify Whether a Release is Ready
       id: release
       shell: bash
@@ -50,7 +54,7 @@ jobs:
         fi
     - name: Release With Maven
       run: |
-        mvn -B -U \
+        ./mvnw -B -U \
           -Prelease \
           release:prepare \
           release:perform \
