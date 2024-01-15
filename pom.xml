@@ -64,7 +64,7 @@
         <module>modules</module>
         <module>core</module>
         <module>datamigrator-archetype</module>
-        <module>sample-mono</module>
+        <!--<module>sample-mono</module>-->
     </modules>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

@@ -42,7 +42,7 @@ jobs:
       - name: Test the sample
         id: test
         run: |
-          ./mvnw install -pl '!sample-mono' && cd sample-mono && ./mvnw verify -Pentities-from-changelog
+          ./mvnw install && cd sample-mono && ./mvnw verify -Pentities-from-changelog
       - name: Verify Whether a Release is Ready
         id: release
         shell: bash
@@ -55,7 +55,6 @@ jobs:
       - name: Release With Maven
         run: |
           ./mvnw -B -U \
-            -pl '!sample-mono' \
             -P 'release' \
             release:prepare \
             release:perform \
