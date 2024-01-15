@@ -55,8 +55,8 @@ jobs:
       - name: Release With Maven
         run: |
           ./mvnw -B -U \
-            -P 'release,entities-from-changelog' \
             -pl '!sample-mono' \
+            -P 'release' \
             release:prepare \
             release:perform \
             javadoc:jar \
@@ -73,7 +73,7 @@ jobs:
       - name: Artifact Name
         shell: bash
         run: |
-          echo "artifact_name=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> "$GITHUB_ENV"
+          echo "artifact_name=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> "$GITHUB_ENV"
       - name: Workflow Release Notes
         uses: peter-evans/repository-dispatch@v2
         if: ${{ github.event.inputs.releaseVersion }} != "" && ${{ github.event.inputs.developmentVersion }} != ""
