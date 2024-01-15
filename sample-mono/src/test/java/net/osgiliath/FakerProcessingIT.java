@@ -114,8 +114,7 @@ class FakerProcessingIT {
             List<String> firstNames = employees.stream().map(Employee::getFirstName).toList();
             assertThat(firstNames).doesNotContain("Shanny", "Chaz", "Horace", "Korbin", "Israel", "Javon", "Beryl", "Everett", "Destiny", "Sandrine");
             firstNames.stream().forEach(c -> {
-
-                        logger.warn("faked values {}", c);
+                        logger.warn("faked values should append dragonball character {}", c);
                         assertThat(c).isNotEmpty();
                     }
             );

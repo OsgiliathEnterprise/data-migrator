@@ -120,7 +120,7 @@ public class JpaEntityHelper {
      * @param entity      the entity.
      * @return the primary key value.
      */
-    public Object getId(Class<?> entityClass, Object entity) {
+    public Optional<Object> getId(Class<?> entityClass, Object entity) {
         return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {
                     try {
@@ -372,15 +372,5 @@ public class JpaEntityHelper {
         }, () -> {
             throw new RuntimeException("No setter with name " + fieldToSetter(field.getName()) + " in class " + entityClass.getSimpleName());
         });
-    }
-
-    /**
-     * Gets the primary key value of an entity.
-     *
-     * @param entity the entity.
-     * @return the primary key value.
-     */
-    public Object getId(Object entity) {
-        return getId(entity.getClass(), entity);
     }
 }

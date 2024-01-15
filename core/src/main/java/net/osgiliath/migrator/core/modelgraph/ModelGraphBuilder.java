@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class ModelGraphBuilder {
@@ -85,32 +84,19 @@ public class ModelGraphBuilder {
                 );
     }
 
-    private Collection<Vertex> relatedVerticesOfOutgoingEdgeFromModelElementRelationship(TinkerVertex modelVertex, FieldEdge edge, GraphTraversalSource modelGraph) {
+    private Collection<Vertex> relatedVerticesOfOutgoingEdgeFromModelElementRelationship(Vertex modelVertex, FieldEdge edge, GraphTraversalSource modelGraph) {
         log.debug("looking for related vertices for edge {}", edge);
         ModelElement modelElement = modelVertex.value(MODEL_GRAPH_VERTEX_ENTITY);
-        Object targetModelElements = modelElement.getEdgeValueFromModelElementRelationShip(edge, modelGraph);
-        if (targetModelElements instanceof Collection) {
-            return ((Collection<ModelElement>) targetModelElements).stream().map(targetModelElement ->
-                    targetEdgeVertexOrEmpty(edge, getTargetEntityId(edge, targetModelElement), modelGraph)
-            ).filter(Optional::isPresent).map(Optional::get).toList();
-        } else {
-            if (null != targetModelElements) {
-                return Stream.of(targetEdgeVertexOrEmpty(edge, getTargetEntityId(edge, (ModelElement) targetModelElements), modelGraph))
-                        .filter(Optional::isPresent).map(Optional::get).toList();
+        Optional<Object> targetModelElementsOpt = modelElement.getEdgeValueFromModelElementRelationShip(edge, modelGraph);
+        return targetModelElementsOpt.map(targetModelElements -> {
+            if (targetModelElements instanceof Collection) {
+                return ((Collection<Vertex>) targetModelElements);
+            } else {
+                Collection<Vertex> res = new ArrayList<>();
+                res.add((Vertex) targetModelElements);
+                return res;
             }
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    private Object getTargetEntityId(FieldEdge edge, ModelElement targetEntity) {
-        return targetEntity.getId(edge.getTarget());
-    }
-
-    private Optional<Vertex> targetEdgeVertexOrEmpty(FieldEdge edge, Object targetEntityId, GraphTraversalSource modelGraph) {
-        if (null != targetEntityId) {
-            return Optional.of(targetEdgeVertex(edge, targetEntityId, modelGraph));
-        }
-        return Optional.empty();
+        }).orElse(Collections.EMPTY_LIST);
     }
 
     private Vertex targetEdgeVertex(FieldEdge edge, Object relatedEntityId, GraphTraversalSource modelGraph) {
@@ -127,16 +113,16 @@ public class ModelGraphBuilder {
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
         metamodelVertices.stream()
                 .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
-                .flatMap(mvae -> mvae.getEntities().stream().map(entity -> new MetamodelVertexAndModelElement(mvae.getMetamodelVertex(), entity)))
+                .flatMap(mvaes -> mvaes.getEntities().stream().map(entity -> new MetamodelVertexAndModelElement(mvaes.getMetamodelVertex(), entity)))
+                .flatMap(mvae -> mvae.getModelElement().getId(mvae.getMetamodelVertex()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.getMetamodelVertex(), mvae.getModelElement(), eid)).stream())
                 .forEach(
-                        mvae -> {
-                            Object entityId = mvae.getModelElement().getId(mvae.getMetamodelVertex());
+                        mvaei -> {
                             GraphTraversal traversal = modelGraph
-                                    .addV(mvae.getMetamodelVertex().getTypeName())
-                                    .property(MODEL_GRAPH_VERTEX_ENTITY_ID, entityId)
-                                    .property(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX, mvae.getMetamodelVertex())
-                                    .property(MODEL_GRAPH_VERTEX_ENTITY, mvae.getModelElement());
-                            mvae.getMetamodelVertex().getAdditionalModelVertexProperties(mvae.getModelElement()).forEach((k, v) -> traversal.property(k, v));
+                                    .addV(mvaei.getMetamodelVertex().getTypeName())
+                                    .property(MODEL_GRAPH_VERTEX_ENTITY_ID, mvaei.getId())
+                                    .property(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX, mvaei.getMetamodelVertex())
+                                    .property(MODEL_GRAPH_VERTEX_ENTITY, mvaei.getModelElement());
+                            mvaei.getMetamodelVertex().getAdditionalModelVertexProperties(mvaei.getModelElement()).forEach((k, v) -> traversal.property(k, v));
                             traversal.next();
                         });
     }

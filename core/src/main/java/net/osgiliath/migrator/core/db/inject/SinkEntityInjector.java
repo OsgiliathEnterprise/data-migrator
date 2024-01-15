@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.db.inject;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,24 +22,27 @@ package net.osgiliath.migrator.core.db.inject;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
-import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerVertex;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-import static org.apache.tinkerpop.gremlin.process.traversal.P.*;
+import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 
 @Component
@@ -56,34 +59,34 @@ public class SinkEntityInjector {
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
         removeCyclicElements(modelGraph);
-        processEntities(modelGraph, entityMetamodelGraph, new HashSet<TinkerVertex>());
+        processEntities(modelGraph, entityMetamodelGraph, new HashSet<Vertex>());
     }
 
-    private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, Collection<TinkerVertex> processedVertices) {
+    private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, Collection<Vertex> processedVertices) {
         GraphTraversal leafElements = modelGraph.V().
-            repeat(out())
+                repeat(out())
                 .until(
                         out().filter(__.not(is(P.within(processedVertices)))).count().is(0).or().loops().is(CYCLE_DETECTION_DEPTH)
                 )
                 .filter(__.not(is(P.within(processedVertices))));// .limit(1);
         if (!leafElements.hasNext()) {
             modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(v -> {
-                TinkerVertex modelVertex = (TinkerVertex) v;
-                vertexPersister.persistVertex((ModelElement)modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
+                Vertex modelVertex = v;
+                vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
             });
             return;
         }
         leafElements.toStream()
-            .map(e -> {
-                TinkerVertex modelVertex = (TinkerVertex) e;
-                updateRelationships(modelVertex, entityMetamodelGraph);
-                log.info("Persisting vertex of type {} with id {}", modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
-                return modelVertex;
-            }).forEach(e -> {
-                TinkerVertex modelVertex = (TinkerVertex) e;
-                vertexPersister.persistVertex((ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next());
-                processedVertices.add(modelVertex);
-            });
+                .map(e -> {
+                    TinkerVertex modelVertex = (TinkerVertex) e;
+                    updateRelationships(modelVertex, entityMetamodelGraph);
+                    log.info("Persisting vertex of type {} with id {}", modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
+                    return modelVertex;
+                }).forEach(e -> {
+                    Vertex modelVertex = (Vertex) e;
+                    vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
+                    processedVertices.add(modelVertex);
+                });
         processEntities(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
@@ -91,7 +94,7 @@ public class SinkEntityInjector {
         ModelElement sourceEntity = (ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
         MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
         sourceMetamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
-            StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()),0),false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+                StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
         ).forEach(modelAndMetamodelEdge -> {
             log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
             ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
