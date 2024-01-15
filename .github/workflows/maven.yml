@@ -20,62 +20,63 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Maven Central Repository
-      uses: actions/setup-java@v3
-      with:
-        java-version: 21.0.1
-        distribution: 'temurin'
-        java-package: 'jdk'
-        cache: 'maven'
-        server-id: ossrh
-    - name: Configure Git User
-      run: |
-        git config user.email "actions@github.com"
-        git config user.name "GitHub Actions"
-        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-    - name: Import GPG Key
-      uses: crazy-max/ghaction-import-gpg@v5.0.0
-      with:
-        gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-        passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-    - name: Test the sample
-      id: test
-      run: |
-        ./mvnw install && cd sample-mono && ../mvnw verify -Pentities-from-changelog
-    - name: Verify Whether a Release is Ready
-      id: release
-      shell: bash
-      run: |
-        if [ "${{ github.event.inputs.releaseVersion }}" != "" ] && [ "${{ github.event.inputs.developmentVersion }}" != "" ]; then
-          echo "auto_release=true" >> $GITHUB_ENV
-        else
-          echo "auto_release=false" >> $GITHUB_ENV
-        fi
-    - name: Release With Maven
-      run: |
-        ./mvnw -B -U \
-          -Prelease \
-          release:prepare \
-          release:perform \
-          javadoc:jar \
-          source:jar \
-          -s ./.mvn/settings.xml \
-          -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }} \
-          -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
-          -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-          deploy
-      env:
-        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        AUTO_RELEASE_AFTER_CLOSE: ${{ env.auto_release }}
-    - name: Artifact Name
-      shell: bash
-      run: |
-        echo "artifact_name=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> "$GITHUB_ENV"
-    - name: Workflow Release Notes
-      uses: peter-evans/repository-dispatch@v2
-      if: ${{ github.event.inputs.releaseVersion }} != "" && ${{ github.event.inputs.developmentVersion }} != ""
-      with:
-        event-type: release-notes
-        client-payload: '{"auto_release": "${{ env.auto_release }}", "artifact": "${{ env.artifact_name }}-${{ env.sha_short }}"}'
+      - uses: actions/checkout@v2
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21.0.1
+          distribution: 'temurin'
+          java-package: 'jdk'
+          cache: 'maven'
+          server-id: ossrh
+      - name: Configure Git User
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Import GPG Key
+        uses: crazy-max/ghaction-import-gpg@v5.0.0
+        with:
+          gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      - name: Test the sample
+        id: test
+        run: |
+          ./mvnw install -pl '!sample-mono' && cd sample-mono && ./mvnw verify -Pentities-from-changelog
+      - name: Verify Whether a Release is Ready
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.releaseVersion }}" != "" ] && [ "${{ github.event.inputs.developmentVersion }}" != "" ]; then
+            echo "auto_release=true" >> $GITHUB_ENV
+          else
+            echo "auto_release=false" >> $GITHUB_ENV
+          fi
+      - name: Release With Maven
+        run: |
+          ./mvnw -B -U \
+            -P 'release,entities-from-changelog' \
+            -pl '!sample-mono' \
+            release:prepare \
+            release:perform \
+            javadoc:jar \
+            source:jar \
+            -s ./.mvn/settings.xml \
+            -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }} \
+            -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
+            -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+            deploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          AUTO_RELEASE_AFTER_CLOSE: ${{ env.auto_release }}
+      - name: Artifact Name
+        shell: bash
+        run: |
+          echo "artifact_name=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> "$GITHUB_ENV"
+      - name: Workflow Release Notes
+        uses: peter-evans/repository-dispatch@v2
+        if: ${{ github.event.inputs.releaseVersion }} != "" && ${{ github.event.inputs.developmentVersion }} != ""
+        with:
+          event-type: release-notes
+          client-payload: '{"auto_release": "${{ env.auto_release }}", "artifact": "${{ env.artifact_name }}-${{ env.sha_short }}"}'
