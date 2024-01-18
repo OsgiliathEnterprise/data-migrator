@@ -23,11 +23,6 @@ package net.osgiliath.migrator.modules.faker;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 
-/**
- * Faker for columns.
- *
- * @param <T> the type of the column
- */
 public class ColumnFaker extends AbstractFaker<Object> {
 
 
