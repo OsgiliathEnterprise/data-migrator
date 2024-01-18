@@ -71,7 +71,7 @@ spring:
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource
-      url: @source.database.baseurl@/@source.datasource.defaultSchemaName@?@source.database.options@
+      url: @source.database.url@
       username: @source.datasource.username@
       password: @source.datasource.password@
       hikari:
@@ -79,7 +79,7 @@ spring:
         auto-commit: false
     sink:
       type: com.zaxxer.hikari.HikariDataSource
-      url: @target.database.baseurl@/@target.datasource.defaultSchemaName@?@target.database.options@
+      url: @target.database.url@
       username: @target.datasource.username@
       password: @target.datasource.password@
       hikari:

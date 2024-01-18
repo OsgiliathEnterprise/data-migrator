@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.metamodel.impl;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,10 @@ package net.osgiliath.migrator.core.metamodel.impl;
  * #L%
  */
 
+import jakarta.persistence.metamodel.StaticMetamodel;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.metamodel.impl.internal.spring.AbstractClassAwareClassPathScanningCandidateComponentProvider;
-import jakarta.persistence.metamodel.StaticMetamodel;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
@@ -53,7 +53,7 @@ public class HibernateMetamodelScanner implements MetamodelScanner {
     private Class<?> extractBeanClass(BeanDefinition beanDefinition) {
         try {
             return ((ScannedGenericBeanDefinition) beanDefinition)
-                .resolveBeanClass(this.getClass().getClassLoader());
+                    .resolveBeanClass(this.getClass().getClassLoader());
         } catch (ClassNotFoundException e) {
             return null;
         }

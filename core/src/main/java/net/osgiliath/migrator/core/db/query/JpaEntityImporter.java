@@ -76,17 +76,22 @@ public class JpaEntityImporter implements EntityImporter {
     public List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> query = builder.createQuery(((JpaMetamodelVertex) entityVertex).getEntityClass());
-        Root root = query.from(((JpaMetamodelVertex) entityVertex).getEntityClass());
-        CriteriaQuery<?> select = query.select(root);
-        if (!objectToExclude.isEmpty()) { // Not sure it really works
-            List<Predicate> predicates = excludeAlreadyLoaded(entityVertex, objectToExclude, builder, root);
-            predicates.add(builder.in(root).value(objectToExclude));
-            select.where(predicates.toArray(new Predicate[predicates.size()]));
+        CriteriaQuery<?> query = null;
+        try {
+            query = builder.createQuery(entityManager.getClass().getClassLoader().loadClass(((JpaMetamodelVertex) entityVertex).getEntityClass().getName()));// Didn't find any better idea
+            Root root = query.from(((JpaMetamodelVertex) entityVertex).getEntityClass());
+            CriteriaQuery<?> select = query.select(root);
+            if (!objectToExclude.isEmpty()) { // Not sure it really works
+                List<Predicate> predicates = excludeAlreadyLoaded(entityVertex, objectToExclude, builder, root);
+                predicates.add(builder.in(root).value(objectToExclude));
+                select.where(predicates.toArray(new Predicate[predicates.size()]));
+            }
+            List<?> resultList = entityManager.createQuery(select).getResultList();
+            log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
+            return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
-        List<?> resultList = entityManager.createQuery(select).getResultList();
-        log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
-        return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
     }
 
     /**

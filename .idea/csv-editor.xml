@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/sample-mono/src/main/resources/config/liquibase/data/user.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/sample-mono/src/main/resources/config/liquibase/fake-data/department.csv">
           <value>
             <Attribute>

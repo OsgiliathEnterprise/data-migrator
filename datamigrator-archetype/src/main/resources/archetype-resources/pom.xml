@@ -12,7 +12,7 @@
     <properties>
         <data-migrator.version>${archetypeVersion}</data-migrator.version>
         <!-- End test configuration-->
-        <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
+        <!--<jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>-->
     </properties>
     <version>${version}</version>
     <dependencyManagement>
@@ -86,7 +86,7 @@
                     <artifactId>spring-data-generator</artifactId>
                     <configuration>
                         <entity-package>
-                            <param>${project.groupId}.${project.artifactId}.domain</param>
+                            <param>${jpa.domain.package}</param>
                         </entity-package>
                         <repository-package>${project.groupId}.${project.artifactId}.repository</repository-package>
                         <repository-postfix>Repository</repository-postfix>
@@ -128,6 +128,17 @@
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
                             <version>${spring-boot.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.hibernate</groupId>
+                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <version>${hibernate.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>com.querydsl</groupId>
+                            <artifactId>querydsl-apt</artifactId>
+                            <version>${querydsl.version}</version>
+                            <classifier>jakarta</classifier>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                 </configuration>
@@ -218,7 +229,6 @@
                             </annotationProcessorPaths>
                         </configuration>
                     </plugin>
-
                     <plugin>
                         <groupId>org.hibernate.tool</groupId>
                         <artifactId>hibernate-tools-maven</artifactId>
@@ -290,6 +300,30 @@
                                 <replacement>
                                     <token>, insertable=false</token>
                                     <value></value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Version</token>
+                                    <value>// @Version</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="GROUP"</token>
+                                    <value>@Column(name="\"GROUP\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="TO"</token>
+                                    <value>@Column(name="\"TO\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="LEFT"</token>
+                                    <value>@Column(name="\"LEFT\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="FROM"</token>
+                                    <value>@Column(name="\"FROM\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="USER"</token>
+                                    <value>@Column(name="\"USER\""</value>
                                 </replacement>
                             </replacements>
                         </configuration>
@@ -615,6 +649,30 @@
                                 <replacement>
                                     <token>, insertable=false</token>
                                     <value></value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Version</token>
+                                    <value>// @Version</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="TO"</token>
+                                    <value>@Column(name="\"TO\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="LEFT"</token>
+                                    <value>@Column(name="\"LEFT\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="FROM"</token>
+                                    <value>@Column(name="\"FROM\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="USER"</token>
+                                    <value>@Column(name="\"USER\""</value>
+                                </replacement>
+                                <replacement>
+                                    <token>\@Column(name="GROUP"</token>
+                                    <value>@Column(name="\"GROUP\""</value>
                                 </replacement>
                             </replacements>
                         </configuration>

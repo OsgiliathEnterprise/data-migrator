@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -88,6 +89,7 @@
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
         <querydsl.version>5.0.0</querydsl.version>
+        <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
     <build>
         <pluginManagement>
@@ -147,7 +149,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -329,7 +331,7 @@
                     <configuration>
                         <ejb3>true</ejb3>
                         <jdk5>true</jdk5>
-                        <packageName>${project.groupId}.domain</packageName>
+                        <packageName>${jpa.domain.package}</packageName>
                         <outputDirectory>${project.build.directory}/generated-sources/entities</outputDirectory>
                     </configuration>
                 </plugin>

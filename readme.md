@@ -60,6 +60,9 @@ manually. The most common issues are:
 - (optional) adding the mappedBy (ownig side id) annotation on `@ManyToMany` annotation to ensure reproducibility of the
   anonymization sequence (i.e. the same data will be generated for the same input data).
 - (optional) add `@Basic(fetch = FetchType.LAZY)` on blobs and clobs attributes (to avoid heavy memory overloading.
+- Remove `@Version` annotation if it's not an hibernate version column (i.e. it's a business version column)
+- Escape the column names that are reserved words in the target database (e.g. ` @Column(name = "\"schema\"")` in
+  postgresql)
 
 ## Integration testing for your anonymization sequence
 
