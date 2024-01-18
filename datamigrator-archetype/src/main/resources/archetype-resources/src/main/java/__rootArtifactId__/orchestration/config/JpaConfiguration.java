@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.${project.artifactId}.orchestration.config;
+package ${package}.${artifactId}.orchestration.config;
 
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.PerDSJpaProperties;
