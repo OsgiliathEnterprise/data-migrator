@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,13 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
  * #L%
  */
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,8 +41,10 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
     private static final Logger log = LoggerFactory.getLogger(JpaMetamodelVertexFactory.class);
     private final JpaEntityHelper hibernateEntityHelper;
 
+    @PersistenceContext(unitName = "source")
+    private EntityManager entityManager;
 
-    public JpaMetamodelVertexFactory(JpaEntityHelper hibernateEntityHelper){
+    public JpaMetamodelVertexFactory(JpaEntityHelper hibernateEntityHelper) {
         this.hibernateEntityHelper = hibernateEntityHelper;
     }
 
@@ -62,14 +66,20 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
 
     private Optional<MetamodelVertex> metamodelClassToEntityVertexAdapter(final Class<?> metamodelClass) {
         return Stream.of(metamodelClass.getDeclaredFields())
-            .filter((Field f) -> "class_".equals(f.getName()))
-            .map(f3 -> f3.getGenericType())
-            .filter(t2 -> t2 instanceof ParameterizedType)
-            .map(t3 -> ((ParameterizedType) t3).getActualTypeArguments()[0])
-            .filter(t4 -> t4 instanceof Class)
-            .map(t5 -> (Class<?>) t5)
-            .map(c -> internalCreateMetamodelVertex(metamodelClass, c))
-            .findAny();
+                .filter((Field f) -> "class_".equals(f.getName()))
+                .map(f3 -> f3.getGenericType())
+                .filter(t2 -> t2 instanceof ParameterizedType)
+                .map(t3 -> ((ParameterizedType) t3).getActualTypeArguments()[0])
+                .filter(t4 -> t4 instanceof Class)
+                .map(t5 -> (Class<?>) t5)
+                .map(c -> {
+                    try {
+                        return internalCreateMetamodelVertex(metamodelClass, entityManager.getClass().getClassLoader().loadClass(c.getName()));
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .findAny();
     }
 
     private MetamodelVertex internalCreateMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) {

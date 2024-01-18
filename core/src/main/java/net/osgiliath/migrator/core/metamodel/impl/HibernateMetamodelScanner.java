@@ -20,6 +20,8 @@ package net.osgiliath.migrator.core.metamodel.impl;
  * #L%
  */
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.metamodel.StaticMetamodel;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
@@ -37,8 +39,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class HibernateMetamodelScanner implements MetamodelScanner {
-
     private final DataMigratorConfiguration dataAnonymizationConfiguration;
+
+    @PersistenceContext(unitName = "source")
+    private EntityManager entityManager;
 
     public HibernateMetamodelScanner(DataMigratorConfiguration dataAnonymizationConfiguration) {
         this.dataAnonymizationConfiguration = dataAnonymizationConfiguration;
@@ -53,7 +57,7 @@ public class HibernateMetamodelScanner implements MetamodelScanner {
     private Class<?> extractBeanClass(BeanDefinition beanDefinition) {
         try {
             return ((ScannedGenericBeanDefinition) beanDefinition)
-                    .resolveBeanClass(this.getClass().getClassLoader());
+                    .resolveBeanClass(entityManager.getClass().getClassLoader());
         } catch (ClassNotFoundException e) {
             return null;
         }

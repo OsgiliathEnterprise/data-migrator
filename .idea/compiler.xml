@@ -87,7 +87,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="data-migrator-core" options="-parameters" />
       <module name="faker" options="-parameters" />
-      <module name="sample-mono" options="" />
+      <module name="sample-mono" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
     </option>
   </component>
 </project>
