@@ -78,8 +78,9 @@ public class JpaEntityImporter implements EntityImporter {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = null;
         try {
-            query = builder.createQuery(entityManager.getClass().getClassLoader().loadClass(((JpaMetamodelVertex) entityVertex).getEntityClass().getName()));// Didn't find any better idea
-            Root root = query.from(((JpaMetamodelVertex) entityVertex).getEntityClass());
+            Class entityClass = entityManager.getClass().getClassLoader().loadClass(((JpaMetamodelVertex) entityVertex).getEntityClass().getName());
+            query = builder.createQuery(entityClass);// Didn't find any better idea
+            Root root = query.from(entityClass);
             CriteriaQuery<?> select = query.select(root);
             if (!objectToExclude.isEmpty()) { // Not sure it really works
                 List<Predicate> predicates = excludeAlreadyLoaded(entityVertex, objectToExclude, builder, root);
