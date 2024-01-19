@@ -273,62 +273,6 @@
                         </dependencies>
                     </plugin>
                     <plugin>
-                        <groupId>com.google.code.maven-replacer-plugin</groupId>
-                        <artifactId>replacer</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>replace</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <basedir>${project.build.directory}/generated-sources/entities</basedir>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <replacements>
-                                <replacement>
-                                    <token>, nullable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>, updatable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>, insertable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Version</token>
-                                    <value>// @Version</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="GROUP"</token>
-                                    <value>@Column(name="\"GROUP\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="TO"</token>
-                                    <value>@Column(name="\"TO\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="LEFT"</token>
-                                    <value>@Column(name="\"LEFT\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="FROM"</token>
-                                    <value>@Column(name="\"FROM\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="USER"</token>
-                                    <value>@Column(name="\"USER\""</value>
-                                </replacement>
-                            </replacements>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.hibernate.orm.tooling</groupId>
                         <artifactId>hibernate-enhance-maven-plugin</artifactId>
                     </plugin>
@@ -346,24 +290,8 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <configuration>
-                                    <target>
-                                        <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
-                                        <move todir="${project.build.directory}/generated-sources/repositories">
-                                            <fileset dir="${project.basedir}/src/main/java"
-                                                     includes="**/repository/*.java"/>
-                                        </move>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -622,62 +550,6 @@
                         </dependencies>
                     </plugin>
                     <plugin>
-                        <groupId>com.google.code.maven-replacer-plugin</groupId>
-                        <artifactId>replacer</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>replace</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <basedir>${project.build.directory}/generated-sources/entities</basedir>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <replacements>
-                                <replacement>
-                                    <token>, nullable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>, updatable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>, insertable=false</token>
-                                    <value></value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Version</token>
-                                    <value>// @Version</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="TO"</token>
-                                    <value>@Column(name="\"TO\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="LEFT"</token>
-                                    <value>@Column(name="\"LEFT\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="FROM"</token>
-                                    <value>@Column(name="\"FROM\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="USER"</token>
-                                    <value>@Column(name="\"USER\""</value>
-                                </replacement>
-                                <replacement>
-                                    <token>\@Column(name="GROUP"</token>
-                                    <value>@Column(name="\"GROUP\""</value>
-                                </replacement>
-                            </replacements>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.hibernate.orm.tooling</groupId>
                         <artifactId>hibernate-enhance-maven-plugin</artifactId>
                     </plugin>
@@ -695,24 +567,8 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <configuration>
-                                    <target>
-                                        <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
-                                        <move todir="${project.build.directory}/generated-sources/repositories">
-                                            <fileset dir="${project.basedir}/src/main/java"
-                                                     includes="**/repository/*.java"/>
-                                        </move>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>

@@ -30,6 +30,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerVertex;
+import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 @Component
 public class ModelGraphBuilder {
@@ -55,14 +58,23 @@ public class ModelGraphBuilder {
         this.graphTraversalSource = graphTraversalSource;
     }
 
-    @Transactional(transactionManager = "sourceTransactionManager", readOnly = true)
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         log.info("Creating model vertex");
         GraphTraversalSource graphTraversalSource = this.graphTraversalSource.getGraph();
-        createVertices(entityMetamodelGraph.vertexSet(), graphTraversalSource);
+        createVertices(entityMetamodelGraph, graphTraversalSource);
+        createEdges(entityMetamodelGraph, graphTraversalSource);
+        return graphTraversalSource;
+    }
+
+    private void createEdges(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model edges");
         createEdges(graphTraversalSource, entityMetamodelGraph);
-        return graphTraversalSource;
+    }
+
+    public void createVertices(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
+        log.info("Creating model Vertex");
+        createVertices(entityMetamodelGraph.vertexSet(), graphTraversalSource);
     }
 
     private void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {

@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.configuration;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,9 @@ package net.osgiliath.migrator.core.configuration;
  * #L%
  */
 
-import net.osgiliath.migrator.core.configuration.beans.CustomHikariDatasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.osgiliath.migrator.core.configuration.beans.CustomHikariDatasource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -35,7 +35,19 @@ import javax.sql.DataSource;
 @Configuration
 public class DataSourceConfiguration {
 
-    public DataSourceConfiguration() {}
+    public static final String SOURCE_DATASOURCE = "sourceDataSource";
+    public static final String SINK_DATASOURCE = "sinkDataSource";
+    public static final String SOURCE_TRANSACTION_MANAGER = "sourceTransactionManager";
+    public static final String SINK_TRANSACTION_MANAGER = "sinkTransactionManager";
+
+    public static final String SOURCE_PU = "source";
+    public static final String SINK_PU = "sink";
+
+    public static final String SOURCE_JPA_PROPERTIES = "sourcePerDsJpaProperties";
+    public static final String SINK_JPA_PROPERTIES = "sinkPerDsJpaProperties";
+
+    public DataSourceConfiguration() {
+    }
 
     @Bean
     @ConfigurationProperties("spring.datasource.source")
@@ -50,13 +62,13 @@ public class DataSourceConfiguration {
         return new DataSourceProperties();
     }
 
-    @Bean("sourcePerDsJpaProperties")
+    @Bean(SOURCE_JPA_PROPERTIES)
     @ConfigurationProperties(prefix = "spring.jpa.source")
     public PerDSJpaProperties sourcePerDsJpaProperties() {
         return new PerDSJpaProperties();
     }
 
-    @Bean("sinkPerDsJpaProperties")
+    @Bean(SINK_JPA_PROPERTIES)
     @ConfigurationProperties(prefix = "spring.jpa.sink")
     @Primary
     public PerDSJpaProperties sinkPerDsJpaProperties() {
@@ -78,7 +90,7 @@ public class DataSourceConfiguration {
     }
 
 
-    @Bean("sourceDataSource")
+    @Bean(SOURCE_DATASOURCE)
     public DataSource sourceDataSource(
             @Qualifier("sourceDataSourceProperties") DataSourceProperties sourceDataSourceProperties,
             @Qualifier("sourceHikariConfigProperties") HikariConfig hikariConfigProperties
@@ -96,7 +108,7 @@ public class DataSourceConfiguration {
         return ds;
     }
 
-    @Bean("sinkDataSource")
+    @Bean(SINK_DATASOURCE)
     @Primary
     public DataSource sinkDataSource(@Qualifier("sinkDataSourceProperties") DataSourceProperties sinkDataSourceProperties,
                                      @Qualifier("sinkHikariConfigProperties") HikariConfig hikariConfigProperties) {

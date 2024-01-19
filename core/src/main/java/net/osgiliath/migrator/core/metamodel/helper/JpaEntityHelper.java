@@ -122,13 +122,8 @@ public class JpaEntityHelper {
      */
     public Optional<Object> getId(Class<?> entityClass, Object entity) {
         return getPrimaryKeyGetterMethod(entityClass).map(
-                primaryKeyGetterMethod -> {
-                    try {
-                        return primaryKeyGetterMethod.invoke(entity);
-                    } catch (Exception e) {
-                        throw new RuntimeException("The primary key getter method couldn't be invoked", e);
-                    }
-                }
+                primaryKeyGetterMethod ->
+                        getFieldValue(entityClass, entity, getterToFieldName(primaryKeyGetterMethod.getName()))
         );
     }
 
@@ -317,10 +312,8 @@ public class JpaEntityHelper {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
                     try {
-                        return getterMethod.invoke(entity);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
+                        return entity.getClass().getMethod(getterMethod.getName(), getterMethod.getParameterTypes()).invoke(entity);
+                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                         throw new RuntimeException(e);
                     }
                 })
@@ -363,10 +356,8 @@ public class JpaEntityHelper {
     public void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
         setterMethod(entityClass, field).ifPresentOrElse(setterMethod -> {
             try {
-                setterMethod.invoke(entity, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
+                entity.getClass().getMethod(setterMethod.getName(), setterMethod.getParameterTypes()).invoke(entity, value);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }, () -> {

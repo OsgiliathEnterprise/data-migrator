@@ -19,57 +19,61 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.Objects;
 
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.*;
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-  basePackages = "${package}.${artifactId}.repository",
-  entityManagerFactoryRef = "sinkEntityManagerFactory",
-  transactionManagerRef = "sinkTransactionManager"
+        basePackages = "${package}.${artifactId}.repository",
+        entityManagerFactoryRef = JpaConfiguration.SINK_ENTITY_MANAGER_FACTORY,
+        transactionManagerRef = SINK_TRANSACTION_MANAGER
 )
 public class JpaConfiguration {
 
     private final DataMigratorConfiguration dataMigratorConfiguration;
+    public static final String SINK_ENTITY_MANAGER_FACTORY = "sinkEntityManagerFactory";
+    public static final String SOURCE_ENTITY_MANAGER_FACTORY = "sourceEntityManagerFactory";
 
     public JpaConfiguration(DataMigratorConfiguration dataMigratorConfiguration) {
         super();
         this.dataMigratorConfiguration = dataMigratorConfiguration;
     }
 
-    @Bean("sinkEntityManagerFactory")
+    @Bean(SINK_ENTITY_MANAGER_FACTORY)
     @Primary
     public LocalContainerEntityManagerFactoryBean sinkEntityManagerFactory(
-      @Qualifier("sinkDataSource") DataSource dataSource,
-      EntityManagerFactoryBuilder builder, @Qualifier("sinkPerDsJpaProperties") PerDSJpaProperties jpaPropertiesWrapper) {
+            @Qualifier(SINK_DATASOURCE) DataSource dataSource,
+            EntityManagerFactoryBuilder builder, @Qualifier(SINK_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
         return builder
-            .dataSource(dataSource)
-            .persistenceUnit("sink")
-            .properties(jpaPropertiesWrapper.getProperties())
-            .packages(dataMigratorConfiguration.getModelBasePackage())
-            .build();
+                .dataSource(dataSource)
+                .persistenceUnit(SINK_PU)
+                .properties(jpaPropertiesWrapper.getProperties())
+                .packages(dataMigratorConfiguration.getModelBasePackage())
+                .build();
     }
 
-    @Bean("sinkTransactionManager")
+    @Bean(SINK_TRANSACTION_MANAGER)
     @Primary
     public PlatformTransactionManager sinkTransactionManager(
-        @Qualifier("sinkEntityManagerFactory") LocalContainerEntityManagerFactoryBean sinkEntityManagerFactory) {
+            @Qualifier(SINK_ENTITY_MANAGER_FACTORY) LocalContainerEntityManagerFactoryBean sinkEntityManagerFactory) {
         return new JpaTransactionManager(Objects.requireNonNull(sinkEntityManagerFactory.getObject()));
     }
 
-    @Bean("sourceEntityManagerFactory")
+    @Bean(SOURCE_ENTITY_MANAGER_FACTORY)
     public LocalContainerEntityManagerFactoryBean sourceEntityManagerFactory(
-            @Qualifier("sourceDataSource") DataSource dataSource,
-            EntityManagerFactoryBuilder builder, @Qualifier("sourcePerDsJpaProperties")PerDSJpaProperties jpaPropertiesWrapper) {
+            @Qualifier(SOURCE_DATASOURCE) DataSource dataSource,
+            EntityManagerFactoryBuilder builder, @Qualifier(SOURCE_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
         return builder
-            .dataSource(dataSource)
-            .persistenceUnit("source")
-            .properties(jpaPropertiesWrapper.getProperties())
-            .packages(dataMigratorConfiguration.getModelBasePackage())
-            .build();
+                .dataSource(dataSource)
+                .persistenceUnit(SOURCE_PU)
+                .properties(jpaPropertiesWrapper.getProperties())
+                .packages(dataMigratorConfiguration.getModelBasePackage())
+                .build();
     }
 
-    @Bean("sourceTransactionManager")
+    @Bean(DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER)
     public PlatformTransactionManager sourceTransactionManager(
-        @Qualifier("sourceEntityManagerFactory") LocalContainerEntityManagerFactoryBean sourceEntityManagerFactory
+            @Qualifier(SOURCE_ENTITY_MANAGER_FACTORY) LocalContainerEntityManagerFactoryBean sourceEntityManagerFactory
     ) {
         return new JpaTransactionManager(Objects.requireNonNull(sourceEntityManagerFactory.getObject()));
     }

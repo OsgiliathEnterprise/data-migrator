@@ -123,16 +123,14 @@ public class ModelElement {
     /**
      * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
      *
-     * @param fieldEdge
+     * @param fieldEdge the edge to get the target vertices from
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
      */
     public Object getEdgeRawValue(FieldEdge fieldEdge) {
         Method getterMethod = fieldEdge.relationshipGetter();
         try {
             return getterMethod.invoke(this.getEntity());
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -169,14 +167,12 @@ public class ModelElement {
                         .map(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
                                 .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).next());
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         return Optional.empty();
     }
-    
+
     public Optional<Object> getId(MetamodelVertex metamodelVertex) {
         if (metamodelVertex != null) {
             return jpaEntityHelper.getId(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), getEntity());

@@ -19,9 +19,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <option name="querydsl.entityAccessors" value="true" />
-        <option name="querydsl.useFields" value="false" />
-        <processorPath>
+        <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/3.2.1/spring-boot-configuration-processor-3.2.1.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/hibernate/orm/hibernate-jpamodelgen/6.4.1.Final/hibernate-jpamodelgen-6.4.1.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/hibernate/orm/hibernate-core/6.4.1.Final/hibernate-core-6.4.1.Final.jar" />
@@ -87,7 +85,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="data-migrator-core" options="-parameters" />
       <module name="faker" options="-parameters" />
-      <module name="sample-mono" options="-parameters -Aquerydsl.entityAccessors=true -Aquerydsl.useFields=false" />
+      <module name="sample-mono" options="-parameters" />
     </option>
   </component>
 </project>

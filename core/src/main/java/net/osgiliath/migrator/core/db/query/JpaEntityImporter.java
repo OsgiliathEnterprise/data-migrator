@@ -34,7 +34,10 @@ import net.osgiliath.migrator.core.modelgraph.ModelElementFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
 
 /**
  * Imports entities from the database.
@@ -54,7 +57,7 @@ public class JpaEntityImporter implements EntityImporter {
     /**
      * Source Entity manager.
      */
-    @PersistenceContext(unitName = "source")
+    @PersistenceContext(unitName = SOURCE_PU)
     private EntityManager entityManager;
 
     /**
@@ -73,6 +76,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
+    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER, propagation = Propagation.REQUIRES_NEW)
     public List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -86,7 +90,12 @@ public class JpaEntityImporter implements EntityImporter {
             predicates.add(builder.in(root).value(objectToExclude));
             select.where(predicates.toArray(new Predicate[predicates.size()]));
         }
-        List<?> resultList = entityManager.createQuery(select).getResultList();
+        List<?> resultList = new ArrayList<>();
+        try {
+            resultList = entityManager.createQuery(select).getResultList();
+        } catch (Exception e) {
+            log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
+        }
         log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
         return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
     }

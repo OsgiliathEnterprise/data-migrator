@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -129,11 +130,6 @@
                     <version>0.43.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>com.google.code.maven-replacer-plugin</groupId>
-                    <artifactId>replacer</artifactId>
-                    <version>1.5.3</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>${maven-enforcer-plugin.version}</version>
@@ -148,7 +144,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -350,8 +346,58 @@
                     </executions>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>3.1.0</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <configuration>
+                                <target>
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
+                                    <move todir="${project.build.directory}/generated-sources/repositories">
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
+                                    </move>
+                                    <replace token=", nullable=false" value="" dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token=", updatable=false" value="" dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token=", insertable=false" value="" dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token="@Version" value="// @Version" dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token='@Column(name="TO"' value='@Column(name="\"TO\""'
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token='@Column(name="LEFT"' value='@Column(name="\"LEFT\""'
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token='@Column(name="FROM"' value='@Column(name="\"FROM\""'
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token='@Column(name="USER"' value='@Column(name="\"USER\""'
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                    <replace token='@Column(name="GROUP"' value='@Column(name="\"GROUP\""'
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
+                                    </replace>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
