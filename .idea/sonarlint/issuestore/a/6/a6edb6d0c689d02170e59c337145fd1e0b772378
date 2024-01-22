@@ -1,0 +1,60 @@
+
+p
+java:S1104"UMake maxSalary a static final constant or non-public and provide accessors if needed.(ú£¾–ûÿÿÿÿ
+s
+java:S1104"XMake jobHistories a static final constant or non-public and provide accessors if needed.(²Û·şùÿÿÿÿ
+o
+java:S1104"TMake jobTitle a static final constant or non-public and provide accessors if needed.(”íêúÿÿÿÿ
+d
+java:S1104 "NMake id a static final constant or non-public and provide accessors if needed.(¥Å½
+k
+java:S1104%"UMake minSalary a static final constant or non-public and provide accessors if needed.(°ò´Â
+j
+java:S1104*"TMake employee a static final constant or non-public and provide accessors if needed.(™ÙÜÔ
+h
+java:S1104/"RMake class_ a static final constant or non-public and provide accessors if needed.(úã‡Á
+l
+java:S11044"QMake tasks a static final constant or non-public and provide accessors if needed.(Ÿö„—üÿÿÿÿ
+J
+java:S1444"/Make this "public static maxSalary" field final(ú£¾–ûÿÿÿÿ
+M
+java:S1444"2Make this "public static jobHistories" field final(²Û·şùÿÿÿÿ
+I
+java:S1444".Make this "public static jobTitle" field final(”íêúÿÿÿÿ
+>
+java:S1444 "(Make this "public static id" field final(¥Å½
+E
+java:S1444%"/Make this "public static minSalary" field final(°ò´Â
+D
+java:S1444*".Make this "public static employee" field final(™ÙÜÔ
+B
+java:S1444/",Make this "public static class_" field final(úã‡Á
+F
+java:S14444"+Make this "public static tasks" field final(Ÿö„—üÿÿÿÿ
+g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(ªÆ»úüÿÿÿÿ
+g
+java:S3008/"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(úã‡Á
+c
+java:S18459"HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+o
+java:S1845;"TRename field "EMPLOYEE" to prevent any misunderstanding/clash with field "employee".(‚Œ†üÿÿÿÿ
+i
+java:S1845<"NRename field "TASKS" to prevent any misunderstanding/clash with field "tasks".(Éî±Øùÿÿÿÿ
+U
+java:S1118":Add a private constructor to hide the implicit public one.(ªÆ»úüÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ú£¾–ûÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(²Û·şùÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(”íêúÿÿÿÿ
+m
+java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¥Å½
+m
+java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(°ò´Â
+m
+java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™ÙÜÔ
+m
+java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(úã‡Á
+r
+java:S30774"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ÿö„—üÿÿÿÿ

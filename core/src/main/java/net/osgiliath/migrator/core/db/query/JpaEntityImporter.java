@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
 
@@ -97,7 +98,7 @@ public class JpaEntityImporter implements EntityImporter {
             log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
         }
         log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
-        return resultList.stream().map(object -> modelElementFactory.createModelElement(object)).toList();
+        return resultList.stream().map(modelElementFactory::createModelElement).toList();
     }
 
     /**
@@ -110,13 +111,12 @@ public class JpaEntityImporter implements EntityImporter {
      * @return list of predicates
      */
     private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
-        String primaryKeyField = ((JpaMetamodelVertex) entityVertex).getPrimaryKeyField();
-        return objectToExclude.stream()
+        Optional<String> primaryKeyField = ((JpaMetamodelVertex) entityVertex).getPrimaryKeyField();
+        return primaryKeyField.map(pk -> objectToExclude.stream()
                 .map(object ->
                         builder.not(
                                 builder.equal(
-                                        root.get(primaryKeyField), object.getId(entityVertex)))
-                ).toList();
-
+                                        root.get(pk), object.getId(entityVertex)))
+                ).toList()).orElseGet(ArrayList::new);
     }
 }

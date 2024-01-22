@@ -1,0 +1,11 @@
+
+`	java:S112A"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
+E
+java:S3740I"/Provide the parametrized type for this generic.(½Üóğ
+E
+java:S3740g"/Provide the parametrized type for this generic.(…”Ì
+V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
+h
+java:S3776:"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(•Ô¨‹
+‰
+java:S6201]"nReplace this instanceof check and cast with 'instanceof JpaEntityColumnTransformer jpaentitycolumntransformer'(ğäøúÿÿÿÿ

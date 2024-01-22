@@ -1,0 +1,104 @@
+
+o
+java:S1104"TMake lastName a static final constant or non-public and provide accessors if needed.(‹«î²øÿÿÿÿ
+j
+java:S1104"TMake hireDate a static final constant or non-public and provide accessors if needed.(çà÷İ
+k
+java:S1104"PMake jobs a static final constant or non-public and provide accessors if needed.(ôíùåúÿÿÿÿ
+o
+java:S1104!"TMake employee a static final constant or non-public and provide accessors if needed.(ÏÆë”şÿÿÿÿ
+h
+java:S1104&"RMake salary a static final constant or non-public and provide accessors if needed.(§Ÿû
+t
+java:S1104+"YMake commissionPct a static final constant or non-public and provide accessors if needed.(™Ÿ‰Ğùÿÿÿÿ
+k
+java:S11040"UMake firstName a static final constant or non-public and provide accessors if needed.(½¶šÏ
+m
+java:S11045"WMake phoneNumber a static final constant or non-public and provide accessors if needed.(‰øŒ¬
+s
+java:S1104:"XMake jobHistories a static final constant or non-public and provide accessors if needed.(¦ÃÓ³ıÿÿÿÿ
+d
+java:S1104?"NMake id a static final constant or non-public and provide accessors if needed.(ØşŒ¸
+q
+java:S1104D"VMake department a static final constant or non-public and provide accessors if needed.(÷¬â±ıÿÿÿÿ
+k
+java:S1104I"UMake employees a static final constant or non-public and provide accessors if needed.(Õ­üé
+h
+java:S1104N"RMake class_ a static final constant or non-public and provide accessors if needed.(ª£Ÿí
+g
+java:S1104S"QMake email a static final constant or non-public and provide accessors if needed.(ïá½û
+I
+java:S1444".Make this "public static lastName" field final(‹«î²øÿÿÿÿ
+D
+java:S1444".Make this "public static hireDate" field final(çà÷İ
+E
+java:S1444"*Make this "public static jobs" field final(ôíùåúÿÿÿÿ
+I
+java:S1444!".Make this "public static employee" field final(ÏÆë”şÿÿÿÿ
+B
+java:S1444&",Make this "public static salary" field final(§Ÿû
+N
+java:S1444+"3Make this "public static commissionPct" field final(™Ÿ‰Ğùÿÿÿÿ
+E
+java:S14440"/Make this "public static firstName" field final(½¶šÏ
+G
+java:S14445"1Make this "public static phoneNumber" field final(‰øŒ¬
+M
+java:S1444:"2Make this "public static jobHistories" field final(¦ÃÓ³ıÿÿÿÿ
+>
+java:S1444?"(Make this "public static id" field final(ØşŒ¸
+K
+java:S1444D"0Make this "public static department" field final(÷¬â±ıÿÿÿÿ
+E
+java:S1444I"/Make this "public static employees" field final(Õ­üé
+B
+java:S1444N",Make this "public static class_" field final(ª£Ÿí
+A
+java:S1444S"+Make this "public static email" field final(ïá½û
+g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.( ¾­Áûÿÿÿÿ
+g
+java:S3008N"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ª£Ÿí
+g
+java:S1845W"LRename field "JOBS" to prevent any misunderstanding/clash with field "jobs".(·ŸëØûÿÿÿÿ
+o
+java:S1845X"TRename field "EMPLOYEE" to prevent any misunderstanding/clash with field "employee".(‚Œ†üÿÿÿÿ
+f
+java:S1845Y"PRename field "SALARY" to prevent any misunderstanding/clash with field "salary".(ªñçÈ
+c
+java:S1845^"HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+s
+java:S1845_"XRename field "DEPARTMENT" to prevent any misunderstanding/clash with field "department".(ÚÇâúÿÿÿÿ
+q
+java:S1845`"VRename field "EMPLOYEES" to prevent any misunderstanding/clash with field "employees".(Ÿ¬õˆùÿÿÿÿ
+i
+java:S1845a"NRename field "EMAIL" to prevent any misunderstanding/clash with field "email".(í„¹àüÿÿÿÿ
+U
+java:S1118":Add a private constructor to hide the implicit public one.( ¾­Áûÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‹«î²øÿÿÿÿ
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(çà÷İ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ôíùåúÿÿÿÿ
+r
+java:S3077!"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÏÆë”şÿÿÿÿ
+m
+java:S3077&"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(§Ÿû
+r
+java:S3077+"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™Ÿ‰Ğùÿÿÿÿ
+m
+java:S30770"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(½¶šÏ
+m
+java:S30775"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‰øŒ¬
+r
+java:S3077:"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¦ÃÓ³ıÿÿÿÿ
+m
+java:S3077?"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ØşŒ¸
+r
+java:S3077D"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(÷¬â±ıÿÿÿÿ
+m
+java:S3077I"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Õ­üé
+m
+java:S3077N"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ª£Ÿí
+m
+java:S3077S"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ïá½û

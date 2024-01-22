@@ -66,8 +66,8 @@ public class HibernateMetamodelScanner implements MetamodelScanner {
     public Collection<Class<?>> scanMetamodelClasses() {
         return this.scanBeandefinition()
                 .stream()
-                .map((def) -> extractBeanClass(def))
-                .filter((clazz) -> !isLiquibaseTable(clazz.getSimpleName()))
+                .map(this::extractBeanClass)
+                .filter(clazz -> !isLiquibaseTable(clazz.getSimpleName()))
                 .collect(Collectors.toSet());
     }
 

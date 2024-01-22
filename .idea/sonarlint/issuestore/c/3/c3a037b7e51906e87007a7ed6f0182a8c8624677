@@ -1,0 +1,12 @@
+
+V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ýÿÿÿÿ
+T
+java:S5993("9Change the visibility of this constructor to "protected".( ö‰áÿÿÿÿÿ
+^	java:S119$"IRename this generic name to match the regular expression '^[A-Z][0-9]?$'.(Àƒ«á
+]
+java:S16121"BReplace this lambda with method reference 'this::getRandomString'.(Ñ½Ï¬úÿÿÿÿ
+3
+java:S2119D"Save and re-use this "Random".(¼ÝÅf
+3
+java:S2119^"Save and re-use this "Random".(¼ÝÅf
+>	java:S108d")Either remove or fill this block of code.(¥øÐŸ

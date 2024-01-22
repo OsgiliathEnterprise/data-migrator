@@ -63,7 +63,6 @@
         <module>modules</module>
         <module>core</module>
         <module>datamigrator-archetype</module>
-        <!--<module>sample-mono</module>-->
     </modules>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -75,7 +74,6 @@
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
-        <!--<jakarta.el-api>5.0.1</jakarta.el-api>-->
         <liquibase.version>4.25.1</liquibase.version>
         <spring-boot.version>3.2.1</spring-boot.version>
         <jdbc.h2.version>2.1.214</jdbc.h2.version>

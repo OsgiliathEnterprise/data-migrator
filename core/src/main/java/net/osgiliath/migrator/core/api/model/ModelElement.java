@@ -157,9 +157,9 @@ public class ModelElement {
         MetamodelVertex targetVertex = fieldEdge.getTarget();
         try {
             Object res = getterMethod.invoke(this.getEntity());
-            if (res instanceof Collection) {
-                return Optional.of(((Collection) res).stream()
-                        .flatMap(entity -> jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), entity).stream())
+            if (res instanceof Collection r) {
+                return Optional.of(r.stream()
+                        .flatMap(ent -> jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), ent).stream())
                         .flatMap(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
                                 .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).toStream()).collect(Collectors.toSet()));
             } else if (res != null) {

@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.api.transformers.internal;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Wraps the processor into .
+ *
  * @param <COLUMN_TYPE>
  */
 public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
@@ -38,6 +39,7 @@ public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
 
     /**
      * Evaluate the data transformation on the given column.
+     *
      * @param toBeTransformed the column to be transformed.
      * @return the transformed column.
      */
@@ -50,9 +52,9 @@ public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
     public <T> T evaluate(Exchange exchange, Class<T> type) {
         log.debug("Transforming cell with transformer {}", this.getClass().getName());
         COLUMN_TYPE preValue = (COLUMN_TYPE) exchange.getIn().getBody(type);
-        log.debug("Original cell value {}", preValue.toString());
+        log.debug("Original cell value {}", preValue);
         COLUMN_TYPE transformedValue = evaluate(preValue);
-        log.debug("Post transformation value {}", transformedValue.toString());
+        log.debug("Post transformation value {}", transformedValue);
         return (T) transformedValue;
     }
 

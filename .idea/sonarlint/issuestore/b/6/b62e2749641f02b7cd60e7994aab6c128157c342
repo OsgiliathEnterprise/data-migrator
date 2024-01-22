@@ -1,0 +1,44 @@
+
+j
+java:S1104"TMake lockedby a static final constant or non-public and provide accessors if needed.(åÒæ‹
+c
+java:S1104"NMake id a static final constant or non-public and provide accessors if needed.(×œù>
+m
+java:S1104"RMake locked a static final constant or non-public and provide accessors if needed.(ÜÙÈìıÿÿÿÿ
+h
+java:S1104 "RMake class_ a static final constant or non-public and provide accessors if needed.(Ğº÷Â
+m
+java:S1104%"WMake lockgranted a static final constant or non-public and provide accessors if needed.(üÛ²
+D
+java:S1444".Make this "public static lockedby" field final(åÒæ‹
+=
+java:S1444"(Make this "public static id" field final(×œù>
+G
+java:S1444",Make this "public static locked" field final(ÜÙÈìıÿÿÿÿ
+B
+java:S1444 ",Make this "public static class_" field final(Ğº÷Â
+G
+java:S1444%"1Make this "public static lockgranted" field final(üÛ²
+b	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(Öà¦ª
+g
+java:S3008 "QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ğº÷Â
+o
+java:S1845'"TRename field "LOCKEDBY" to prevent any misunderstanding/clash with field "lockedby".(À¹ºïúÿÿÿÿ
+c
+java:S1845("HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+k
+java:S1845)"PRename field "LOCKED" to prevent any misunderstanding/clash with field "locked".(îßÙûùÿÿÿÿ
+p
+java:S1845*"ZRename field "LOCKGRANTED" to prevent any misunderstanding/clash with field "lockgranted".(Î¬ş”
+P
+java:S1118":Add a private constructor to hide the implicit public one.(Öà¦ª
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(åÒæ‹
+l
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(×œù>
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÜÙÈìıÿÿÿÿ
+m
+java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ğº÷Â
+m
+java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(üÛ²

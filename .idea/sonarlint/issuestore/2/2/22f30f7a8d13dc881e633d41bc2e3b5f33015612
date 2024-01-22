@@ -1,0 +1,31 @@
+
+`	java:S112F"FDefine and throw a dedicated exception instead of using a generic one.(ÛˆÀÝûÿÿÿÿ
+a	java:S112Æ"FDefine and throw a dedicated exception instead of using a generic one.(¦¾›¸þÿÿÿÿ
+\	java:S112«"FDefine and throw a dedicated exception instead of using a generic one.(¼œ ß
+a	java:S112½"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
+a	java:S112Ø"FDefine and throw a dedicated exception instead of using a generic one.(ïÈŠâùÿÿÿÿ
+a	java:S112é"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
+\	java:S112ì"FDefine and throw a dedicated exception instead of using a generic one.(æ¹êÝ
+g
+java:S1192‹"KDefine a constant instead of duplicating this literal " in class " 3 times.(ÀéÎÚÿÿÿÿÿ
+g
+java:S3655©"PCall "Optional#isPresent()" or "!Optional#isEmpty()" before accessing the value.(š «¼
+V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ýÿÿÿÿ
+g
+java:S6201;"LReplace this instanceof check and cast with 'instanceof OneToMany onetomany'(ªËƒÿÿÿÿÿ
+i
+java:S6201="NReplace this instanceof check and cast with 'instanceof ManyToMany manytomany'(áóÜòúÿÿÿÿ
+e
+java:S6201@"JReplace this instanceof check and cast with 'instanceof OneToOne onetoone'(Ë¿½Ùúÿÿÿÿ
+_
+java:S1612U"IReplace this lambda with method reference 'ManyToMany.class::isInstance'.(Ï¦ˆî
+d
+java:S6201]"NReplace this instanceof check and cast with 'instanceof ManyToMany manytomany'(‘ùºÿ
+V
+java:S1612‚":Replace this lambda with method reference 'Entry::getKey'.(œÐÙÁýÿÿÿÿ
+j
+java:S6201"NReplace this instanceof check and cast with 'instanceof ManyToMany manytomany'(•¾ÝÞüÿÿÿÿ
+c
+java:S6201"LReplace this instanceof check and cast with 'instanceof OneToMany onetomany'(˜Ž¯–
+f
+java:S6201‘"JReplace this instanceof check and cast with 'instanceof OneToOne onetoone'(Ë¿½Ùúÿÿÿÿ

@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.configuration;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,10 +49,11 @@ public class DataMigratorConfiguration {
     /**
      * List of sequencers being able to handle the sequence.
      */
-    private List<? extends SequencerDefinition> sequencers;
+    private List<SequencerDefinition> sequencers;
 
     /**
      * Graph datasource configuration.
+     *
      * @return
      */
     public GraphDatasource getGraphDatasource() {
@@ -61,6 +62,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Graph datasource configuration.
+     *
      * @param graphDatasource the graph datasource technology to set.
      */
     public void setGraphDatasource(GraphDatasource graphDatasource) {
@@ -69,6 +71,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Package to scan the JPA entities representing tables.
+     *
      * @return the package to scan.
      */
     public String getModelBasePackage() {
@@ -77,6 +80,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Package to scan the JPA entities representing tables.
+     *
      * @param modelBasePackage the package to scan.
      */
     public void setModelBasePackage(String modelBasePackage) {
@@ -85,6 +89,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Sequence of transformations to apply.
+     *
      * @return the sequence of transformations to apply.
      */
     public List<String> getSequence() {
@@ -93,6 +98,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Sequence of transformations to apply.
+     *
      * @param sequence the sequence of transformations to apply.
      */
     public void setSequence(List<String> sequence) {
@@ -101,17 +107,19 @@ public class DataMigratorConfiguration {
 
     /**
      * List of sequencers being able to handle the sequence.
+     *
      * @return the list of sequencers.
      */
-    public List<? extends SequencerDefinition> getSequencers() {
+    public List<SequencerDefinition> getSequencers() {
         return sequencers;
     }
 
     /**
      * List of sequencers being able to handle the sequence.
+     *
      * @param sequencers the list of sequencers.
      */
-    public void setSequencers(List<? extends SequencerDefinition> sequencers) {
+    public void setSequencers(List<SequencerDefinition> sequencers) {
         this.sequencers = sequencers;
     }
 }

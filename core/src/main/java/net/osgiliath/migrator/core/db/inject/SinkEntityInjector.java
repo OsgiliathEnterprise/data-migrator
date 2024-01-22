@@ -59,7 +59,7 @@ public class SinkEntityInjector {
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
         removeCyclicElements(modelGraph);
-        processEntities(modelGraph, entityMetamodelGraph, new HashSet<Vertex>());
+        processEntities(modelGraph, entityMetamodelGraph, new HashSet<>());
     }
 
     private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, Collection<Vertex> processedVertices) {
@@ -68,7 +68,7 @@ public class SinkEntityInjector {
                 .until(
                         out().filter(__.not(is(P.within(processedVertices)))).count().is(0).or().loops().is(CYCLE_DETECTION_DEPTH)
                 )
-                .filter(__.not(is(P.within(processedVertices))));// .limit(1);
+                .filter(__.not(is(P.within(processedVertices))));
         if (!leafElements.hasNext()) {
             modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(v -> {
                 Vertex modelVertex = v;

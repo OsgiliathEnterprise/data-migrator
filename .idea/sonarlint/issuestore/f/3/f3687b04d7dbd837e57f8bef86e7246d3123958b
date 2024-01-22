@@ -1,0 +1,42 @@
+
+k
+java:S1104"UMake locations a static final constant or non-public and provide accessors if needed.(ëÄæ¶
+d
+java:S1104"NMake id a static final constant or non-public and provide accessors if needed.(ÆáÂº
+r
+java:S1104"WMake countryName a static final constant or non-public and provide accessors if needed.(İéîûÿÿÿÿ
+m
+java:S1104 "RMake region a static final constant or non-public and provide accessors if needed.( ¨«¡şÿÿÿÿ
+m
+java:S1104%"RMake class_ a static final constant or non-public and provide accessors if needed.(®¼ß‘üÿÿÿÿ
+E
+java:S1444"/Make this "public static locations" field final(ëÄæ¶
+>
+java:S1444"(Make this "public static id" field final(ÆáÂº
+L
+java:S1444"1Make this "public static countryName" field final(İéîûÿÿÿÿ
+G
+java:S1444 ",Make this "public static region" field final( ¨«¡şÿÿÿÿ
+G
+java:S1444%",Make this "public static class_" field final(®¼ß‘üÿÿÿÿ
+b	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(É¾àò
+l
+java:S3008%"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(®¼ß‘üÿÿÿÿ
+q
+java:S1845'"VRename field "LOCATIONS" to prevent any misunderstanding/clash with field "locations".(İä¸æùÿÿÿÿ
+c
+java:S1845("HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+f
+java:S1845*"PRename field "REGION" to prevent any misunderstanding/clash with field "region".(çƒËÊ
+P
+java:S1118":Add a private constructor to hide the implicit public one.(É¾àò
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ëÄæ¶
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÆáÂº
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(İéîûÿÿÿÿ
+r
+java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.( ¨«¡şÿÿÿÿ
+r
+java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(®¼ß‘üÿÿÿÿ

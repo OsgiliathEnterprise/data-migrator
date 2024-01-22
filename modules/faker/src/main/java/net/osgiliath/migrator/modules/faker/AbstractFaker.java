@@ -25,6 +25,8 @@ import net.datafaker.Faker;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,9 +37,13 @@ import java.util.Random;
 
 public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransformer<COLUMN_TYPE> {
 
+    public static final String FAKER = "faker";
     private final ColumnTransformationDefinition columnTransformationDefinition;
+    private static final Logger log = LoggerFactory.getLogger(JpaEntityColumnTransformer.class);
 
-    public AbstractFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
+    private static final Random RANDOM = new Random();
+
+    protected AbstractFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
         super(metamodel, columnTransformationDefinition.getColumnName());
         this.columnTransformationDefinition = columnTransformationDefinition;
     }
@@ -46,14 +52,13 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
         return getRandomInteger(value)
                 .orElseGet(() ->
                         getRandomLocalDate(value)
-                                .orElseGet(() ->
-                                        getRandomString()));
+                                .orElseGet(this::getRandomString));
     }
 
     private String getRandomString() {
         Faker faker = new Faker().getFaker();
-        if (columnTransformationDefinition.getOptions().containsKey("faker")) {
-            String fakerAlg = columnTransformationDefinition.getOptions().get("faker");
+        if (columnTransformationDefinition.getOptions().containsKey(FAKER)) {
+            String fakerAlg = columnTransformationDefinition.getOptions().get(FAKER);
             return faker.resolve(fakerAlg);
         }
         return new StringBuilder()
@@ -65,9 +70,8 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
         if (value.length() > 0) {
             try {
                 Integer inputAsInteger = Integer.parseInt(value); // i.e. 10
-                Random random = new Random();
                 Integer randomizerFactor = (inputAsInteger * 2) * 10; // i.e. 1110
-                Integer randomResult = random.ints(randomizerFactor - inputAsInteger, randomizerFactor * inputAsInteger)
+                Integer randomResult = RANDOM.ints(randomizerFactor - inputAsInteger, randomizerFactor * inputAsInteger)
                         .findFirst()
                         .getAsInt();
                 if (inputAsInteger > 0) {
@@ -81,7 +85,7 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
                 }
                 return Optional.of(String.valueOf(randomResult));
             } catch (NumberFormatException nfe) {
-                // go to next step
+                log.trace("Not a number while faking: {}", value);
             }
         }
         return Optional.empty();
@@ -98,7 +102,7 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
                         .getAsInt();
                 return Optional.of(date.minus(randomResult, ChronoUnit.DAYS).format(DateTimeFormatter.ofPattern(supportedLocalDateFormat.format)));
             } catch (DateTimeParseException dtpe) {
-
+                log.trace("Not a date while faking: {}", value);
             }
         }
         return Optional.empty();

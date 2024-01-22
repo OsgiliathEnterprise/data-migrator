@@ -123,7 +123,6 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
                             <groupId>org.springframework.boot</groupId>
@@ -248,7 +247,6 @@
                         <configuration>
                             <source>${java.version}</source>
                             <target>${java.version}</target>
-                            <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
                             <compilerArgs>
                                 <arg>-Aquerydsl.entityAccessors=true</arg>
                                 <arg>-Aquerydsl.useFields=false</arg>
@@ -374,7 +372,6 @@
                         <configuration>
                             <source>${java.version}</source>
                             <target>${java.version}</target>
-                            <!--<generatedSourcesDirectory>target/generated-sources/queries</generatedSourcesDirectory>-->
                             <compilerArgs>
                                 <arg>-Aquerydsl.entityAccessors=true</arg>
                                 <arg>-Aquerydsl.useFields=false</arg>

@@ -67,10 +67,10 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
     private Optional<MetamodelVertex> metamodelClassToEntityVertexAdapter(final Class<?> metamodelClass) {
         return Stream.of(metamodelClass.getDeclaredFields())
                 .filter((Field f) -> "class_".equals(f.getName()))
-                .map(f3 -> f3.getGenericType())
-                .filter(t2 -> t2 instanceof ParameterizedType)
+                .map(Field::getGenericType)
+                .filter(ParameterizedType.class::isInstance)
                 .map(t3 -> ((ParameterizedType) t3).getActualTypeArguments()[0])
-                .filter(t4 -> t4 instanceof Class)
+                .filter(Class.class::isInstance)
                 .map(t5 -> (Class<?>) t5)
                 .map(c -> {
                     try {

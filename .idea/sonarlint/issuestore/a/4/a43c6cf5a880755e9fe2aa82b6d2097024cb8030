@@ -1,0 +1,9 @@
+
+`	java:S112O"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
+V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
+]
+java:S1612F"BReplace this lambda with method reference 'Field::getGenericType'.(Üä´Àûÿÿÿÿ
+f
+java:S1612G"PReplace this lambda with method reference 'ParameterizedType.class::isInstance'.(Óöñú
+_
+java:S1612I"DReplace this lambda with method reference 'Class.class::isInstance'.(ûšË½üÿÿÿÿ

@@ -37,7 +37,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
@@ -61,10 +60,10 @@ public class ModelGraphBuilder {
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         log.info("Creating model vertex");
-        GraphTraversalSource graphTraversalSource = this.graphTraversalSource.getGraph();
-        createVertices(entityMetamodelGraph, graphTraversalSource);
-        createEdges(entityMetamodelGraph, graphTraversalSource);
-        return graphTraversalSource;
+        GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
+        createVertices(entityMetamodelGraph, gTS);
+        createEdges(entityMetamodelGraph, gTS);
+        return gTS;
     }
 
     private void createEdges(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
@@ -84,7 +83,7 @@ public class ModelGraphBuilder {
                     TinkerVertex modelVertex = (TinkerVertex) v;
                     MetamodelVertex metamodelVertex = v.value(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
                     log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.value(MODEL_GRAPH_VERTEX_ENTITY_ID));
-                    Collection<FieldEdge> edges = metamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().collect(Collectors.toList());
+                    Collection<FieldEdge> edges = metamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().toList();
                     return edges.stream().map(edge ->
                             new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
                     ).map(edgeAndTargetVertex ->
@@ -108,18 +107,7 @@ public class ModelGraphBuilder {
                 res.add((Vertex) targetModelElements);
                 return res;
             }
-        }).orElse(Collections.EMPTY_LIST);
-    }
-
-    private Vertex targetEdgeVertex(FieldEdge edge, Object relatedEntityId, GraphTraversalSource modelGraph) {
-        String targetVertexType = edge.getTarget().getTypeName();
-        log.debug("looking for related target vertex type {} with id value {}", targetVertexType, relatedEntityId);
-        return modelGraph.V()
-                .has(targetVertexType,
-                        MODEL_GRAPH_VERTEX_ENTITY_ID,
-                        relatedEntityId)
-                .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, edge.getFieldName())
-                .next();
+        }).orElse(Collections.emptyList());
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {

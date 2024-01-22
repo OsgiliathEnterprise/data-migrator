@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.api.transformers;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,20 +20,18 @@ package net.osgiliath.migrator.core.api.transformers;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.api.transformers.internal.CamelExchangeWrapper;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import org.jgrapht.Graph;
+import net.osgiliath.migrator.core.api.transformers.internal.CamelExchangeWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class JpaEntityColumnTransformer<FIELD_TYPE> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
-    private static final Logger log = LoggerFactory.getLogger(MetamodelColumnCellTransformer.class);
+    private static final Logger log = LoggerFactory.getLogger(JpaEntityColumnTransformer.class);
     private final MetamodelVertex metamodel;
     private final String columnName;
 
-    public JpaEntityColumnTransformer(MetamodelVertex metamodel, String columnName) {
+    protected JpaEntityColumnTransformer(MetamodelVertex metamodel, String columnName) {
         this.metamodel = metamodel;
         this.columnName = columnName;
     }

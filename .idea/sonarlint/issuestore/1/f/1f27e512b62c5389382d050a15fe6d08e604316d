@@ -1,0 +1,64 @@
+
+n
+java:S1104"SMake endDate a static final constant or non-public and provide accessors if needed.(›œÿÿÿÿÿ
+o
+java:S1104"TMake language a static final constant or non-public and provide accessors if needed.(»¬§çıÿÿÿÿ
+i
+java:S1104"NMake id a static final constant or non-public and provide accessors if needed.(‚¿óèûÿÿÿÿ
+j
+java:S1104 "TMake employee a static final constant or non-public and provide accessors if needed.(ç§·
+l
+java:S1104%"VMake department a static final constant or non-public and provide accessors if needed.(™Û³“
+e
+java:S1104*"OMake job a static final constant or non-public and provide accessors if needed.(óóëÖ
+h
+java:S1104/"RMake class_ a static final constant or non-public and provide accessors if needed.(Ò£şÌ
+k
+java:S11044"UMake startDate a static final constant or non-public and provide accessors if needed.(á©—Ñ
+H
+java:S1444"-Make this "public static endDate" field final(›œÿÿÿÿÿ
+I
+java:S1444".Make this "public static language" field final(»¬§çıÿÿÿÿ
+C
+java:S1444"(Make this "public static id" field final(‚¿óèûÿÿÿÿ
+D
+java:S1444 ".Make this "public static employee" field final(ç§·
+F
+java:S1444%"0Make this "public static department" field final(™Û³“
+?
+java:S1444*")Make this "public static job" field final(óóëÖ
+B
+java:S1444/",Make this "public static class_" field final(Ò£şÌ
+E
+java:S14444"/Make this "public static startDate" field final(á©—Ñ
+b	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(Ãêı¢
+g
+java:S3008/"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ò£şÌ
+o
+java:S18457"TRename field "LANGUAGE" to prevent any misunderstanding/clash with field "language".(ƒ›¾‘úÿÿÿÿ
+c
+java:S18458"HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+o
+java:S18459"TRename field "EMPLOYEE" to prevent any misunderstanding/clash with field "employee".(‚Œ†üÿÿÿÿ
+s
+java:S1845:"XRename field "DEPARTMENT" to prevent any misunderstanding/clash with field "department".(ÚÇâúÿÿÿÿ
+`
+java:S1845;"JRename field "JOB" to prevent any misunderstanding/clash with field "job".(°ß–À
+P
+java:S1118":Add a private constructor to hide the implicit public one.(Ãêı¢
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(›œÿÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(»¬§çıÿÿÿÿ
+r
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‚¿óèûÿÿÿÿ
+m
+java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ç§·
+m
+java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™Û³“
+m
+java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(óóëÖ
+m
+java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ò£şÌ
+m
+java:S30774"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(á©—Ñ

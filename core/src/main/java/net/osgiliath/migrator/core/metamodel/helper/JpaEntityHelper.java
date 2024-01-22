@@ -56,13 +56,13 @@ public class JpaEntityHelper {
         try {
             Method m = entityClass.getDeclaredMethod(fieldToGetter(attributeName));
             for (Annotation a : m.getDeclaredAnnotations()) {
-                if (a instanceof OneToMany) {
-                    return !((OneToMany) a).mappedBy().isEmpty();
-                } else if (a instanceof ManyToMany) {
+                if (a instanceof OneToMany otm) {
+                    return !otm.mappedBy().isEmpty();
+                } else if (a instanceof ManyToMany mtm) {
                     addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(entityClass, m);
-                    return !((ManyToMany) a).mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
-                } else if (a instanceof OneToOne) {
-                    return !((OneToOne) a).mappedBy().isEmpty();
+                    return !mtm.mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
+                } else if (a instanceof OneToOne oto) {
+                    return !oto.mappedBy().isEmpty();
                 }
             }
             return false;
@@ -82,7 +82,7 @@ public class JpaEntityHelper {
             return;
         }
         boolean isMappedBy = Arrays.stream(manyToManyMethod.getDeclaredAnnotations())
-                .filter(a -> a instanceof ManyToMany)
+                .filter(ManyToMany.class::isInstance)
                 .anyMatch(a -> !((ManyToMany) a).mappedBy().isEmpty());
         if (isMappedBy) {
             return;
@@ -90,7 +90,7 @@ public class JpaEntityHelper {
         Class<?> targetEntityClass = (Class<?>) ((ParameterizedType) manyToManyMethod.getGenericReturnType()).getActualTypeArguments()[0];
         for (Method targetEntityClassMethod : targetEntityClass.getDeclaredMethods()) {
             for (Annotation a : targetEntityClassMethod.getDeclaredAnnotations()) {
-                if (a instanceof ManyToMany && ((ManyToMany) a).mappedBy().isEmpty()) {
+                if (a instanceof ManyToMany mtm && mtm.mappedBy().isEmpty()) {
                     Class<?> targetEntityClassManyToManyTargetEntity = (Class<?>) ((ParameterizedType) targetEntityClassMethod.getGenericReturnType()).getActualTypeArguments()[0];
                     if (targetEntityClassManyToManyTargetEntity.equals(entityClass) && !randomManyToManyOwningSide.contains(targetEntityClass)) {
                         randomManyToManyOwningSide.add(entityClass);
@@ -165,8 +165,8 @@ public class JpaEntityHelper {
      * @param entityClass the entity class.
      * @return the primary key field name.
      */
-    public String getPrimaryKeyFieldName(Class<?> entityClass) {
-        return getPrimaryKeyGetterMethod(entityClass).map(primaryKeyGetter -> getterToFieldName(primaryKeyGetter.getName())).get();
+    public Optional<String> getPrimaryKeyFieldName(Class<?> entityClass) {
+        return getPrimaryKeyGetterMethod(entityClass).map(primaryKeyGetter -> getterToFieldName(primaryKeyGetter.getName()));
     }
 
     /**
@@ -255,7 +255,7 @@ public class JpaEntityHelper {
                     RelationshipType inverseRelationshipType = relationshipType(getterMethodOfField);
                     return new AbstractMap.SimpleEntry<>(field, inverseRelationshipType);
                 }).filter(entry -> isInverseRelationshipType(relationshipType, entry.getValue()))
-                .map(entry -> entry.getKey()).findAny();
+                .map(Map.Entry::getKey).findAny();
     }
 
     /**
@@ -266,12 +266,12 @@ public class JpaEntityHelper {
      */
     private static Optional<String> getMappedByValue(Method getterMethod) {
         return Arrays.stream(getterMethod.getDeclaredAnnotations()).map(a -> {
-            if (a instanceof ManyToMany) {
-                return ((ManyToMany) a).mappedBy();
-            } else if (a instanceof OneToMany) {
-                return ((OneToMany) a).mappedBy();
-            } else if (a instanceof OneToOne) {
-                return ((OneToOne) a).mappedBy();
+            if (a instanceof ManyToMany mtm) {
+                return mtm.mappedBy();
+            } else if (a instanceof OneToMany otm) {
+                return otm.mappedBy();
+            } else if (a instanceof OneToOne oto) {
+                return oto.mappedBy();
             } else {
                 return null;
             }

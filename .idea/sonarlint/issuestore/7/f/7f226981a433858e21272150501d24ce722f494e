@@ -1,0 +1,11 @@
+
+V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
+X
+java:S3416 "=Update this logger to use "JpaEntityColumnTransformer.class".(–ÖÌ³ÿÿÿÿÿ
+T
+java:S5993$"9Change the visibility of this constructor to "protected".(˜çÿÑùÿÿÿÿ
+c	java:S119"IRename this generic name to match the regular expression '^[A-Z][0-9]?$'.(Ä¿‹ûÿÿÿÿ
+q
+java:S1128"VRemove this unused import 'net.osgiliath.migrator.core.api.metamodel.model.FieldEdge'.(¬ï¢úÿÿÿÿÿ
+D
+java:S1128".Remove this unused import 'org.jgrapht.Graph'.(Ì‘²

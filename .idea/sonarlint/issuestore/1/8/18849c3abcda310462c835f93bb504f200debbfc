@@ -1,0 +1,122 @@
+
+i
+java:S1104"TMake comments a static final constant or non-public and provide accessors if needed.(¸ƒÅB
+n
+java:S1104"XMake dateexecuted a static final constant or non-public and provide accessors if needed.(óÛŞ
+h
+java:S1104"RMake author a static final constant or non-public and provide accessors if needed.(õ“ñ£
+o
+java:S1104 "YMake orderexecuted a static final constant or non-public and provide accessors if needed.(­¯ü·
+m
+java:S1104%"WMake description a static final constant or non-public and provide accessors if needed.(Ê¸¹‘
+o
+java:S1104*"TMake contexts a static final constant or non-public and provide accessors if needed.(Çú­úÿÿÿÿ
+o
+java:S1104/"TMake exectype a static final constant or non-public and provide accessors if needed.(’ÏßÂşÿÿÿÿ
+k
+java:S11044"UMake liquibase a static final constant or non-public and provide accessors if needed.(×è•“
+m
+java:S11049"RMake labels a static final constant or non-public and provide accessors if needed.(ñíÜæøÿÿÿÿ
+o
+java:S1104>"TMake filename a static final constant or non-public and provide accessors if needed.(´Ÿ²çüÿÿÿÿ
+m
+java:S1104C"RMake md5sum a static final constant or non-public and provide accessors if needed.(Áô‰³ùÿÿÿÿ
+s
+java:S1104H"XMake deploymentId a static final constant or non-public and provide accessors if needed.(ÜËòÀøÿÿÿÿ
+i
+java:S1104M"NMake id a static final constant or non-public and provide accessors if needed.(ùÛí°ùÿÿÿÿ
+j
+java:S1104R"OMake tag a static final constant or non-public and provide accessors if needed.(‰¯ıÛıÿÿÿÿ
+m
+java:S1104W"RMake class_ a static final constant or non-public and provide accessors if needed.(šë§Æøÿÿÿÿ
+C
+java:S1444".Make this "public static comments" field final(¸ƒÅB
+H
+java:S1444"2Make this "public static dateexecuted" field final(óÛŞ
+B
+java:S1444",Make this "public static author" field final(õ“ñ£
+I
+java:S1444 "3Make this "public static orderexecuted" field final(­¯ü·
+G
+java:S1444%"1Make this "public static description" field final(Ê¸¹‘
+I
+java:S1444*".Make this "public static contexts" field final(Çú­úÿÿÿÿ
+I
+java:S1444/".Make this "public static exectype" field final(’ÏßÂşÿÿÿÿ
+E
+java:S14444"/Make this "public static liquibase" field final(×è•“
+G
+java:S14449",Make this "public static labels" field final(ñíÜæøÿÿÿÿ
+I
+java:S1444>".Make this "public static filename" field final(´Ÿ²çüÿÿÿÿ
+G
+java:S1444C",Make this "public static md5sum" field final(Áô‰³ùÿÿÿÿ
+M
+java:S1444H"2Make this "public static deploymentId" field final(ÜËòÀøÿÿÿÿ
+C
+java:S1444M"(Make this "public static id" field final(ùÛí°ùÿÿÿÿ
+D
+java:S1444R")Make this "public static tag" field final(‰¯ıÛıÿÿÿÿ
+G
+java:S1444W",Make this "public static class_" field final(šë§Æøÿÿÿÿ
+g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(ÌŞºÈÿÿÿÿÿ
+l
+java:S3008W"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(šë§Æøÿÿÿÿ
+j
+java:S1845Y"TRename field "COMMENTS" to prevent any misunderstanding/clash with field "comments".(ÔÏĞ€
+w
+java:S1845Z"\Rename field "DATEEXECUTED" to prevent any misunderstanding/clash with field "dateexecuted".(¢¡å¹úÿÿÿÿ
+f
+java:S1845["PRename field "AUTHOR" to prevent any misunderstanding/clash with field "author".(£¬¡½
+y
+java:S1845\"^Rename field "ORDEREXECUTED" to prevent any misunderstanding/clash with field "orderexecuted".(Î·¬›şÿÿÿÿ
+p
+java:S1845]"ZRename field "DESCRIPTION" to prevent any misunderstanding/clash with field "description".(çã–Š
+o
+java:S1845^"TRename field "CONTEXTS" to prevent any misunderstanding/clash with field "contexts".(ÛËšöúÿÿÿÿ
+j
+java:S1845_"TRename field "EXECTYPE" to prevent any misunderstanding/clash with field "exectype".(ëÚšÇ
+l
+java:S1845`"VRename field "LIQUIBASE" to prevent any misunderstanding/clash with field "liquibase".(ºÍª¼
+k
+java:S1845a"PRename field "LABELS" to prevent any misunderstanding/clash with field "labels".(‚ş¡ùşÿÿÿÿ
+o
+java:S1845b"TRename field "FILENAME" to prevent any misunderstanding/clash with field "filename".(¡³Èåıÿÿÿÿ
+f
+java:S1845c"PRename field "MD5SUM" to prevent any misunderstanding/clash with field "md5sum".(Õ“‚È
+c
+java:S1845e"HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
+`
+java:S1845f"JRename field "TAG" to prevent any misunderstanding/clash with field "tag".(×–±ï
+U
+java:S1118":Add a private constructor to hide the implicit public one.(ÌŞºÈÿÿÿÿÿ
+l
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¸ƒÅB
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(óÛŞ
+m
+java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(õ“ñ£
+m
+java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(­¯ü·
+m
+java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ê¸¹‘
+r
+java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Çú­úÿÿÿÿ
+r
+java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(’ÏßÂşÿÿÿÿ
+m
+java:S30774"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(×è•“
+r
+java:S30779"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ñíÜæøÿÿÿÿ
+r
+java:S3077>"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(´Ÿ²çüÿÿÿÿ
+r
+java:S3077C"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Áô‰³ùÿÿÿÿ
+r
+java:S3077H"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÜËòÀøÿÿÿÿ
+r
+java:S3077M"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ùÛí°ùÿÿÿÿ
+r
+java:S3077R"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‰¯ıÛıÿÿÿÿ
+r
+java:S3077W"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(šë§Æøÿÿÿÿ

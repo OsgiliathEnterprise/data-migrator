@@ -46,9 +46,6 @@ public class DataSourceConfiguration {
     public static final String SOURCE_JPA_PROPERTIES = "sourcePerDsJpaProperties";
     public static final String SINK_JPA_PROPERTIES = "sinkPerDsJpaProperties";
 
-    public DataSourceConfiguration() {
-    }
-
     @Bean
     @ConfigurationProperties("spring.datasource.source")
     public DataSourceProperties sourceDataSourceProperties() {
