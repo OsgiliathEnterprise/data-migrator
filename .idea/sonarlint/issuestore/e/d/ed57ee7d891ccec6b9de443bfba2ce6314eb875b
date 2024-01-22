@@ -44,21 +44,3 @@ h
 java:S1845D"RRename field "INSTANT" to prevent any misunderstanding/clash with field "instant".(ó„‰ô
 P
 java:S1118":Add a private constructor to hide the implicit public one.(óíÌï
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(£òýÄ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.( Ûêÿüÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(’Í”¦
-m
-java:S3077""WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ìÐÆÆ
-m
-java:S3077'"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(è¯æê
-m
-java:S3077,"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¿»Ô‹
-r
-java:S30771"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÉÙ¡Éøÿÿÿÿ
-r
-java:S30776"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ýû´øÿÿÿÿÿ
-l
-java:S3077;"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(°¤ã

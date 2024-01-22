@@ -44,19 +44,3 @@ p
 java:S1845<"ZRename field "DEPARTMENTS" to prevent any misunderstanding/clash with field "departments".(ğÊ×›
 U
 java:S1118":Add a private constructor to hide the implicit public one.(„ßÜŸøÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(î“¡¥
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ŠÏ¿ÿÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(÷ãÈ¸
-r
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ş‹È²üÿÿÿÿ
-r
-java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(×÷¹½ıÿÿÿÿ
-m
-java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¬ÑƒŒ
-m
-java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(×œâÜ
-r
-java:S30774"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÍÔÉÃùÿÿÿÿ

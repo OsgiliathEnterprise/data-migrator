@@ -39,7 +39,7 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
 
     public static final String FAKER = "faker";
     private final ColumnTransformationDefinition columnTransformationDefinition;
-    private static final Logger log = LoggerFactory.getLogger(JpaEntityColumnTransformer.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractFaker.class);
 
     private static final Random RANDOM = new Random();
 
@@ -95,9 +95,8 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
         for (SupportedLocalDateFormat supportedLocalDateFormat : SupportedLocalDateFormat.values()) {
             try {
                 LocalDate date = LocalDate.parse(value, DateTimeFormatter.ofPattern(supportedLocalDateFormat.format));
-                Random random = new Random();
                 Integer bound = 200;
-                Integer randomResult = random.ints(100, bound)
+                Integer randomResult = RANDOM.ints(100, bound)
                         .findFirst()
                         .getAsInt();
                 return Optional.of(date.minus(randomResult, ChronoUnit.DAYS).format(DateTimeFormatter.ofPattern(supportedLocalDateFormat.format)));

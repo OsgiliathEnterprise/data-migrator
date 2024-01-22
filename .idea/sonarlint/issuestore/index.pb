@@ -318,3 +318,9 @@ qsample-mono/target/generated-sources/annotations/net/osgiliath/datamigrator/sam
 fsample-mono/target/generated-sources/annotations/net/osgiliath/datamigrator/sample/domain/Region_.java,e/6/e60c6b61f4d1b3a6a70d39ff1af2e2c5633a9e8c
 š
 jsample-mono/target/generated-sources/annotations/net/osgiliath/datamigrator/sample/domain/QDepartment.java,7/e/7e1c1aa0a6eb7b1192803bf74cda099a74b36b16
+h
+8sample-mono/src/test/java/net/osgiliath/MetamodelIT.java,d/8/d8e2e6abc8d259035313b30f8f124fc1c3ff6ec0
+d
+4sample-mono/src/test/java/net/osgiliath/ModelIT.java,2/0/20ce75121b09d11cb22668a1467954db8dc68b41
+H
+sonar-project.properties,2/5/2538046035efb77ecc44e1fd2eec1e2641594d4c

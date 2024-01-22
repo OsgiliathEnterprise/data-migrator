@@ -1,8 +1,5 @@
 
 a	java:S112†"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
 a	java:S112«"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
-V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
-e
-java:S6201 "NReplace this instanceof check and cast with 'instanceof Collection collection'(ÅÊóó
-V
-java:S1117¢":Rename "entity" which hides the field declared at line 44.(ó”û¿øÿÿÿÿ
+M
+java:S3740 "/Provide the parametrized type for this generic.(Šÿƒé8“âü„Ó1

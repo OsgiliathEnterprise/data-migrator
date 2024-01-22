@@ -32,13 +32,3 @@ p
 java:S1845*"ZRename field "LOCKGRANTED" to prevent any misunderstanding/clash with field "lockgranted".(Î¬ş”
 P
 java:S1118":Add a private constructor to hide the implicit public one.(Öà¦ª
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(åÒæ‹
-l
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(×œù>
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÜÙÈìıÿÿÿÿ
-m
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ğº÷Â
-m
-java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(üÛ²

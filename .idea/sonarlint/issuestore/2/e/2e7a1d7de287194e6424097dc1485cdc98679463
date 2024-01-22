@@ -74,31 +74,3 @@ i
 java:S1845a"NRename field "EMAIL" to prevent any misunderstanding/clash with field "email".(í„¹àüÿÿÿÿ
 U
 java:S1118":Add a private constructor to hide the implicit public one.( ¾­Áûÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‹«î²øÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(çà÷Ý
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ôíùåúÿÿÿÿ
-r
-java:S3077!"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÏÆë”þÿÿÿÿ
-m
-java:S3077&"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(§ŽŸû
-r
-java:S3077+"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™Ÿ‰Ðùÿÿÿÿ
-m
-java:S30770"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(½¶šÏ
-m
-java:S30775"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‰øŒ¬
-r
-java:S3077:"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¦ÃÓ³ýÿÿÿÿ
-m
-java:S3077?"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ØþŒ¸
-r
-java:S3077D"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(÷¬â±ýÿÿÿÿ
-m
-java:S3077I"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Õ­üé
-m
-java:S3077N"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ª£Ÿí
-m
-java:S3077S"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ïá½û

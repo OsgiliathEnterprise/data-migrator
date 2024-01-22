@@ -32,13 +32,3 @@ d
 java:S1845*"NRename field "TITLE" to prevent any misunderstanding/clash with field "title".(Î¢ã¦
 U
 java:S1118":Add a private constructor to hide the implicit public one.(ØüË‡ûÿÿÿÿ
-l
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ğå¥
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ü®îøÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ËÑÏ‰
-m
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ëŸøí
-m
-java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ˆ¯£ğ

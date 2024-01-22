@@ -46,19 +46,3 @@ java:S1845:"XRename field "DEPARTMENT" to prevent any misunderstanding/clash wi
 java:S1845;"JRename field "JOB" to prevent any misunderstanding/clash with field "job".(°ß–À
 P
 java:S1118":Add a private constructor to hide the implicit public one.(Ãêı¢
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(›œÿÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(»¬§çıÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‚¿óèûÿÿÿÿ
-m
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ç§·
-m
-java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™Û³“
-m
-java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(óóëÖ
-m
-java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ò£şÌ
-m
-java:S30774"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(á©—Ñ

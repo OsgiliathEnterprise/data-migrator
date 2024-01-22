@@ -1,8 +1,0 @@
-
-V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
-N
-java:S1128"3Remove this unused import 'javax.sql.XAConnection'.(¹§Íôùÿÿÿÿ
-U
-java:S1128":Remove this unused import 'javax.sql.XAConnectionBuilder'.(¯Í™•ıÿÿÿÿ
-N
-java:S1128"3Remove this unused import 'javax.sql.XADataSource'.(‰òë·ùÿÿÿÿ

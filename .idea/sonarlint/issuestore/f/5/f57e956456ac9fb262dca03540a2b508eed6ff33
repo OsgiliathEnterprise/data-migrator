@@ -1,14 +1,5 @@
 
-K
-java:S3740„"/Provide the parametrized type for this generic.(ßÓ£úıÿÿÿÿ
-Y
-java:S1596o">Replace "Collections.EMPTY_LIST" by "Collections.emptyList()".(Ã›¼üÿÿÿÿ
-V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
-^
-java:S1117@"HRename "graphTraversalSource" which hides the field declared at line 54.(Ëİ˜
-h
-java:S6204W"RReplace this usage of 'Stream.collect(Collectors.toList())' with 'Stream.toList()'(¦ÔàŒ
-\
-java:S1612‰"@Replace this lambda with method reference 'traversal::property'.(­·‰¶şÿÿÿÿ
-K
-java:S1144r"5Remove this unused private "targetEdgeVertex" method.(Ş Ùò
+J
+java:S3740x"/Provide the parametrized type for this generic.(ßÓ£úıÿÿÿÿ
+[
+java:S1612}"@Replace this lambda with method reference 'traversal::property'.(­·‰¶şÿÿÿÿ

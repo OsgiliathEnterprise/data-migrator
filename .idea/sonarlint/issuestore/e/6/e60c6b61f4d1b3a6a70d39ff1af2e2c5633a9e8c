@@ -24,11 +24,3 @@ q
 java:S1845$"VRename field "COUNTRIES" to prevent any misunderstanding/clash with field "countries".(§‰…ÿÿÿÿÿ
 U
 java:S1118":Add a private constructor to hide the implicit public one.(˜º—ûÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(âá„¥
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(çï
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ñ˜ŞËùÿÿÿÿ
-m
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¢ñÉ¯

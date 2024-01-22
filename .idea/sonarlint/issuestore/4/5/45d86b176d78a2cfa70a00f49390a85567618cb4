@@ -84,39 +84,3 @@ l
 java:S1845y"VRename field "ACTIVATED" to prevent any misunderstanding/clash with field "activated".(ÑÒú÷
 U
 java:S1118":Add a private constructor to hide the implicit public one.(°£™ùøÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(îõÜĞ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¶æçĞıÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(³±°ñùÿÿÿÿ
-m
-java:S3077!"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ü¸”¢
-r
-java:S3077&"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¼“š¿üÿÿÿÿ
-m
-java:S3077+"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(¸àÃ´
-m
-java:S30770"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(»Â¾Û
-r
-java:S30775"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‘ãÚıúÿÿÿÿ
-r
-java:S3077:"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ùíº™ıÿÿÿÿ
-m
-java:S3077?"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(‘±£Î
-m
-java:S3077D"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(àßŒû
-r
-java:S3077I"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ÿş¾íúÿÿÿÿ
-m
-java:S3077N"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(üŠâ­
-r
-java:S3077S"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(™ÕÇÉÿÿÿÿÿ
-r
-java:S3077X"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(üüØĞùÿÿÿÿ
-r
-java:S3077]"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(˜ÍËÿüÿÿÿÿ
-r
-java:S3077b"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(— ˆıÿÿÿÿ
-r
-java:S3077g"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(Ó—ËÙşÿÿÿÿ

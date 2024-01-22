@@ -1,8 +1,0 @@
-
-V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ıÿÿÿÿ
-L
-java:S1611E"1Remove the parentheses around the "def" parameter(ä„‹«ùÿÿÿÿ
-^
-java:S1612E"CReplace this lambda with method reference 'this::extractBeanClass'.(ä„‹«ùÿÿÿÿ
-N
-java:S1611F"3Remove the parentheses around the "clazz" parameter(«®ÖÇşÿÿÿÿ

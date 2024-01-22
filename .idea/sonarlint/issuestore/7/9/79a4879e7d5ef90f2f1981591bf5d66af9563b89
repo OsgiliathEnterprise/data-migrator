@@ -1,11 +1,2 @@
 
-:
-java:S26295"$Invoke method(s) only conditionally.(éÐÀ‡
-:
-java:S26297"$Invoke method(s) only conditionally.(à¿…ï
-V	java:S125	"<This block of commented-out lines of code should be removed.(Í›¸ýÿÿÿÿ
-]	java:S119 "IRename this generic name to match the regular expression '^[A-Z][0-9]?$'.(â™šq
-w
-java:S34575"aNo need to call "toString()" method as formatting and string conversion is done by the Formatter.(éÐÀ‡
-w
-java:S34577"aNo need to call "toString()" method as formatting and string conversion is done by the Formatter.(à¿…ï
+]	java:S119!"IRename this generic name to match the regular expression '^[A-Z][0-9]?$'.(â™šq

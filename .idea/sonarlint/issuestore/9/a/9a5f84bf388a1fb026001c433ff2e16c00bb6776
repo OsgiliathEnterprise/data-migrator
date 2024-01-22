@@ -18,9 +18,3 @@ g
 java:S1845"LRename field "NAME" to prevent any misunderstanding/clash with field "name".(‡”ƒûÿÿÿÿ
 U
 java:S1118":Add a private constructor to hide the implicit public one.(²ä¹¿ûÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(áî¶Ö
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ıÄêôøÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ƒÎ‚©ıÿÿÿÿ

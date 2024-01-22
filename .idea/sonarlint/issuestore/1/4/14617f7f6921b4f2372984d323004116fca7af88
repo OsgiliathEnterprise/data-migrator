@@ -34,15 +34,3 @@ q
 java:S18450"VRename field "EMPLOYEES" to prevent any misunderstanding/clash with field "employees".(Ÿ¬õˆùÿÿÿÿ
 P
 java:S1118":Add a private constructor to hide the implicit public one.(¨ÌØ×
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÔºÑøÿÿÿÿ
-r
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÉŸ‘ºûÿÿÿÿ
-m
-java:S3077"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ÙğÕ€
-r
-java:S3077 "WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(µäëıÿÿÿÿ
-r
-java:S3077%"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(«±¼ãúÿÿÿÿ
-m
-java:S3077*"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(ïÒã†
