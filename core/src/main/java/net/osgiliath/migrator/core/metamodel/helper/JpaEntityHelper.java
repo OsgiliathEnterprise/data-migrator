@@ -43,7 +43,7 @@ public class JpaEntityHelper {
     /**
      * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
      */
-    private static Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
+    private static final Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
 
     /**
      * Assess if the class relationship is derived (not the owner side).
