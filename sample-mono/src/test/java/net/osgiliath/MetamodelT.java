@@ -6,10 +6,10 @@ import net.osgiliath.datamigrator.sample.domain.*;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
-import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Test;
@@ -33,19 +33,20 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(classes = { DataMigratorApplication.class })
+@SpringBootTest(classes = {DataMigratorApplication.class})
 class MetamodelT {
     static {
-      System.setProperty("liquibase.duplicateFileMode", "WARN");
+        System.setProperty("liquibase.duplicateFileMode", "WARN");
     }
+
     private static final Logger logger = LoggerFactory.getLogger(MetamodelT.class);
 
     @Container
-    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:latest"));
-            // .withExposedPorts(64449);
+    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    // .withExposedPorts(64449);
 
     @Container
-    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:latest"));
+    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {
@@ -65,12 +66,12 @@ class MetamodelT {
         registry.add("spring.datasource.sink.hikari.poolName", () -> "sinkHikari");
         registry.add("spring.datasource.sink.hikari.auto-commit", () -> false);
 
-        DataSource  ds = DataSourceBuilder.create()
-            .url(mySQLSourceContainer.getJdbcUrl())
-            .username(mySQLSourceContainer.getUsername())
-            .password(mySQLSourceContainer.getPassword())
-            .driverClassName(mySQLSourceContainer.getDriverClassName())
-            .build();
+        DataSource ds = DataSourceBuilder.create()
+                .url(mySQLSourceContainer.getJdbcUrl())
+                .username(mySQLSourceContainer.getUsername())
+                .password(mySQLSourceContainer.getPassword())
+                .driverClassName(mySQLSourceContainer.getDriverClassName())
+                .build();
         try {
             logger.warn("Starting Liquibase import");
             SpringLiquibase liquibase = new SpringLiquibase();
@@ -100,13 +101,13 @@ class MetamodelT {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         assertThat(metamodelClasses).isNotEmpty();
         assertThat(metamodelClasses).contains(
-            Country_.class,
-            Department_.class,
-            Employee_.class,
-            Job_.class,
-            JobHistory_.class,
-            Location_.class,
-            Region_.class
+                Country_.class,
+                Department_.class,
+                Employee_.class,
+                Job_.class,
+                JobHistory_.class,
+                Location_.class,
+                Region_.class
         );
     }
 
