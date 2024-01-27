@@ -48,7 +48,7 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 @Component
 public class SinkEntityInjector {
     private static final Logger log = LoggerFactory.getLogger(SinkEntityInjector.class);
-    private static final Integer CYCLE_DETECTION_DEPTH = 10;
+    public static final Integer CYCLE_DETECTION_DEPTH = 10;
     private final VertexPersister vertexPersister;
 
     public SinkEntityInjector(VertexPersister vertexPersister) {

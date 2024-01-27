@@ -38,6 +38,41 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/sample-mono/src/main/resources/config/liquibase/fake-data/region.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sample-mono/target/classes/config/liquibase-sink/data/country.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sample-mono/target/classes/config/liquibase-sink/data/department.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sample-mono/target/classes/config/liquibase-sink/data/employee.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sample-mono/target/classes/config/liquibase-sink/data/job.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

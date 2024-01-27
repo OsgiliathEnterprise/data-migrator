@@ -114,7 +114,7 @@ class CustomProcessingIT {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Country> countries = countryRepository.findAll();
-            assertThat(countries).hasSize(10);
+            assertThat(countries).hasSize(3); // has been limited to 3
             countries.stream().forEach(c -> {
                 assertThat(c.getCountryName()).isEmpty();
             });

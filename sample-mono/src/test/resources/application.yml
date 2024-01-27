@@ -19,6 +19,11 @@ data-migrator:
     #      table: virtuals
     #      column: biosspass
     #      faker: Disease
+    - name: rows-minimize-1
+      type: bean
+      transformer-class: net.osgiliath.migrator.modules.rowlimiter.RowLimiter
+      sequencer-options:
+        rows-to-keep: 3
     - name: column-anonymize-1
       type: factory
       transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker

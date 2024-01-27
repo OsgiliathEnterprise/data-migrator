@@ -23,10 +23,12 @@ package net.osgiliath.migrator.core.processing;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.api.transformers.GraphTransformer;
 import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
 import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
+import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
@@ -42,6 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static net.osgiliath.migrator.core.configuration.SequencerDefinition.WILDCARD;
+
 @Component
 public class SequenceProcessor {
     private final DataMigratorConfiguration dataMigratorConfiguration;
@@ -54,7 +58,7 @@ public class SequenceProcessor {
         this.sequencerFactory = sequencerFactory;
     }
 
-    @Transactional(transactionManager = "sourceTransactionManager")
+    @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> metamodelGraph) {
         dataMigratorConfiguration.getSequence().stream()
                 .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
@@ -65,7 +69,17 @@ public class SequenceProcessor {
                                 throw new RuntimeException(e);
                             }
                         }
-                ).flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.getSequencerConfiguration().getEntityClass()).toStream()
+                )
+                .map(seqAndBeanClass -> {
+                    Class transformerClass = seqAndBeanClass.getBeanClass();
+                    if (WILDCARD.equals(seqAndBeanClass.getSequencerConfiguration().getEntityClass()) && GraphTransformer.class.isAssignableFrom(transformerClass)) {
+                        context.getBeansOfType(transformerClass).values().stream().forEach(
+                                globalSequencerBean -> ((GraphTransformer) globalSequencerBean).evaluate(modelGraph, metamodelGraph, seqAndBeanClass.getSequencerConfiguration().getSequencerOptions())
+                        );
+                    }
+                    return seqAndBeanClass;
+                })
+                .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.getSequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .map(vertexAndSequencerBean -> {
                     MetamodelVertex metamodelVertex = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);

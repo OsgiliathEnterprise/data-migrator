@@ -761,6 +761,11 @@
             <version>${data-migrator.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.osgiliath.datamigrator.modules</groupId>
+            <artifactId>row-limiter</artifactId>
+            <version>${data-migrator.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>

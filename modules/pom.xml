@@ -20,6 +20,7 @@
     </build>
     <modules>
         <module>faker</module>
+        <module>row-limiter</module>
     </modules>
     <profiles>
         <profile>

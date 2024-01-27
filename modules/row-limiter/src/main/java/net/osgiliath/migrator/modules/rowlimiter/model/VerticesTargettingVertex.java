@@ -1,8 +1,8 @@
-package net.osgiliath.migrator.core.modelgraph.model;
+package net.osgiliath.migrator.modules.rowlimiter.model;
 
 /*-
  * #%L
- * data-migrator-core
+ * row-limiter
  * %%
  * Copyright (C) 2024 Osgiliath Inc.
  * %%
@@ -20,24 +20,23 @@ package net.osgiliath.migrator.core.modelgraph.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-public class SourceVertexEdgeAndTargetVertex {
-    private final SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex;
+import java.util.List;
+
+public class VerticesTargettingVertex {
+
+    private final List<Vertex> sourceVertices;
     private final Vertex targetVertex;
 
-    public SourceVertexEdgeAndTargetVertex(SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex, Vertex targetVertex) {
-        this.edgeAndTargetVertex = edgeAndTargetVertex;
+    public VerticesTargettingVertex(Object leafElement, List<Vertex> sourceVertices, Vertex targetVertex) {
+
+        this.sourceVertices = sourceVertices;
         this.targetVertex = targetVertex;
     }
 
-    public Vertex getSourceVertex() {
-        return edgeAndTargetVertex.getSourceVertex();
-    }
-
-    public FieldEdge getEdge() {
-        return edgeAndTargetVertex.getEdge();
+    public List<Vertex> getSourceVertices() {
+        return sourceVertices;
     }
 
     public Vertex getTargetVertex() {

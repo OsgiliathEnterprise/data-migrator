@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.configuration;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,12 +21,15 @@ package net.osgiliath.migrator.core.configuration;
  */
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Configuration of the transformation sequences.
  */
 public class SequencerDefinition {
+    public static final String WILDCARD = "*";
     /**
      * Name of the transformation sequencer.
      */
@@ -45,7 +48,9 @@ public class SequencerDefinition {
     /**
      * Entity class to ben handled by the transformer.
      */
-    private String entityClass = "*";
+    private String entityClass = WILDCARD;
+
+    private Map<String, String> sequencerOptions = new HashMap<>();
 
     /**
      * Columns to be handled by the transformer.
@@ -61,6 +66,7 @@ public class SequencerDefinition {
 
     /**
      * Set name of the sequencer to be referenced by the sequence.
+     *
      * @param name name of the sequencer to be referenced by the sequence.
      */
     public void setName(String name) {
@@ -76,6 +82,7 @@ public class SequencerDefinition {
 
     /**
      * Set type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
+     *
      * @param type the type of the transformation sequencer. Beans being singleton, Factory meaning bean instantiation at each call.
      */
     public void setType(TRANSFORMER_TYPE type) {
@@ -84,6 +91,7 @@ public class SequencerDefinition {
 
     /**
      * Get the transformer class.
+     *
      * @return
      */
     public String getTransformerClass() {
@@ -92,6 +100,7 @@ public class SequencerDefinition {
 
     /**
      * Set the transformer class.
+     *
      * @param transformerClass the transformer class.
      */
     public void setTransformerClass(String transformerClass) {
@@ -100,6 +109,7 @@ public class SequencerDefinition {
 
     /**
      * Get the entity class simple name that will be processed by the sequencer.
+     *
      * @return the entity class.
      */
     public String getEntityClass() {
@@ -108,6 +118,7 @@ public class SequencerDefinition {
 
     /**
      * Set the entity class simple name that will be processed by the sequencer.
+     *
      * @param entityClass the entity class.
      */
     public void setEntityClass(String entityClass) {
@@ -116,6 +127,7 @@ public class SequencerDefinition {
 
     /**
      * Get the columns to be handled by the transformer.
+     *
      * @return
      */
     public Collection<ColumnTransformationDefinition> getColumnTransformationDefinitions() {
@@ -124,9 +136,23 @@ public class SequencerDefinition {
 
     /**
      * Set the columns to be handled by the transformer.
+     *
      * @param columnTransformationDefinitions the columns to be handled by the transformer.
      */
     public void setColumnTransformationDefinitions(Collection<ColumnTransformationDefinition> columnTransformationDefinitions) {
         this.columnTransformationDefinitions = columnTransformationDefinitions;
+    }
+
+    public Map<String, String> getSequencerOptions() {
+        Map<String, String> ret = new HashMap<>();
+        for (Map.Entry<String, String> entry : this.sequencerOptions.entrySet()) {
+            String key = entry.getKey();
+            ret.put(key.replaceFirst("\\d+\\.", ""), entry.getValue());
+        }
+        return ret;
+    }
+
+    public void setSequencerOptions(Map<String, String> sequencerOptions) {
+        this.sequencerOptions = sequencerOptions;
     }
 }

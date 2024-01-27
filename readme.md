@@ -34,7 +34,9 @@ business on top of spring data repositories or Tinkerpop's graph queries and eve
 
 * `./mvnw process-classes -Ptarget-data-changelog-target-db` a liquibase schema changelog (including data) from target
   database for manual processing (unfortunately, the target/classes/config/liquibase-sink/changelog will have to be
-  modified manually to remove the absolute path part of the <loadData/> sections)
+  modified manually to remove the absolute path part of the <loadData/> sections, i.e. `/config/liquibase-sink/data`,
+  and a master.xml file has to be
+  created referencing the changelog file)
 * `./mvnw process-classes -Ptarget-db-from-target-data-changelog -Dliquibase.duplicateFileMode=WARN` a liquibase schema
   changelog (including data) from target database for manual processing
 
@@ -74,3 +76,36 @@ the sample-mono project illustrates this procedure (see `pom.xml` test configura
 
 The source and target database are started using test-containers when executing the integration
 tests (`./mvnw clean verify -Pentities-from-changelog`).
+
+# Standard anonymization
+
+## Fake data generation
+
+Here's how you can configure the fake data generation (will replace all the values of the column with fake data):
+
+```yaml
+    - name: column-anonymize-1
+      type: factory
+      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
+      entity-class: Employee
+      column-transformation-definitions:
+        - column-name: firstName
+          options:
+            - faker: dragon_ball.characters
+
+```
+
+There are a lot of options for the faker, see
+the [faker documentation](https://www.datafaker.net/documentation/getting-started/).
+
+## Row limiting
+
+You can limit the number of rows to be injected in the target database using the `row-limit` sequencer:
+
+```yaml
+    - name: rows-minimize-1
+      type: bean
+      transformer-class: net.osgiliath.migrator.modules.rowlimiter.RowLimiter
+      sequencer-options:
+        rows-to-keep: 3
+```

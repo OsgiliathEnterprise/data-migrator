@@ -20,11 +20,9 @@ package net.osgiliath.migrator.core.metamodel.helper;
  * #L%
  */
 
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
@@ -33,6 +31,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
 
 /**
  * JPA entity helper containing JPA reflection queries.
@@ -44,6 +44,9 @@ public class JpaEntityHelper {
      * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
      */
     private static final Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
+
+    @PersistenceContext(unitName = SOURCE_PU)
+    private EntityManager entityManager;
 
     /**
      * Assess if the class relationship is derived (not the owner side).
@@ -122,8 +125,13 @@ public class JpaEntityHelper {
      */
     public Optional<Object> getId(Class<?> entityClass, Object entity) {
         return getPrimaryKeyGetterMethod(entityClass).map(
-                primaryKeyGetterMethod ->
-                        getFieldValue(entityClass, entity, getterToFieldName(primaryKeyGetterMethod.getName()))
+                primaryKeyGetterMethod -> {
+                    try {
+                        return primaryKeyGetterMethod.invoke(entity);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         );
     }
 
@@ -308,16 +316,37 @@ public class JpaEntityHelper {
      * @param attributeName the attribute name to get value from.
      * @return the field value.
      */
+
     public Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
+                    Method attachedGetterMethod = null;
+                    Object entityToUse = entity;
                     try {
-                        return entity.getClass().getMethod(getterMethod.getName(), getterMethod.getParameterTypes()).invoke(entity);
-                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                        if (isDetached(entityClass, entityToUse)) {
+                            Session session = entityManager.unwrap(Session.class);
+                            entityToUse = session.merge(entityToUse); // reattach entity to session (otherwise lazy loading won't work)
+                            entityManager.refresh(entityToUse);
+                        }
+                        try {
+                            attachedGetterMethod = entityToUse.getClass().getMethod(getterMethod.getName(), getterMethod.getParameterTypes());
+                        } catch (NoSuchMethodException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Object res = attachedGetterMethod.invoke(entityToUse);
+                        return res;
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         throw new RuntimeException(e);
                     }
                 })
                 .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
+    }
+
+    public boolean isDetached(Class entityClass, Object entity) {
+        Optional<Object> idValue = getId(entityClass, entity);
+        return idValue.isPresent()  // must not be transient
+                && !entityManager.contains(entity)  // must not be managed now
+                && entityManager.find(entityClass, idValue.get()) != null;  // must not have been removed
     }
 
     /**
