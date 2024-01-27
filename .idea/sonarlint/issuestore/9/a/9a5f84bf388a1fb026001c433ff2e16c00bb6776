@@ -1,20 +1,0 @@
-
-f
-java:S1104"PMake name a static final constant or non-public and provide accessors if needed.(áî¶Ö
-o
-java:S1104"TMake jhiUsers a static final constant or non-public and provide accessors if needed.(ıÄêôøÿÿÿÿ
-m
-java:S1104"RMake class_ a static final constant or non-public and provide accessors if needed.(ƒÎ‚©ıÿÿÿÿ
-@
-java:S1444"*Make this "public static name" field final(áî¶Ö
-I
-java:S1444".Make this "public static jhiUsers" field final(ıÄêôøÿÿÿÿ
-G
-java:S1444",Make this "public static class_" field final(ƒÎ‚©ıÿÿÿÿ
-g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(²ä¹¿ûÿÿÿÿ
-l
-java:S3008"QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ƒÎ‚©ıÿÿÿÿ
-g
-java:S1845"LRename field "NAME" to prevent any misunderstanding/clash with field "name".(‡”ƒûÿÿÿÿ
-U
-java:S1118":Add a private constructor to hide the implicit public one.(²ä¹¿ûÿÿÿÿ

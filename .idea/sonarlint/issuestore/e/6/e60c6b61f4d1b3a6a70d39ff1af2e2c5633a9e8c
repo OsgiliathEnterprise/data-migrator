@@ -1,26 +1,0 @@
-
-l
-java:S1104"VMake regionName a static final constant or non-public and provide accessors if needed.(âá„¥
-d
-java:S1104"NMake id a static final constant or non-public and provide accessors if needed.(çï
-p
-java:S1104"UMake countries a static final constant or non-public and provide accessors if needed.(ñ˜ŞËùÿÿÿÿ
-h
-java:S1104 "RMake class_ a static final constant or non-public and provide accessors if needed.(¢ñÉ¯
-F
-java:S1444"0Make this "public static regionName" field final(âá„¥
->
-java:S1444"(Make this "public static id" field final(çï
-J
-java:S1444"/Make this "public static countries" field final(ñ˜ŞËùÿÿÿÿ
-B
-java:S1444 ",Make this "public static class_" field final(¢ñÉ¯
-g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(˜º—ûÿÿÿÿ
-g
-java:S3008 "QRename this field "class_" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¢ñÉ¯
-c
-java:S1845#"HRename field "ID" to prevent any misunderstanding/clash with field "id".(ß»Ñíıÿÿÿÿ
-q
-java:S1845$"VRename field "COUNTRIES" to prevent any misunderstanding/clash with field "countries".(§‰…ÿÿÿÿÿ
-U
-java:S1118":Add a private constructor to hide the implicit public one.(˜º—ûÿÿÿÿ
