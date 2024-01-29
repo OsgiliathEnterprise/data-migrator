@@ -76,7 +76,7 @@
         <asciidoctor.skip>false</asciidoctor.skip>
         <liquibase.version>4.25.1</liquibase.version>
         <spring-boot.version>3.2.1</spring-boot.version>
-        <jdbc.h2.version>2.1.214</jdbc.h2.version>
+        <jdbc.h2.version>2.2.220</jdbc.h2.version>
         <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
         <jdbc.mysql.version>8.2.0</jdbc.mysql.version>
         <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
