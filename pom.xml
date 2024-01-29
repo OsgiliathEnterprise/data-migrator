@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -75,7 +76,7 @@
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
         <liquibase.version>4.25.1</liquibase.version>
-        <spring-boot.version>3.2.1</spring-boot.version>
+        <spring-boot.version>3.2.2</spring-boot.version>
         <jdbc.h2.version>2.1.214</jdbc.h2.version>
         <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
         <jdbc.mysql.version>8.2.0</jdbc.mysql.version>
@@ -141,7 +142,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -351,36 +352,47 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
                                     <replace token=", nullable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                        <include name="**/*.java"/>
                                     </replace>
                                     <replace token=", updatable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                        <include name="**/*.java"/>
                                     </replace>
                                     <replace token=", insertable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                        <include name="**/*.java"/>
                                     </replace>
                                     <replace token="@Version" value="// @Version" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                        <include name="**/*.java"/>
                                     </replace>
-                                    <replace token="@Column(name=&quot;TO&quot;" value="@Column(name=&quot;\&quot;TO\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                    <replace token="@Column(name=&quot;TO&quot;"
+                                             value="@Column(name=&quot;\&quot;TO\&quot;&quot;"
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
                                     </replace>
-                                    <replace token="@Column(name=&quot;LEFT&quot;" value="@Column(name=&quot;\&quot;LEFT\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                    <replace token="@Column(name=&quot;LEFT&quot;"
+                                             value="@Column(name=&quot;\&quot;LEFT\&quot;&quot;"
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
                                     </replace>
-                                    <replace token="@Column(name=&quot;FROM&quot;" value="@Column(name=&quot;\&quot;FROM\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                    <replace token="@Column(name=&quot;FROM&quot;"
+                                             value="@Column(name=&quot;\&quot;FROM\&quot;&quot;"
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
                                     </replace>
-                                    <replace token="@Column(name=&quot;USER&quot;" value="@Column(name=&quot;\&quot;USER\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                    <replace token="@Column(name=&quot;USER&quot;"
+                                             value="@Column(name=&quot;\&quot;USER\&quot;&quot;"
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
                                     </replace>
-                                    <replace token="@Column(name=&quot;GROUP&quot;" value="@Column(name=&quot;\&quot;GROUP\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
+                                    <replace token="@Column(name=&quot;GROUP&quot;"
+                                             value="@Column(name=&quot;\&quot;GROUP\&quot;&quot;"
+                                             dir="${project.build.directory}">
+                                        <include name="**/*.java"/>
                                     </replace>
                                 </target>
                             </configuration>
