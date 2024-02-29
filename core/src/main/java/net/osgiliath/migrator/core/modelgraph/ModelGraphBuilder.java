@@ -66,7 +66,7 @@ public class ModelGraphBuilder {
         return gTS;
     }
 
-    private void createEdges(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
+    void createEdges(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model edges");
         createEdges(graphTraversalSource, entityMetamodelGraph);
     }
