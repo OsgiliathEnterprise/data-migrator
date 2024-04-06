@@ -627,7 +627,9 @@
                             <!--<referenceDriver>${target.database.driver}</referenceDriver>-->
                             <!--<referenceUsername>${target.datasource.username}</referenceUsername>-->
                             <!--<referencePassword>${target.datasource.password}</referencePassword>-->
-                            <referenceUrl>hibernate:spring:${jpa.domain.package}?dialect=${target.jdbc.dialect}&amp;hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                            <referenceUrl>
+                                hibernate:spring:${jpa.domain.package}?hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+                            </referenceUrl>
                             <overwriteOutputFile>true</overwriteOutputFile>
                             <!--<referenceSchemas>${source.datasource.defaultSchemaName}</referenceSchemas>-->
                             <diffTypes>tables,views,columns,indexes,primarykeys,foreignkeys,uniqueconstraints,data

@@ -109,3 +109,12 @@ You can limit the number of rows to be injected in the target database using the
       sequencer-options:
         rows-to-keep: 3
 ```
+
+# TIPS & TRICKS
+
+## Generated entities
+
+This framework heavily relies on Hibernate tools for entity retro-engineering. This tool has some weird behavior when
+it generates entities for some SGBDR vendors (i.e. Oracle).
+It sometimes generate `Clob` type instead of a standard String.
+For Clob, you'll sometimes have to take care on the way the vendor stores Long binaries, i.e. ``
