@@ -19,7 +19,7 @@ business on top of spring data repositories or Tinkerpop's graph queries and eve
 4. Create a new anonymization project for your context from the maven data-migrator maven
    archetype (`mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=datamigrator-archetype -DarchetypeVersion=<current version of the archetype>`),
    ensure to choose a name without special characters (i.e. myanonymizationproject, without '-', '_', ...).
-5. Configure the project `database.properties` with your database information.
+5. Configure the project `database.properties` with your databases information.
 6. Generate the java entities, java tables metamodel and repositories from the root of your generated project using
    the `./mvnw clean process-classes -Pentities-from-source-schema` command: doing so, new classes will appear on
    the `/target/generated-sources`directory.
@@ -28,7 +28,7 @@ business on top of spring data repositories or Tinkerpop's graph queries and eve
 8. Configure your anonymization sequence using the `src/main/resources/application.yml`  property file with
    data-migrator sequence and sequencers.
 9. Start your target database container (optional if you have access to the remote database).
-10. Launch the sequencing: `./mvnw package && cd target && java <yourjar>.jar`.
+10. Launch the sequencing: `./mvnw package && cd target && java -jar <yourjar>.jar`.
 
 ## Additional useful commands
 
