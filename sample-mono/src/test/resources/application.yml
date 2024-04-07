@@ -30,6 +30,7 @@ data-migrator:
       entity-class: Employee
       column-transformation-definitions:
         - column-name: firstName
+          consistent-key: True
           options:
             - faker: dragon_ball.characters
     - name: anonymizer-custom-1

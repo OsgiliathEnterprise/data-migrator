@@ -32,6 +32,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -42,6 +44,7 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
     private static final Logger log = LoggerFactory.getLogger(AbstractFaker.class);
 
     private static final Random RANDOM = new Random();
+    private static Map<String, String> fakedKeys = new HashMap<>();
 
     protected AbstractFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
         super(metamodel, columnTransformationDefinition.getColumnName());
@@ -49,10 +52,25 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
     }
 
     protected String fake(String value) {
-        return getRandomInteger(value)
+        return getCachedKey(value).orElseGet(() -> getRandomInteger(value)
                 .orElseGet(() ->
                         getRandomLocalDate(value)
-                                .orElseGet(this::getRandomString));
+                                .orElseGet(() -> {
+                                    String res = this.getRandomString();
+                                    if (columnTransformationDefinition.getConsistentKey()) {
+                                        fakedKeys.put(value, res);
+                                    }
+                                    return res;
+                                })));
+    }
+
+    private Optional<String> getCachedKey(String originalValue) {
+        if (columnTransformationDefinition.getConsistentKey()) {
+            if (fakedKeys.containsKey(originalValue)) {
+                return Optional.of(fakedKeys.get(originalValue));
+            }
+        }
+        return Optional.empty();
     }
 
     private String getRandomString() {

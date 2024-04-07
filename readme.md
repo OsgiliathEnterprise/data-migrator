@@ -90,6 +90,7 @@ Here's how you can configure the fake data generation (will replace all the valu
       entity-class: Employee
       column-transformation-definitions:
         - column-name: firstName
+          consistent-key: True # will reuse value of a previously faked entry
           options:
             - faker: dragon_ball.characters
 
@@ -115,6 +116,6 @@ You can limit the number of rows to be injected in the target database using the
 ## Generated entities
 
 This framework heavily relies on Hibernate tools for entity retro-engineering. This tool has some weird behavior when
-it generates entities for some SGBDR vendors (i.e. Oracle).
-It sometimes generate `Clob` type instead of a standard String.
-For Clob, you'll sometimes have to take care on the way the vendor stores Long binaries, i.e. ``
+It sometimes generate `Clob` type instead of a standard String: prefer replacing the generated entity's field and
+methods with the
+proper [`@JdbcTypeCode`](https://docs.jboss.org/hibernate/stable/orm/userguide/html_single/Hibernate_User_Guide.html#basic-String)
