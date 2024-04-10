@@ -65,6 +65,7 @@ manually. The most common issues are:
 - Remove `@Version` annotation if it's not an hibernate version column (i.e. it's a business version column)
 - Escape the column names that are reserved words in the target database (e.g. ` @Column(name = "\"schema\"")` in
   postgresql)
+- To batch some entity processing, you can edit the `build.xml` and add your own Ant tasks.
 
 ## Integration testing for your anonymization sequence
 
