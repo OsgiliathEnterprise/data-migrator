@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -141,7 +142,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -354,37 +355,9 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
-                                    <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
-                                    </move>
-                                    <replace token=", nullable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token=", updatable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token=", insertable=false" value="" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Version" value="// @Version" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Column(name=&quot;TO&quot;" value="@Column(name=&quot;\&quot;TO\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Column(name=&quot;LEFT&quot;" value="@Column(name=&quot;\&quot;LEFT\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Column(name=&quot;FROM&quot;" value="@Column(name=&quot;\&quot;FROM\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Column(name=&quot;USER&quot;" value="@Column(name=&quot;\&quot;USER\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
-                                    <replace token="@Column(name=&quot;GROUP&quot;" value="@Column(name=&quot;\&quot;GROUP\&quot;&quot;" dir="${project.build.directory}">
-                                        <include name="**/*.java" />
-                                    </replace>
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>

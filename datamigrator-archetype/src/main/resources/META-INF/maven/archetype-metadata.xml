@@ -88,6 +88,7 @@
                 <include>mvnw.cmd</include>
                 <include>.gitignore</include>
                 <include>mvnw</include>
+                <include>build.xml</include>
             </includes>
         </fileSet>
     </fileSets>
