@@ -27,6 +27,8 @@ import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVerte
 import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
  */
 public class ModelElement {
 
+    private static final Logger log = LoggerFactory.getLogger(ModelElement.class);
     /**
      * The entity.
      */
@@ -142,17 +145,26 @@ public class ModelElement {
     public Optional<Object> getEdgeValueFromModelElementRelationShip(FieldEdge fieldEdge, GraphTraversalSource modelGraph) {
         Method getterMethod = fieldEdge.relationshipGetter();
         MetamodelVertex targetVertex = fieldEdge.getTarget();
+        log.debug("Getting Edge value from model element relationship. Relationship getter: {}, target of the edge: {}",
+                fieldEdge.relationshipGetter().getName(),
+                fieldEdge.getTarget().getTypeName());
         try {
             Object res = getterMethod.invoke(this.getEntity());
             if (res instanceof Collection r) {
+                log.trace("Target of the edge is a collection");
                 return Optional.of(r.stream()
                         .flatMap(ent -> jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), ent).stream())
+                        .peek(id -> log.debug("Trying to seek for an existing vertex element with id: {} from the original collection", id))
                         .flatMap(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
                                 .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).toStream()).collect(Collectors.toSet()));
             } else if (res != null) {
+                log.trace("Target of the edge is a single element");
                 return jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), res)
-                        .map(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
-                                .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).next());
+                        .map(id -> {
+                            log.debug("Trying to seek for an existing vertex element with id: {}", id);
+                            return modelGraph.V().hasLabel(targetVertex.getTypeName())
+                                    .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).next();
+                        });
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
