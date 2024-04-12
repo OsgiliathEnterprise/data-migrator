@@ -23,7 +23,7 @@ package net.osgiliath.migrator.core.modelgraph;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
-import net.osgiliath.migrator.core.common.EntityClass;
+import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.mockito.Mockito.*;
+
 
 public class ModelGraphBuilderTest {
 
@@ -84,7 +85,7 @@ public class ModelGraphBuilderTest {
     @Test
     public void testCreateEdges() {
         // Arrange
-        MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, EntityClass.class, null, null);
+        MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class, null, null);
         FieldEdge fieldEdge = new FieldEdge(null, null);
         Collection<FieldEdge> edges = Arrays.asList(fieldEdge);
         metamodelVertex.computeOutboundEdges(entityMetamodelGraph);
