@@ -74,7 +74,7 @@
         <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
-        <liquibase.version>4.26.0</liquibase.version>
+        <liquibase.version>4.27.0</liquibase.version>
         <spring-boot.version>3.2.4</spring-boot.version>
         <jdbc.h2.version>2.2.224</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
