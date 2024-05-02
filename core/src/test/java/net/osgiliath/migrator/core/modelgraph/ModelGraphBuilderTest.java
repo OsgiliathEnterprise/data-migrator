@@ -26,6 +26,7 @@ import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
+import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -64,11 +65,16 @@ public class ModelGraphBuilderTest {
 
     @Mock
     private Vertex vertex;
+    private JpaEntityHelper jpaEntityHelper;
+    private GraphRequester graphRequester;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        modelGraphBuilder = new ModelGraphBuilder(entityImporter, graphTraversalSourceProvider);
+        jpaEntityHelper = new JpaEntityHelper();
+
+        graphRequester = new GraphRequester(jpaEntityHelper);
+        modelGraphBuilder = new ModelGraphBuilder(entityImporter, graphTraversalSourceProvider, graphRequester);
     }
 
     @Test

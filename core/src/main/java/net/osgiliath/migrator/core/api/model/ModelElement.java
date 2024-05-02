@@ -24,8 +24,6 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * A vertex in the model graph.
@@ -69,7 +66,7 @@ public class ModelElement {
      *
      * @return Returns the entity that this vertex represents.
      */
-    public Object getEntity() {
+    public Object getRawElement() {
         return entity;
     }
 
@@ -78,7 +75,7 @@ public class ModelElement {
      *
      * @param entity The entity that this vertex represents.
      */
-    public void setEntity(Object entity) {
+    public void setRawElement(Object entity) {
         this.entity = entity;
     }
 
@@ -119,7 +116,7 @@ public class ModelElement {
     public Object getEdgeRawValue(FieldEdge fieldEdge) {
         Method getterMethod = fieldEdge.relationshipGetter();
         try {
-            return getterMethod.invoke(this.getEntity());
+            return getterMethod.invoke(this.getRawElement());
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -135,48 +132,11 @@ public class ModelElement {
         return jpaEntityHelper.getFieldValue(((JpaMetamodelVertex) sourceMetamodelVertex).getEntityClass(), entity, fieldName);
     }
 
-    /**
-     * get the target vertex or vertices corresponding to the entity referenced by the fieldEdge
-     *
-     * @param fieldEdge  the edge to get the target vertices from
-     * @param modelGraph the model graph
-     * @return the target Vertex or Vertices corresponding to the entities referenced by the fieldEdge
-     */
-    public Optional<Object> getEdgeValueFromModelElementRelationShip(FieldEdge fieldEdge, GraphTraversalSource modelGraph) {
-        Method getterMethod = fieldEdge.relationshipGetter();
-        MetamodelVertex targetVertex = fieldEdge.getTarget();
-        log.debug("Getting Edge value from model element relationship. Relationship getter: {}, target of the edge: {}",
-                fieldEdge.relationshipGetter().getName(),
-                fieldEdge.getTarget().getTypeName());
-        try {
-            Object res = getterMethod.invoke(this.getEntity());
-            if (res instanceof Collection r) {
-                log.trace("Target of the edge is a collection");
-                return Optional.of(r.stream()
-                        .flatMap(ent -> jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), ent).stream())
-                        .peek(id -> log.debug("Trying to seek for an existing vertex element with id: {} from the original collection", id))
-                        .flatMap(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
-                                .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).toStream()).collect(Collectors.toSet()));
-            } else if (res != null) {
-                log.trace("Target of the edge is a single element");
-                return jpaEntityHelper.getId(((JpaMetamodelVertex) targetVertex).getEntityClass(), res)
-                        .map(id -> {
-                            log.debug("Trying to seek for an existing vertex element with id: {}", id);
-                            return modelGraph.V().hasLabel(targetVertex.getTypeName())
-                                    .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).next();
-                        });
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-        return Optional.empty();
-    }
-
     public Optional<Object> getId(MetamodelVertex metamodelVertex) {
         if (metamodelVertex != null) {
-            return jpaEntityHelper.getId(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), getEntity());
+            return jpaEntityHelper.getId(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), getRawElement());
         } else {
-            return jpaEntityHelper.getId(this.getClass(), getEntity());
+            return jpaEntityHelper.getId(this.getClass(), getRawElement());
         }
     }
 
@@ -184,7 +144,7 @@ public class ModelElement {
         Object targetValue = getEdgeRawValue(fieldEdge);
         if (targetValue instanceof Collection) {
             Collection targetValues = (Collection) targetValue;
-            targetValues.remove(targetModelElement.getEntity());
+            targetValues.remove(targetModelElement.getRawElement());
             setEdgeRawValue(fieldEdge.getSource(), fieldEdge, targetValue);
         } else {
             setEdgeRawValue(fieldEdge.getSource(), fieldEdge, null);
@@ -193,13 +153,13 @@ public class ModelElement {
         Optional<Field> inverseFieldOpt = jpaEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass());
         inverseFieldOpt.ifPresent(
                 inverseField -> {
-                    Object inverseValue = jpaEntityHelper.getFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getEntity(), inverseField.getName());
+                    Object inverseValue = jpaEntityHelper.getFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName());
                     if (inverseValue instanceof Collection) {
                         Collection inverseValues = (Collection) inverseValue;
-                        inverseValues.remove(this.getEntity());
-                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getEntity(), inverseField.getName(), inverseValues);
+                        inverseValues.remove(this.getRawElement());
+                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), inverseValues);
                     } else {
-                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getEntity(), inverseField.getName(), null);
+                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), null);
                     }
                 }
         );

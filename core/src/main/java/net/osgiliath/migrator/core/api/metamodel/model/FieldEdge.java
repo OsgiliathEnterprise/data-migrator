@@ -128,40 +128,40 @@ public class FieldEdge extends DefaultEdge {
         MetamodelVertex targetVertex = graph.getEdgeTarget(this);
         switch (relationshipType) {
             case ONE_TO_ONE -> {
-                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getRawElement());
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
-                        targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity())
+                        targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getRawElement())
                 );
             }
             case ONE_TO_MANY -> {
                 Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
-                set.add(targetEntity.getEntity());
+                set.add(targetEntity.getRawElement());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
-                        targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getEntity())
+                        targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getRawElement())
                 );
             }
             case MANY_TO_ONE -> {
-                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getEntity());
+                sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getRawElement());
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
                     Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);
                     }
-                    inverseCollection.add(sourceEntity.getEntity());
+                    inverseCollection.add(sourceEntity.getRawElement());
                     targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
                 });
             }
             case MANY_TO_MANY -> {
                 Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
-                set.add(targetEntity.getEntity());
+                set.add(targetEntity.getRawElement());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
                 sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
                     Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);
                     }
-                    inverseCollection.add(sourceEntity.getEntity());
+                    inverseCollection.add(sourceEntity.getRawElement());
                     targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, inverseCollection);
                 });
             }

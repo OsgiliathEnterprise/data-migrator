@@ -21,9 +21,11 @@ package net.osgiliath.migrator.core.common;
  */
 
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
 import org.apache.tinkerpop.gremlin.structure.*;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class MockVertex implements Vertex {
 
@@ -56,12 +58,12 @@ public class MockVertex implements Vertex {
 
     @Override
     public Object id() {
-        return ((FakeEntity) me.getEntity()).getId();
+        return ((FakeEntity) me.getRawElement()).getId();
     }
 
     @Override
     public String label() {
-        return ((FakeEntity) me.getEntity()).getClass().getSimpleName();
+        return ((FakeEntity) me.getRawElement()).getClass().getSimpleName();
     }
 
     @Override
@@ -71,7 +73,6 @@ public class MockVertex implements Vertex {
 
     @Override
     public void remove() {
-
     }
 
     @Override
@@ -80,10 +81,17 @@ public class MockVertex implements Vertex {
     }
 
     public FakeEntity getFe() {
-        return ((FakeEntity) me.getEntity());
+        return ((FakeEntity) me.getRawElement());
     }
 
     public ModelElement getMe() {
         return me;
+    }
+
+    @Override
+    public <V> V value(final String key) throws NoSuchElementException {
+        if (key.equals(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY))
+            return (V) me;
+        return null;
     }
 }

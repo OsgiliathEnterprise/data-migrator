@@ -120,13 +120,13 @@ class ModelIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
             assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).toList()).hasSize(1);
-            assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).getEntity()).getFirstName()).isEqualTo("Horace");
+            assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).getRawElement()).getFirstName()).isEqualTo("Horace");
 
 //            assertThat(modelGraph.V().hasLabel(JhiUser.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID,1).out(JhiUser_.JHI_AUTHORITIES).toList()).hasSize(2);
 //            assertThat(modelGraph.V().hasLabel(JhiUser.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID,1).out(JhiUser_.JHI_AUTHORITIES).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(a -> ((JhiAuthority)a).getName()).collect(Collectors.toSet())).containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_USER");
 
             assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Job_.EMPLOYEE).toList()).hasSize(4);
-            assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Job_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(me -> ((ModelElement) me).getEntity()).map(a -> ((Job) a).getJobTitle()).collect(Collectors.toSet())).containsExactlyInAnyOrder("Future Group Manager", "National Markets Producer", "Investor Communications Administrator", "Corporate Markets Director");
+            assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Job_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(me -> ((ModelElement) me).getRawElement()).map(a -> ((Job) a).getJobTitle()).collect(Collectors.toSet())).containsExactlyInAnyOrder("Future Group Manager", "National Markets Producer", "Investor Communications Administrator", "Corporate Markets Director");
         }
     }
 }

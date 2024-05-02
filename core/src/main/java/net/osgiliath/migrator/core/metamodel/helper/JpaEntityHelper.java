@@ -38,7 +38,7 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
  * JPA entity helper containing JPA reflection queries.
  */
 @Component
-public class JpaEntityHelper {
+public class JpaEntityHelper implements RawElementHelper {
 
     /**
      * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
@@ -123,6 +123,7 @@ public class JpaEntityHelper {
      * @param entity      the entity.
      * @return the primary key value.
      */
+    @Override
     public Optional<Object> getId(Class<?> entityClass, Object entity) {
         return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {

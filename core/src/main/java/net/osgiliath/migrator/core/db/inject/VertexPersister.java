@@ -37,6 +37,6 @@ public class VertexPersister {
 
     @Transactional(transactionManager = SINK_TRANSACTION_MANAGER)
     public void persistVertex(ModelElement entity) {
-        entityManager.persist(entity.getEntity());
+        entityManager.persist(entity.getRawElement());
     }
 }

@@ -67,11 +67,11 @@ public class HibernateMetamodelScanner implements MetamodelScanner {
         return this.scanBeandefinition()
                 .stream()
                 .map(this::extractBeanClass)
-                .filter(clazz -> !isLiquibaseTable(clazz.getSimpleName()))
+                .filter(clazz -> !isTechnicalTable(clazz.getSimpleName()))
                 .collect(Collectors.toSet());
     }
 
-    private boolean isLiquibaseTable(String simpleName) {
+    private boolean isTechnicalTable(String simpleName) {
         return Arrays.asList("Databasechangelog_", "DatabasechangelogId_", "Databasechangeloglock_").contains(simpleName);
     }
 }

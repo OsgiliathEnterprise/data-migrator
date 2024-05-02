@@ -33,7 +33,7 @@ import java.util.List;
 
 public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> implements GraphTraversal<Vertex, Vertex> {
     private final JpaEntityHelper jpaEntityHelper;
-    private List<Vertex> vertex = new ArrayList<>();
+    private List<Vertex> vertices = new ArrayList<>();
 
     private Iterator<Vertex> vertexIterator;
 
@@ -44,12 +44,12 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
         FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
         ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);
         MockVertex mv1 = new MockVertex(me1);
-        vertex.add(mv1);
+        vertices.add(mv1);
         FakeEntity fe2 = new FakeEntity(ENTITY_ID_2, this);
         ModelElement me2 = new ModelElement(fe2, jpaEntityHelper);
         MockVertex mv2 = new MockVertex(me2);
-        vertex.add(mv2);
-        vertexIterator = vertex.iterator();
+        vertices.add(mv2);
+        vertexIterator = vertices.iterator();
         this.jpaEntityHelper = jpaEntityHelper;
     }
 
@@ -58,18 +58,18 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
             FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
             ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);
             MockVertex mv1 = new MockVertex(me1);
-            vertex.add(mv1);
-            vertexIterator = vertex.iterator();
+            vertices.add(mv1);
+            vertexIterator = vertices.iterator();
         }
         this.jpaEntityHelper = jpaEntityHelper;
     }
 
     public Vertex getVertex(int vertexId) {
-        return vertex.get(vertexId);
+        return vertices.get(vertexId);
     }
 
     public ModelElement getModelElement(int vertexId) {
-        return ((MockVertex) vertex.get(vertexId)).getMe();
+        return ((MockVertex) vertices.get(vertexId)).getMe();
     }
 
     @Override

@@ -63,26 +63,29 @@ public class SinkEntityInjector {
     }
 
     private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, Collection<Vertex> processedVertices) {
-        GraphTraversal leafElements = modelGraph.V().
-                repeat(out())
+        GraphTraversal leafElements = modelGraph.V()
+                .repeat(out())
                 .until(
                         out().filter(__.not(is(P.within(processedVertices)))).count().is(0).or().loops().is(CYCLE_DETECTION_DEPTH)
                 )
                 .filter(__.not(is(P.within(processedVertices))));
         if (!leafElements.hasNext()) {
-            modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(v -> {
-                Vertex modelVertex = v;
-                vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
-            });
+            modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(modelVertex ->
+                    vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY))
+            );
             return;
         }
         leafElements.toStream()
                 .map(e -> {
                     TinkerVertex modelVertex = (TinkerVertex) e;
-                    updateRelationships(modelVertex, entityMetamodelGraph);
-                    log.info("Persisting vertex of type {} with id {}", modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
+                    updateEntityRelationships(modelVertex, entityMetamodelGraph);
                     return modelVertex;
-                }).forEach(e -> {
+                })
+                .peek(mv -> {
+                    TinkerVertex tv = (TinkerVertex) mv;
+                    log.info("Persisting vertex of type {} with id {}", tv.label(), tv.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
+                })
+                .forEach(e -> {
                     Vertex modelVertex = (Vertex) e;
                     vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
                     processedVertices.add(modelVertex);
@@ -90,25 +93,28 @@ public class SinkEntityInjector {
         processEntities(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
-    void updateRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
+    void updateEntityRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
         ModelElement sourceEntity = (ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
         MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
         sourceMetamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
-                StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
-        ).forEach(modelAndMetamodelEdge -> {
-            log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
-            ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-            modelAndMetamodelEdge.getMetamodelEdge().setEdgeBetweenEntities(sourceMetamodelVertex, sourceEntity, targetEntity, entityMetamodelGraph);
-
-        });
+                        StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+                )
+                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
+                .forEach(modelAndMetamodelEdge -> {
+                    ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+                    modelAndMetamodelEdge.getMetamodelEdge().setEdgeBetweenEntities(sourceMetamodelVertex, sourceEntity, targetEntity, entityMetamodelGraph);
+                });
     }
 
     private void removeCyclicElements(GraphTraversalSource modelGraph) {
         GraphTraversal cyclicElements = modelGraph.V().as("a").repeat(out()).until(where(eq("a")).or().loops().is(CYCLE_DETECTION_DEPTH));
-        cyclicElements.toStream().forEach(v -> {
-            TinkerVertex modelVertex = (TinkerVertex) v;
-            log.warn("Cyclic element of type {} with id {} found in the graph", modelVertex.label(), modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID).next());
-            modelGraph.V(modelVertex).drop().iterate();
-        });
+        cyclicElements.toStream()
+                .peek(v -> {
+                    TinkerVertex ve = (TinkerVertex) v;
+                    log.warn("Cyclic element of type {} with id {} found in the graph", ve.label(), ve.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID).next());
+                })
+                .forEach(v ->
+                        modelGraph.V(v).drop().iterate()
+                );
     }
 }
