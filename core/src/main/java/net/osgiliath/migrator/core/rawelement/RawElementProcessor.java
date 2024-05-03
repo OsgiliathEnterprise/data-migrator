@@ -20,6 +20,8 @@ package net.osgiliath.migrator.core.rawelement;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -32,4 +34,10 @@ public interface RawElementProcessor {
     Object getFieldValue(Class<?> entityClass, Object entity, String attributeName);
 
     void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value);
+
+    boolean isDerived(Class<?> entityClass, String attributeName);
+
+    RelationshipType relationshipType(Method getterMethod);
+
+    Optional<String> getPrimaryKeyFieldName(Class<?> entityClass);
 }

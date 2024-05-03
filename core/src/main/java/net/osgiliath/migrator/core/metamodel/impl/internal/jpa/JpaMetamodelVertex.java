@@ -20,12 +20,13 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
 import net.osgiliath.migrator.core.metamodel.impl.model.FieldAndTargetType;
-import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.jgrapht.Graph;
 
 import java.lang.reflect.Field;
@@ -56,11 +57,11 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     /**
      * JPA entity helper.
      */
-    private final JpaEntityProcessor jpaEntityHelper;
+    private final RawElementProcessor jpaEntityHelper;
     /**
      * JPA metamodel vertex factory.
      */
-    private final JpaMetamodelVertexFactory jpaMetamodelVertexFactory;
+    private final MetamodelVertexFactory jpaMetamodelVertexFactory;
 
     /**
      * Constructor.
@@ -70,7 +71,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
      * @param jpaEntityHelper           JPA entity helper.
      * @param jpaMetamodelVertexFactory JPA metamodel vertex factory.
      */
-    public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityProcessor jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
+    public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, RawElementProcessor jpaEntityHelper, MetamodelVertexFactory jpaMetamodelVertexFactory) {
         this.metamodelClass = metamodelClass;
         this.entityClass = entityClass;
         this.jpaEntityHelper = jpaEntityHelper;

@@ -20,8 +20,16 @@ package net.osgiliath.migrator.core.api.metamodel;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
+
+import java.lang.reflect.Field;
 
 public interface MetamodelVertexFactory {
     MetamodelVertex createMetamodelVertex(Class<?> metamodelClass);
+
+    FieldEdge createFieldEdge(Field field);
+
+    OutboundEdge createOutboundEdge(FieldEdge fieldEdge, MetamodelVertex targetMetamodelVertex);
 }
