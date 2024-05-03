@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -43,7 +43,7 @@ import java.util.Collection;
 @Component
 @Order(1)
 @Profile("!test")
-public class TransformationSequencer implements CommandLineRunner  {
+public class TransformationSequencer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TransformationSequencer.class);
     private final MetamodelScanner metamodelScanner;

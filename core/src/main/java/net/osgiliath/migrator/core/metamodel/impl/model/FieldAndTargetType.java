@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.model;
+package net.osgiliath.migrator.core.metamodel.impl.model;
 
 /*-
  * #%L
@@ -20,5 +20,11 @@ package net.osgiliath.migrator.core.api.model;
  * #L%
  */
 
-public sealed interface EdgeTargetVertexOrVertices<M> permits UnitaryEdgeTarget, ManyEdgeTarget {
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+
+/**
+ * Entity field and target type.
+ */
+public record FieldAndTargetType(Field field, Type targetType) {
 }

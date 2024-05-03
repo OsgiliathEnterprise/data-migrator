@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.model;
+package net.osgiliath.migrator.core.rawelement;
 
 /*-
  * #%L
@@ -20,7 +20,16 @@ package net.osgiliath.migrator.core.api.model;
  * #L%
  */
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
-public record UnitaryEdgeTarget(Vertex target) implements EdgeTargetVertexOrVertices<Vertex> {
+public interface RawElementProcessor {
+    Optional<Object> getId(Class<?> elementClass, Object instance);
+
+    Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass);
+
+    Object getFieldValue(Class<?> entityClass, Object entity, String attributeName);
+
+    void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value);
 }

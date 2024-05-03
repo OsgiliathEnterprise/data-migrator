@@ -30,7 +30,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.ModelElementFactory;
+import net.osgiliath.migrator.core.graph.ModelElementFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 

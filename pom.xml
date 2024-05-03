@@ -159,10 +159,9 @@
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. Data migrator supports JDK 17
-                                    to 21.
+                                <message>You are running an incompatible version of Java. Data migrator supports JDK 21.
                                 </message>
-                                <version>[17,18),[18,19),[19,20),[20,21)[21,22)</version>
+                                <version>[21,22)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>

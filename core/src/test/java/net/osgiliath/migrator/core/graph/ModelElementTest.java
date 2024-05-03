@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.model;
+package net.osgiliath.migrator.core.graph;
 
 /*-
  * #%L
@@ -21,21 +21,27 @@ package net.osgiliath.migrator.core.api.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.common.MockTraversalVertex;
 import net.osgiliath.migrator.core.common.MockVertex;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
+import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
+import net.osgiliath.migrator.core.graph.model.EdgeTargetVertexOrVertices;
+import net.osgiliath.migrator.core.graph.model.ManyEdgeTarget;
+import net.osgiliath.migrator.core.graph.model.UnitaryEdgeTarget;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
-import net.osgiliath.migrator.core.modelgraph.GraphRequester;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,7 +52,7 @@ import static org.mockito.Mockito.when;
 public class ModelElementTest {
 
     // @Mock
-    private JpaEntityHelper jpaEntityHelper;
+    private JpaEntityProcessor jpaEntityHelper;
 
     @Mock
     private FieldEdge fieldEdge;
@@ -56,13 +62,15 @@ public class ModelElementTest {
 
     private MockTraversalVertex traversal;
 
-    private GraphRequester graphRequester;
+    private ModelGraphBuilder modelGraphBuilder;
 
     @BeforeEach
     public void setup() {
-        jpaEntityHelper = new JpaEntityHelper();
+        jpaEntityHelper = new JpaEntityProcessor();
         traversal = new MockTraversalVertex(jpaEntityHelper);
-        graphRequester = new GraphRequester(jpaEntityHelper);
+        GraphTraversalSourceProvider provider = new GraphTraversalSourceProvider(null);
+        EntityImporter entityImporter = (entityVertex, objectToExclude) -> List.of();
+        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, provider);
 
     }
 
@@ -75,10 +83,10 @@ public class ModelElementTest {
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class, jpaEntityHelper, null));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
-        Optional<EdgeTargetVertexOrVertices> result = graphRequester.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
+        Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
-        assertEquals(((UnitaryEdgeTarget) result.get()).target().id(), MockTraversalVertex.ENTITY_ID_1);
+        Assertions.assertEquals(((UnitaryEdgeTarget) result.get()).target().id(), MockTraversalVertex.ENTITY_ID_1);
     }
 
     @Test
@@ -91,10 +99,10 @@ public class ModelElementTest {
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class, jpaEntityHelper, null));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
-        Optional<EdgeTargetVertexOrVertices> result = graphRequester.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
+        Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
-        assertEquals(((ManyEdgeTarget) result.get()).target().size(), 1);
+        Assertions.assertEquals(((ManyEdgeTarget) result.get()).target().size(), 1);
         assertEquals(((MockVertex) ((ManyEdgeTarget) result.get()).target().iterator().next()).getFe().getId(), MockTraversalVertex.ENTITY_ID_1);
 
     }

@@ -30,7 +30,7 @@ import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
 import net.osgiliath.migrator.core.processing.model.SequencersBeansMetamodelVertexAndEntity;

@@ -24,8 +24,8 @@ import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.FieldAndTargetType;
+import net.osgiliath.migrator.core.metamodel.impl.model.FieldAndTargetType;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.jgrapht.Graph;
 
 import java.lang.reflect.Field;
@@ -56,7 +56,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
     /**
      * JPA entity helper.
      */
-    private final JpaEntityHelper jpaEntityHelper;
+    private final JpaEntityProcessor jpaEntityHelper;
     /**
      * JPA metamodel vertex factory.
      */
@@ -70,7 +70,7 @@ public class JpaMetamodelVertex implements MetamodelVertex {
      * @param jpaEntityHelper           JPA entity helper.
      * @param jpaMetamodelVertexFactory JPA metamodel vertex factory.
      */
-    public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityHelper jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
+    public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, JpaEntityProcessor jpaEntityHelper, JpaMetamodelVertexFactory jpaMetamodelVertexFactory) {
         this.metamodelClass = metamodelClass;
         this.entityClass = entityClass;
         this.jpaEntityHelper = jpaEntityHelper;
@@ -112,10 +112,10 @@ public class JpaMetamodelVertex implements MetamodelVertex {
                 .flatMap(f -> targetTypeOfMetamodelField(f)
                         .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
                 .flatMap(t ->
-                        graph.vertexSet().stream().filter(candidateVertex -> ((JpaMetamodelVertex) candidateVertex).getEntityClass().equals(t.getTargetType()))
-                                .filter(targetMetamodelVertex -> !jpaEntityHelper.isDerived(getEntityClass(), t.getField().getName()))
+                        graph.vertexSet().stream().filter(candidateVertex -> ((JpaMetamodelVertex) candidateVertex).getEntityClass().equals(t.targetType()))
+                                .filter(targetMetamodelVertex -> !jpaEntityHelper.isDerived(getEntityClass(), t.field().getName()))
                                 .map(targetMetamodelVertex ->
-                                        jpaMetamodelVertexFactory.createOutboundEdge(jpaMetamodelVertexFactory.createFieldEdge(t.getField()), targetMetamodelVertex)
+                                        jpaMetamodelVertexFactory.createOutboundEdge(jpaMetamodelVertexFactory.createFieldEdge(t.field()), targetMetamodelVertex)
                                 )
                 ).collect(Collectors.toSet());
     }

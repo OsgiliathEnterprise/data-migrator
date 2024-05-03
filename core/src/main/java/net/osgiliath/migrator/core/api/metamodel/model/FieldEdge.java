@@ -23,8 +23,8 @@ package net.osgiliath.migrator.core.api.metamodel.model;
 import jakarta.persistence.Persistence;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -45,7 +45,7 @@ public class FieldEdge extends DefaultEdge {
     /**
      * JPA entity helper bean.
      */
-    private final JpaEntityHelper jpaEntityHelper;
+    private final JpaEntityProcessor jpaEntityHelper;
 
     /**
      * Constructor.
@@ -53,7 +53,7 @@ public class FieldEdge extends DefaultEdge {
      * @param jpaEntityHelper JPA entity helper.
      * @param field           entity field representing to call in order to get the relationship.
      */
-    public FieldEdge(JpaEntityHelper jpaEntityHelper, Field field) {
+    public FieldEdge(JpaEntityProcessor jpaEntityHelper, Field field) {
         this.metamodelField = field;
         this.jpaEntityHelper = jpaEntityHelper;
     }

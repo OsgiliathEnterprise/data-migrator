@@ -26,7 +26,7 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,12 +39,12 @@ import java.util.stream.Stream;
 @Component
 public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
     private static final Logger log = LoggerFactory.getLogger(JpaMetamodelVertexFactory.class);
-    private final JpaEntityHelper hibernateEntityHelper;
+    private final JpaEntityProcessor hibernateEntityHelper;
 
     @PersistenceContext(unitName = "source")
     private EntityManager entityManager;
 
-    public JpaMetamodelVertexFactory(JpaEntityHelper hibernateEntityHelper) {
+    public JpaMetamodelVertexFactory(JpaEntityProcessor hibernateEntityHelper) {
         this.hibernateEntityHelper = hibernateEntityHelper;
     }
 

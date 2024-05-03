@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.modelgraph.model;
+package net.osgiliath.migrator.core.graph.model;
 
 /*-
  * #%L
@@ -23,24 +23,19 @@ package net.osgiliath.migrator.core.modelgraph.model;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-public class SourceVertexFieldEdgeAndTargetVertex {
-    private final SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex;
-    private final Vertex targetVertex;
+import java.util.Collection;
 
-    public SourceVertexFieldEdgeAndTargetVertex(SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex, Vertex targetVertex) {
-        this.edgeAndTargetVertex = edgeAndTargetVertex;
-        this.targetVertex = targetVertex;
+public record SourceVertexFieldEdgeAndTargetVertices(Vertex sourceVertex,
+                                                     FieldEdgeTargetVertices edgeAndTargetVertices) {
+    public Vertex sourceVertex() {
+        return sourceVertex;
     }
 
-    public Vertex getSourceVertex() {
-        return edgeAndTargetVertex.getSourceVertex();
+    public FieldEdge edge() {
+        return edgeAndTargetVertices.edge();
     }
 
-    public FieldEdge getEdge() {
-        return edgeAndTargetVertex.getEdge();
-    }
-
-    public Vertex getTargetVertex() {
-        return targetVertex;
+    public Collection<Vertex> targetVertices() {
+        return edgeAndTargetVertices.targetVertices();
     }
 }

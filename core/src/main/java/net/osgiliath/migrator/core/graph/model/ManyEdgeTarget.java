@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.model;
+package net.osgiliath.migrator.core.graph.model;
 
 /*-
  * #%L

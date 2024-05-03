@@ -38,13 +38,13 @@ import java.util.stream.Collectors;
 
 
 @Component
-public class HibernateMetamodelScanner implements MetamodelScanner {
+public class JpaMetamodelScanner implements MetamodelScanner {
     private final DataMigratorConfiguration dataAnonymizationConfiguration;
 
     @PersistenceContext(unitName = "source")
     private EntityManager entityManager;
 
-    public HibernateMetamodelScanner(DataMigratorConfiguration dataAnonymizationConfiguration) {
+    public JpaMetamodelScanner(DataMigratorConfiguration dataAnonymizationConfiguration) {
         this.dataAnonymizationConfiguration = dataAnonymizationConfiguration;
     }
 

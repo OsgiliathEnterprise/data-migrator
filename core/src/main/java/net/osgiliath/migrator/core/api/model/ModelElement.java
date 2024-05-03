@@ -22,16 +22,11 @@ package net.osgiliath.migrator.core.api.model;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
-import org.jgrapht.Graph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -39,7 +34,6 @@ import java.util.Optional;
  */
 public class ModelElement {
 
-    private static final Logger log = LoggerFactory.getLogger(ModelElement.class);
     /**
      * The entity.
      */
@@ -47,17 +41,17 @@ public class ModelElement {
     /**
      * JPA entity helper.
      */
-    private final JpaEntityHelper jpaEntityHelper;
+    private final RawElementProcessor rawEntityHelper;
 
     /**
      * Constructor.
      *
      * @param entity          The entity.
-     * @param jpaEntityHelper JPA entity helper.
+     * @param rawEntityHelper JPA entity helper.
      */
-    public ModelElement(Object entity, JpaEntityHelper jpaEntityHelper) {
+    public ModelElement(Object entity, RawElementProcessor rawEntityHelper) {
         this.entity = entity;
-        this.jpaEntityHelper = jpaEntityHelper;
+        this.rawEntityHelper = rawEntityHelper;
     }
 
 
@@ -71,13 +65,15 @@ public class ModelElement {
     }
 
     /**
-     * Sets the entity that this vertex represents.
+     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
      *
-     * @param entity The entity that this vertex represents.
+     * @param sourceMetamodelVertex
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
      */
-    public void setRawElement(Object entity) {
-        this.entity = entity;
+    public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName) {
+        return rawEntityHelper.getFieldValue(((JpaMetamodelVertex) sourceMetamodelVertex).getEntityClass(), entity, fieldName);
     }
+
 
     /**
      * Sets a value on the underlying element
@@ -88,23 +84,18 @@ public class ModelElement {
      */
     public void setFieldRawValue(MetamodelVertex entityClass, String fieldName, Object value) {
         if (entityClass != null) {
-            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) entityClass).getEntityClass(), entity, fieldName, value);
+            rawEntityHelper.setFieldValue(((JpaMetamodelVertex) entityClass).getEntityClass(), entity, fieldName, value);
         } else {
-            jpaEntityHelper.setFieldValue(entity.getClass(), entity, fieldName, value);
+            rawEntityHelper.setFieldValue(entity.getClass(), entity, fieldName, value);
         }
     }
 
     public void setEdgeRawValue(MetamodelVertex metamodelVertex, FieldEdge field, Object value) {
         if (metamodelVertex != null) {
-            jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), entity, field.getFieldName(), value);
+            rawEntityHelper.setFieldValue(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), entity, field.getFieldName(), value);
         } else {
-            jpaEntityHelper.setFieldValue(entity.getClass(), entity, field.getFieldName(), value);
+            rawEntityHelper.setFieldValue(entity.getClass(), entity, field.getFieldName(), value);
         }
-    }
-
-
-    public String toString() {
-        return entity.toString();
     }
 
     /**
@@ -122,47 +113,15 @@ public class ModelElement {
         }
     }
 
-    /**
-     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
-     *
-     * @param sourceMetamodelVertex
-     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
-     */
-    public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName) {
-        return jpaEntityHelper.getFieldValue(((JpaMetamodelVertex) sourceMetamodelVertex).getEntityClass(), entity, fieldName);
-    }
-
     public Optional<Object> getId(MetamodelVertex metamodelVertex) {
         if (metamodelVertex != null) {
-            return jpaEntityHelper.getId(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), getRawElement());
+            return rawEntityHelper.getId(((JpaMetamodelVertex) metamodelVertex).getEntityClass(), getRawElement());
         } else {
-            return jpaEntityHelper.getId(this.getClass(), getRawElement());
+            return rawEntityHelper.getId(this.getClass(), getRawElement());
         }
     }
 
-    public void removeEdgeValueFromModelElementRelationShip(FieldEdge fieldEdge, ModelElement targetModelElement, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
-        Object targetValue = getEdgeRawValue(fieldEdge);
-        if (targetValue instanceof Collection) {
-            Collection targetValues = (Collection) targetValue;
-            targetValues.remove(targetModelElement.getRawElement());
-            setEdgeRawValue(fieldEdge.getSource(), fieldEdge, targetValue);
-        } else {
-            setEdgeRawValue(fieldEdge.getSource(), fieldEdge, null);
-        }
-        Method getterMethod = fieldEdge.relationshipGetter();
-        Optional<Field> inverseFieldOpt = jpaEntityHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass());
-        inverseFieldOpt.ifPresent(
-                inverseField -> {
-                    Object inverseValue = jpaEntityHelper.getFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName());
-                    if (inverseValue instanceof Collection) {
-                        Collection inverseValues = (Collection) inverseValue;
-                        inverseValues.remove(this.getRawElement());
-                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), inverseValues);
-                    } else {
-                        jpaEntityHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), null);
-                    }
-                }
-        );
-
+    public String toString() {
+        return entity.toString();
     }
 }

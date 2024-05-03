@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.modelgraph;
+package net.osgiliath.migrator.core.graph.model;
 
 /*-
  * #%L
@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.modelgraph;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,20 +20,17 @@ package net.osgiliath.migrator.core.modelgraph;
  * #L%
  */
 
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.api.model.ModelElement;
-import org.springframework.stereotype.Component;
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-@Component
-public class ModelElementFactory {
+public record SourceVertexFieldEdgeAndTargetVertex(SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex,
+                                                   Vertex targetVertex) {
 
-    private final JpaEntityHelper jpaEntityHelper;
-
-    public ModelElementFactory(JpaEntityHelper jpaEntityHelper) {
-        this.jpaEntityHelper = jpaEntityHelper;
+    public Vertex sourceVertex() {
+        return edgeAndTargetVertex.sourceVertex();
     }
 
-    public ModelElement createModelElement(Object entity) {
-        return new ModelElement(entity, jpaEntityHelper);
+    public FieldEdge edge() {
+        return edgeAndTargetVertex.edge();
     }
 }

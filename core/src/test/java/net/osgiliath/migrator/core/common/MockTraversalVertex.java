@@ -21,8 +21,8 @@ package net.osgiliath.migrator.core.common;
  */
 
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> implements GraphTraversal<Vertex, Vertex> {
-    private final JpaEntityHelper jpaEntityHelper;
+    private final JpaEntityProcessor jpaEntityHelper;
     private List<Vertex> vertices = new ArrayList<>();
 
     private Iterator<Vertex> vertexIterator;
@@ -40,7 +40,7 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
     public static int ENTITY_ID_1 = 0;
     public static int ENTITY_ID_2 = 1;
 
-    public MockTraversalVertex(JpaEntityHelper jpaEntityHelper) {
+    public MockTraversalVertex(JpaEntityProcessor jpaEntityHelper) {
         FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
         ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);
         MockVertex mv1 = new MockVertex(me1);
@@ -53,7 +53,7 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
         this.jpaEntityHelper = jpaEntityHelper;
     }
 
-    public MockTraversalVertex(int id, JpaEntityHelper jpaEntityHelper) {
+    public MockTraversalVertex(int id, JpaEntityProcessor jpaEntityHelper) {
         if (id == ENTITY_ID_1) {
             FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
             ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);

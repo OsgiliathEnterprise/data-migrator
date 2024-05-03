@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.metamodel.helper;
+package net.osgiliath.migrator.core.rawelement.jpa;
 
 /*-
  * #%L
@@ -22,6 +22,7 @@ package net.osgiliath.migrator.core.metamodel.helper;
 
 import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,7 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
  * JPA entity helper containing JPA reflection queries.
  */
 @Component
-public class JpaEntityHelper implements RawElementHelper {
+public class JpaEntityProcessor implements RawElementProcessor {
 
     /**
      * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
@@ -317,7 +318,7 @@ public class JpaEntityHelper implements RawElementHelper {
      * @param attributeName the attribute name to get value from.
      * @return the field value.
      */
-
+    @Override
     public Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
@@ -368,6 +369,7 @@ public class JpaEntityHelper implements RawElementHelper {
      * @param attributeName the attribute name to set value.
      * @param value         the value to set.
      */
+    @Override
     public void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {

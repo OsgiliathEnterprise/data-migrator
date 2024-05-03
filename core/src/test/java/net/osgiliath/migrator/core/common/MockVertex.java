@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.common;
  */
 
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import org.apache.tinkerpop.gremlin.structure.*;
 
 import java.util.Iterator;

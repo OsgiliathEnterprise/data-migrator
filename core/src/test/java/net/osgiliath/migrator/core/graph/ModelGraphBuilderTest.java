@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.modelgraph;
+package net.osgiliath.migrator.core.graph;
 
 /*-
  * #%L
@@ -26,8 +26,8 @@ import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
-import net.osgiliath.migrator.core.metamodel.helper.JpaEntityHelper;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -65,16 +65,13 @@ public class ModelGraphBuilderTest {
 
     @Mock
     private Vertex vertex;
-    private JpaEntityHelper jpaEntityHelper;
-    private GraphRequester graphRequester;
+    private JpaEntityProcessor jpaEntityHelper;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        jpaEntityHelper = new JpaEntityHelper();
-
-        graphRequester = new GraphRequester(jpaEntityHelper);
-        modelGraphBuilder = new ModelGraphBuilder(entityImporter, graphTraversalSourceProvider, graphRequester);
+        jpaEntityHelper = new JpaEntityProcessor();
+        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider);
     }
 
     @Test

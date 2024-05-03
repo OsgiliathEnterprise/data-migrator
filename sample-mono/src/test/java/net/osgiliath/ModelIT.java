@@ -8,7 +8,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
-import net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -29,8 +29,8 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
-import static net.osgiliath.migrator.core.modelgraph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID;
+import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
+import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
