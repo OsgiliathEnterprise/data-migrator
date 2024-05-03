@@ -24,8 +24,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
-import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,34 +38,35 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
-public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
+public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMetamodelVertex> {
     private static final Logger log = LoggerFactory.getLogger(JpaMetamodelVertexFactory.class);
     private final JpaEntityProcessor hibernateEntityHelper;
+    private final MetamodelGraphRequester<JpaMetamodelVertex> metamodelVertexMetamodelGraphRequester;
 
     @PersistenceContext(unitName = "source")
     private EntityManager entityManager;
 
-    public JpaMetamodelVertexFactory(JpaEntityProcessor hibernateEntityHelper) {
+    public JpaMetamodelVertexFactory(JpaEntityProcessor hibernateEntityHelper, MetamodelGraphRequester<JpaMetamodelVertex> metamodelVertexMetamodelGraphRequester) {
         this.hibernateEntityHelper = hibernateEntityHelper;
+        this.metamodelVertexMetamodelGraphRequester = metamodelVertexMetamodelGraphRequester;
     }
 
-    public MetamodelVertex createMetamodelVertex(Class<?> metamodelClass) {
+    public JpaMetamodelVertex createMetamodelVertex(Class<?> metamodelClass) {
         log.info("Creating a new metamodel vertex for metamodel class {}", metamodelClass.getName());
         return metamodelClassToEntityVertexAdapter(metamodelClass).orElseThrow(() -> new IllegalArgumentException("Cannot create a metamodel vertex for metamodel class " + metamodelClass.getName()));
     }
 
-    public OutboundEdge createOutboundEdge(FieldEdge fieldEdge, MetamodelVertex targetMetamodelVertex) {
+    public OutboundEdge<JpaMetamodelVertex> createOutboundEdge(FieldEdge fieldEdge, JpaMetamodelVertex targetMetamodelVertex) {
         log.info("Creating a new field edge {} with target metamodel class {}", fieldEdge.getFieldName(), targetMetamodelVertex.getTypeName());
         return new OutboundEdge(fieldEdge, targetMetamodelVertex);
     }
 
-    public FieldEdge createFieldEdge(Field field) {
+    public FieldEdge<JpaMetamodelVertex> createFieldEdge(Field field) {
         log.info("Creating a new field edge {}", field.getName());
-        return new FieldEdge(hibernateEntityHelper, field);
+        return new FieldEdge(hibernateEntityHelper, field, metamodelVertexMetamodelGraphRequester);
     }
 
-
-    private Optional<MetamodelVertex> metamodelClassToEntityVertexAdapter(final Class<?> metamodelClass) {
+    private Optional<JpaMetamodelVertex> metamodelClassToEntityVertexAdapter(final Class<?> metamodelClass) {
         return Stream.of(metamodelClass.getDeclaredFields())
                 .filter((Field f) -> "class_".equals(f.getName()))
                 .map(Field::getGenericType)
@@ -82,7 +84,7 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory {
                 .findAny();
     }
 
-    private MetamodelVertex internalCreateMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) {
-        return new JpaMetamodelVertex(metamodelClass, entityClass, hibernateEntityHelper, this);
+    private JpaMetamodelVertex internalCreateMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) {
+        return new JpaMetamodelVertex(metamodelClass, entityClass, hibernateEntityHelper);
     }
 }

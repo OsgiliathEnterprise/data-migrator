@@ -26,21 +26,22 @@ import org.jgrapht.Graph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
-import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
-@Component
-public class MetamodelGraphRequester {
+
+public abstract class MetamodelGraphRequester<M extends MetamodelVertex> {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MetamodelGraphRequester.class);
     public static final String LABEL = "label";
 
-    public void displayGraphWithGraphiz(Graph<MetamodelVertex, FieldEdge> graph) {
-        DOTExporter<MetamodelVertex, FieldEdge> exporter =
+    public void displayGraphWithGraphiz(Graph<M, FieldEdge<M>> graph) {
+        DOTExporter<M, FieldEdge<M>> exporter =
                 new DOTExporter<>(v -> v.getTypeName().toLowerCase());
         exporter.setVertexAttributeProvider(v -> {
             Map<String, Attribute> map = new LinkedHashMap<>();
@@ -58,5 +59,19 @@ public class MetamodelGraphRequester {
         log.warn("{}", writer);
         log.warn("*************** End Metamodel graph ***************");
     }
+
+    public abstract Collection<FieldEdge<M>> getOutboundFieldEdges(M sourceVertex, Graph<M, FieldEdge<M>> graph);
+
+    /**
+     * Get the inverse relationship of an edge.
+     *
+     * @param fieldEdge    Edge to get the inverse of.
+     *                     The edge must be an outbound edge of this vertex.
+     * @param targetVertex Target vertex of the edge.
+     * @param graph        The metamodel graph.
+     * @return The inverse edge.
+     */
+    public abstract Optional<FieldEdge<M>> getInverseFieldEdge(FieldEdge<M> fieldEdge, M targetVertex, Graph<M, FieldEdge<M>> graph);
+
 
 }

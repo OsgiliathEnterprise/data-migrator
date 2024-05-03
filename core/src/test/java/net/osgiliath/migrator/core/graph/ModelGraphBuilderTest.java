@@ -26,7 +26,8 @@ import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -55,7 +56,7 @@ public class ModelGraphBuilderTest {
     private GraphTraversalSourceProvider graphTraversalSourceProvider;
 
     @Mock
-    private Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph;
+    private Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph;
 
     @Mock
     private GraphTraversalSource graphTraversalSource;
@@ -66,12 +67,14 @@ public class ModelGraphBuilderTest {
     @Mock
     private Vertex vertex;
     private JpaEntityProcessor jpaEntityHelper;
+    private JpaMetamodelGraphRequester metamodelGraphRequester;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         jpaEntityHelper = new JpaEntityProcessor();
-        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider);
+        metamodelGraphRequester = new JpaMetamodelGraphRequester(jpaEntityHelper);
+        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider, metamodelGraphRequester);
     }
 
     @Test
@@ -88,10 +91,9 @@ public class ModelGraphBuilderTest {
     @Test
     public void testCreateEdges() {
         // Arrange
-        MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class, null, null);
-        FieldEdge fieldEdge = new FieldEdge(null, null);
-        Collection<FieldEdge> edges = Arrays.asList(fieldEdge);
-        metamodelVertex.computeOutboundEdges(entityMetamodelGraph);
+        MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class, jpaEntityHelper);
+        FieldEdge<MetamodelVertex> fieldEdge = new FieldEdge(jpaEntityHelper, null, metamodelGraphRequester);
+        Collection<FieldEdge<MetamodelVertex>> edges = Arrays.asList(fieldEdge);
         Set<MetamodelVertex> metaVertex = new HashSet<>();
         metaVertex.add(metamodelVertex);
         when(graphTraversalSource.V()).thenReturn(new DefaultGraphTraversal());

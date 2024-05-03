@@ -25,6 +25,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -50,19 +51,21 @@ public class SinkEntityInjector {
     private static final Logger log = LoggerFactory.getLogger(SinkEntityInjector.class);
     public static final Integer CYCLE_DETECTION_DEPTH = 10;
     private final VertexPersister vertexPersister;
+    private final MetamodelGraphRequester<MetamodelVertex> metamodelGraphRequester;
 
-    public SinkEntityInjector(VertexPersister vertexPersister) {
+    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelGraphRequester<? extends MetamodelVertex> metamodelGraphRequester) {
         super();
         this.vertexPersister = vertexPersister;
+        this.metamodelGraphRequester = (MetamodelGraphRequester<MetamodelVertex>) metamodelGraphRequester;
     }
 
-    public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
+    public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
         removeCyclicElements(modelGraph);
         processEntities(modelGraph, entityMetamodelGraph, new HashSet<>());
     }
 
-    private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, Collection<Vertex> processedVertices) {
+    private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices) {
         GraphTraversal leafElements = modelGraph.V()
                 .repeat(out())
                 .until(
@@ -93,10 +96,10 @@ public class SinkEntityInjector {
         processEntities(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
-    void updateEntityRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
+    void updateEntityRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         ModelElement sourceEntity = (ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
         MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
-        sourceMetamodelVertex.getOutboundFieldEdges(entityMetamodelGraph).stream().flatMap(metamodelEdge ->
+        metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream().flatMap(metamodelEdge ->
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
                 .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))

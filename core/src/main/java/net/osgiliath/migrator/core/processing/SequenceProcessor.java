@@ -59,7 +59,7 @@ public class SequenceProcessor {
     }
 
     @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
-    public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> metamodelGraph) {
+    public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph) {
         dataMigratorConfiguration.getSequence().stream()
                 .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
                 .map(seq -> {
@@ -99,7 +99,7 @@ public class SequenceProcessor {
                 });
     }
 
-    private Collection findSequencerBeans(Graph<MetamodelVertex, FieldEdge> metamodelGraph, VertexAndSequencerBeanClass vertexAndSequencerBean, MetamodelVertex metamodelVertex, ModelElement entity) {
+    private Collection findSequencerBeans(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph, VertexAndSequencerBeanClass vertexAndSequencerBean, MetamodelVertex metamodelVertex, ModelElement entity) {
         Collection beans = new HashSet<>();
         if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
             beans.addAll(context.getBeansOfType(vertexAndSequencerBean.getBeanClass()).values());

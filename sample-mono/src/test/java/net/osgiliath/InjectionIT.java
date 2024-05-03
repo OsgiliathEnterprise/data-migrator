@@ -8,8 +8,8 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -101,7 +101,7 @@ class InjectionIT {
     @Test
     void givenFedGraphWhenEntityProcessorIsCalledThenTargetDatabaseIsPopulatedExcludingCyclicPath() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Employee> employees = employeeRepository.findAll();

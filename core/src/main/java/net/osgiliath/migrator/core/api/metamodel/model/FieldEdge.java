@@ -23,7 +23,8 @@ package net.osgiliath.migrator.core.api.metamodel.model;
 import jakarta.persistence.Persistence;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
@@ -36,7 +37,7 @@ import java.util.HashSet;
 /**
  * Metamodel edge representing a relationship between two tables.
  */
-public class FieldEdge extends DefaultEdge {
+public class FieldEdge<M extends MetamodelVertex> extends DefaultEdge {
 
     /**
      * Entity field representing to call in order to get the relationship.
@@ -46,6 +47,7 @@ public class FieldEdge extends DefaultEdge {
      * JPA entity helper bean.
      */
     private final JpaEntityProcessor jpaEntityHelper;
+    private final MetamodelGraphRequester<M> metamodelGraphRequester;
 
     /**
      * Constructor.
@@ -53,9 +55,10 @@ public class FieldEdge extends DefaultEdge {
      * @param jpaEntityHelper JPA entity helper.
      * @param field           entity field representing to call in order to get the relationship.
      */
-    public FieldEdge(JpaEntityProcessor jpaEntityHelper, Field field) {
+    public FieldEdge(JpaEntityProcessor jpaEntityHelper, Field field, MetamodelGraphRequester<M> metamodelGraphRequester) {
         this.metamodelField = field;
         this.jpaEntityHelper = jpaEntityHelper;
+        this.metamodelGraphRequester = metamodelGraphRequester;
     }
 
     /**
@@ -82,8 +85,8 @@ public class FieldEdge extends DefaultEdge {
      * @return the source vertex.
      */
     @Override
-    public MetamodelVertex getSource() {
-        return (MetamodelVertex) super.getSource();
+    public M getSource() {
+        return (M) super.getSource();
     }
 
     /**
@@ -92,8 +95,8 @@ public class FieldEdge extends DefaultEdge {
      * @return the target vertex.
      */
     @Override
-    public MetamodelVertex getTarget() {
-        return (MetamodelVertex) super.getTarget();
+    public M getTarget() {
+        return (M) super.getTarget();
     }
 
     /**
@@ -123,13 +126,13 @@ public class FieldEdge extends DefaultEdge {
      * @param targetEntity          the target entity.
      * @param graph                 the metamodel graph.
      */
-    public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge> graph) {
+    public void setEdgeBetweenEntities(M sourceMetamodelVertex, ModelElement sourceEntity, ModelElement targetEntity, Graph<M, FieldEdge<M>> graph) {
         RelationshipType relationshipType = getRelationshipType();
-        MetamodelVertex targetVertex = graph.getEdgeTarget(this);
+        M targetVertex = graph.getEdgeTarget(this);
         switch (relationshipType) {
             case ONE_TO_ONE -> {
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getRawElement());
-                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
+                metamodelGraphRequester.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
                         targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getRawElement())
                 );
             }
@@ -137,13 +140,13 @@ public class FieldEdge extends DefaultEdge {
                 Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
                 set.add(targetEntity.getRawElement());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
-                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
+                metamodelGraphRequester.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge ->
                         targetEntity.setEdgeRawValue(targetVertex, inverseFieldEdge, sourceEntity.getRawElement())
                 );
             }
             case MANY_TO_ONE -> {
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, targetEntity.getRawElement());
-                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                metamodelGraphRequester.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
                     Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);
@@ -156,7 +159,7 @@ public class FieldEdge extends DefaultEdge {
                 Collection set = (Collection) sourceEntity.getEdgeRawValue(this);
                 set.add(targetEntity.getRawElement());
                 sourceEntity.setEdgeRawValue(sourceMetamodelVertex, this, set);
-                sourceMetamodelVertex.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+                metamodelGraphRequester.getInverseFieldEdge(this, targetVertex, graph).ifPresent(inverseFieldEdge -> {
                     Collection inverseCollection = (Collection) targetEntity.getEdgeRawValue(inverseFieldEdge);
                     if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
                         inverseCollection = new HashSet(0);

@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.api.model;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 
 import java.lang.reflect.InvocationTargetException;
@@ -65,10 +65,10 @@ public class ModelElement {
     }
 
     /**
-     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
+     * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
      *
      * @param sourceMetamodelVertex
-     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
      */
     public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName) {
         return rawEntityHelper.getFieldValue(((JpaMetamodelVertex) sourceMetamodelVertex).getEntityClass(), entity, fieldName);
@@ -99,10 +99,10 @@ public class ModelElement {
     }
 
     /**
-     * Returns the Raw value(s) corresponding to the entity referenced by the fieldEdge
+     * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
      *
      * @param fieldEdge the edge to get the target vertices from
-     * @return Returns the ModelElement(s) corresponding to the entity referenced by the fieldEdge
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
      */
     public Object getEdgeRawValue(FieldEdge fieldEdge) {
         Method getterMethod = fieldEdge.relationshipGetter();

@@ -26,10 +26,10 @@ import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
 
 import java.lang.reflect.Field;
 
-public interface MetamodelVertexFactory {
-    MetamodelVertex createMetamodelVertex(Class<?> metamodelClass);
+public interface MetamodelVertexFactory<M extends MetamodelVertex> {
+    M createMetamodelVertex(Class<?> metamodelClass);
 
-    FieldEdge createFieldEdge(Field field);
+    FieldEdge<M> createFieldEdge(Field field);
 
-    OutboundEdge createOutboundEdge(FieldEdge fieldEdge, MetamodelVertex targetMetamodelVertex);
+    OutboundEdge<M> createOutboundEdge(FieldEdge<M> fieldEdge, M targetMetamodelVertex);
 }

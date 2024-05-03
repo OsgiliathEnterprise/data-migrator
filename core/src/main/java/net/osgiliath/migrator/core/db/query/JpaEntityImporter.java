@@ -29,8 +29,9 @@ import jakarta.persistence.criteria.Root;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.graph.ModelElementFactory;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,7 @@ public class JpaEntityImporter implements EntityImporter {
      * Model element factory (to create model elements from the entries.
      */
     private final ModelElementFactory modelElementFactory;
+    private final RawElementProcessor elementProcessor;
 
     /**
      * Source Entity manager.
@@ -66,8 +68,9 @@ public class JpaEntityImporter implements EntityImporter {
      *
      * @param modelElementFactory model element factory
      */
-    public JpaEntityImporter(ModelElementFactory modelElementFactory) {
+    public JpaEntityImporter(ModelElementFactory modelElementFactory, RawElementProcessor elementProcessor) {
         this.modelElementFactory = modelElementFactory;
+        this.elementProcessor = elementProcessor;
     }
 
     /**
@@ -111,7 +114,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @return list of predicates
      */
     private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
-        Optional<String> primaryKeyField = ((JpaMetamodelVertex) entityVertex).getPrimaryKeyField();
+        Optional<String> primaryKeyField = getPrimaryKeyField(((JpaMetamodelVertex) entityVertex));
         return primaryKeyField.map(pk -> objectToExclude.stream()
                 .map(object ->
                         builder.not(
@@ -119,4 +122,12 @@ public class JpaEntityImporter implements EntityImporter {
                                         root.get(pk), object.getId(entityVertex)))
                 ).toList()).orElseGet(ArrayList::new);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    private Optional<String> getPrimaryKeyField(JpaMetamodelVertex jpaMetamodelVertex) {
+        return elementProcessor.getPrimaryKeyFieldName(jpaMetamodelVertex.getEntityClass());
+    }
+
 }

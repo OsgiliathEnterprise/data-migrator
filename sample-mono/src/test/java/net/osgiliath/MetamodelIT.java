@@ -114,7 +114,7 @@ class MetamodelIT {
     @Test
     void givenHrMetaClassesAndEntitiesWhenGraphBuilderIsCalledThenGraphIsBuilt() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         graphRequester.displayGraphWithGraphiz(graph);
         assertThat(graph).isNotNull();
         assertThat(graph.vertexSet()).hasSize(11);
@@ -124,7 +124,7 @@ class MetamodelIT {
     @Test
     void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals("Employee")).findFirst().get();
         List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>());
         assertThat(entities).isNotEmpty();

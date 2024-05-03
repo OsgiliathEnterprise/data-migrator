@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.metamodel.impl;
+package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
 
 /*-
  * #%L
@@ -71,7 +71,7 @@ public class JpaMetamodelScanner implements MetamodelScanner {
                 .collect(Collectors.toSet());
     }
 
-    private boolean isTechnicalTable(String simpleName) {
+    protected boolean isTechnicalTable(String simpleName) {
         return Arrays.asList("Databasechangelog_", "DatabasechangelogId_", "Databasechangeloglock_").contains(simpleName);
     }
 }

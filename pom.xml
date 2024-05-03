@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -87,6 +88,7 @@
         <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
         <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
+        <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
     </properties>
     <build>
         <pluginManagement>
@@ -141,7 +143,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -353,9 +355,9 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>
@@ -417,12 +419,21 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

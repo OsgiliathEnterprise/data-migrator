@@ -7,8 +7,8 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -97,7 +97,7 @@ class ModelIT {
     @Test
     void givenFedModelWhenGraphBuilderIsCalledThenGraphModelVerticesArePopulated() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
             assertThat(modelGraph.V().hasLabel(Country.class.getSimpleName()).toList()).hasSize(10);
@@ -116,7 +116,7 @@ class ModelIT {
     @Test
     void givenFedModelWhenGraphBuilderIsCalledThenGraphModelEdgesArePopulated() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
             assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).toList()).hasSize(1);

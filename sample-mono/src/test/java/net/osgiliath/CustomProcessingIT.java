@@ -8,9 +8,9 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -109,7 +109,7 @@ class CustomProcessingIT {
     @Test
     void givenFedGraphWhenEntityProcessorAndSequenceProcessorIsCalledThenTargetDatabaseIsPopulatedExcludingCyclicPathAndFieldsAreTransformed() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);

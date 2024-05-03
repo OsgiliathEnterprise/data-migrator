@@ -22,12 +22,12 @@ package net.osgiliath.migrator.core;
 
 
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
+import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
+import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
-import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
@@ -66,7 +66,7 @@ public class TransformationSequencer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.warn("Starting the anonymization sequence");
         Collection<Class<?>> metamodelClasses = metamodelScanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph = graphBuilder.metamodelGraphFromEntityMetamodel(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = graphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         graphRequester.displayGraphWithGraphiz(entityMetamodelGraph);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);

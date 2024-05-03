@@ -26,7 +26,8 @@ import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.graph.model.*;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -58,15 +59,17 @@ public class ModelGraphBuilder {
     private final RawElementProcessor elementHelper;
     private final EntityImporter entityImporter;
     private final GraphTraversalSourceProvider graphTraversalSource;
+    private final MetamodelGraphRequester<MetamodelVertex> metamodelGraphRequester;
 
-    public ModelGraphBuilder(RawElementProcessor elementHelper, EntityImporter entityImporter, GraphTraversalSourceProvider graphTraversalSource) {
-        this.elementHelper = elementHelper;
+    public ModelGraphBuilder(RawElementProcessor rawElementProcessor, EntityImporter entityImporter, GraphTraversalSourceProvider graphTraversalSource, MetamodelGraphRequester<? extends MetamodelVertex> metamodelGraphRequester) {
+        this.elementHelper = rawElementProcessor;
         this.entityImporter = entityImporter;
         this.graphTraversalSource = graphTraversalSource;
+        this.metamodelGraphRequester = (MetamodelGraphRequester<MetamodelVertex>) metamodelGraphRequester;
     }
 
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
-    public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
+    public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Creating model vertex");
         GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
         createVertices(entityMetamodelGraph, gTS);
@@ -74,12 +77,12 @@ public class ModelGraphBuilder {
         return gTS;
     }
 
-    private void createVertices(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
+    private void createVertices(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model Vertex");
         createVertices(entityMetamodelGraph.vertexSet(), graphTraversalSource);
     }
 
-    void createEdges(Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
+    void createEdges(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model edges");
         createEdges(graphTraversalSource, entityMetamodelGraph);
     }
@@ -104,7 +107,7 @@ public class ModelGraphBuilder {
         return list;
     }
 
-    private void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph) {
+    private void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         List<Vertex> list = allVertices(modelGraph);
         Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph, list);
         sourceVertexEdgeAndTargetVertexList.forEach(sourceVertexEdgeAndTargetVertex ->
@@ -115,13 +118,13 @@ public class ModelGraphBuilder {
         );
     }
 
-    private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge> entityMetamodelGraph, List<Vertex> list) {
+    private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, List<Vertex> list) {
         Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList =
                 list.stream().flatMap(v -> {
                             TinkerVertex modelVertex = (TinkerVertex) v;
                             MetamodelVertex metamodelVertex = v.value(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
                             log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.value(MODEL_GRAPH_VERTEX_ENTITY_ID));
-                            Collection<FieldEdge> edges = metamodelVertex.getOutboundFieldEdges(entityMetamodelGraph);
+                            Collection<FieldEdge<MetamodelVertex>> edges = metamodelGraphRequester.getOutboundFieldEdges(metamodelVertex, entityMetamodelGraph);
                             return edges.stream().map(edge ->
                                     new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
                             ).map(edgeAndTargetVertex ->
@@ -150,11 +153,11 @@ public class ModelGraphBuilder {
     }
 
     /**
-     * get the target vertex or vertices corresponding to the entity referenced by the fieldEdge
+     * get the target vertex or vertices corresponding to the entity referenced by the outboundEdge
      *
      * @param fieldEdge  the edge to get the target vertices from
      * @param modelGraph the model graph
-     * @return the target Vertex or Vertices corresponding to the entities referenced by the fieldEdge
+     * @return the target Vertex or Vertices corresponding to the entities referenced by the outboundEdge
      */
     Optional<EdgeTargetVertexOrVertices> getEdgeValueFromVertexGraph(Vertex sourceVertex, FieldEdge fieldEdge, GraphTraversalSource modelGraph) {
         Method getterMethod = fieldEdge.relationshipGetter();
