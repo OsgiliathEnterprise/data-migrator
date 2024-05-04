@@ -113,7 +113,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param entityClass the entity class.
      * @return the primary key getter method.
      */
-    public Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
+    private Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
         return Arrays.stream(entityClass.getDeclaredMethods()).filter(
                 m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof jakarta.persistence.Id)
         ).findAny();
@@ -214,6 +214,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param getterMethod the getter method of the relationship.
      * @return the type of the relationship (one to one, one to many, many to many).
      */
+    @Override
     public RelationshipType relationshipType(Method getterMethod) {
         if (getterMethod.isAnnotationPresent(OneToMany.class)) {
             return RelationshipType.ONE_TO_MANY;
@@ -235,7 +236,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param field       the field.
      * @return the setter method.
      */
-    public Optional<Method> setterMethod(Class<?> entityClass, Field field) {
+    private Optional<Method> setterMethod(Class<?> entityClass, Field field) {
         final String setterName = fieldToSetter(field.getName());
         return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(setterName)).findAny();
     }
@@ -247,7 +248,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param targetEntityClass the target entity class.
      * @return the inverse relationship field.
      */
-    public Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass) {
+    private Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass) {
         RelationshipType relationshipType = relationshipType(getterMethod);
         Optional<String> mappedBy = getMappedByValue(getterMethod);
         Optional<Field> mappedByField = mappedBy.flatMap(mappedByValue -> Arrays.stream(targetEntityClass.getDeclaredFields()).filter(f -> f.getName().equals(mappedByValue)).findAny());
@@ -372,7 +373,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                 .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
     }
 
-    public boolean isDetached(Class entityClass, Object entity) {
+    private boolean isDetached(Class entityClass, Object entity) {
         Optional<Object> idValue = getId(entityClass, entity);
         return idValue.isPresent()  // must not be transient
                 && !entityManager.contains(entity)  // must not be managed now
@@ -418,7 +419,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param field       the field to set value.
      * @param value       the value to set.
      */
-    public void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
+    private void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
         setterMethod(entityClass, field).ifPresentOrElse(setterMethod -> {
             try {
                 entity.getClass().getMethod(setterMethod.getName(), setterMethod.getParameterTypes()).invoke(entity, value);

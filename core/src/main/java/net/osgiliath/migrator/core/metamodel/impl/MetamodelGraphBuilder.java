@@ -42,7 +42,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
         this.metamodelVertexFactory = metamodelVertexFactory;
     }
 
-    public Graph<M, FieldEdge> metamodelGraphFromRawElementClasses(Collection<Class<?>> metamodelClasses) {
+    public Graph<M, FieldEdge<M>> metamodelGraphFromRawElementClasses(Collection<Class<?>> metamodelClasses) {
         log.warn("Starting graph processing of the metamodel");
         Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
                 .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();

@@ -32,8 +32,6 @@ public interface RawElementProcessor {
 
     Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity);
 
-    Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass);
-
     Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass);
 
     Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName);

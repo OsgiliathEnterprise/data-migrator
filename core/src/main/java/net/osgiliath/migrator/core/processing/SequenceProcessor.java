@@ -74,15 +74,15 @@ public class SequenceProcessor {
                         }
                 )
                 .map(seqAndBeanClass -> {
-                    Class transformerClass = seqAndBeanClass.getBeanClass();
-                    if (WILDCARD.equals(seqAndBeanClass.getSequencerConfiguration().getEntityClass()) && GraphTransformer.class.isAssignableFrom(transformerClass)) {
+                    Class transformerClass = seqAndBeanClass.beanClass();
+                    if (WILDCARD.equals(seqAndBeanClass.sequencerConfiguration().getEntityClass()) && GraphTransformer.class.isAssignableFrom(transformerClass)) {
                         context.getBeansOfType(transformerClass).values().stream().forEach(
-                                globalSequencerBean -> ((GraphTransformer) globalSequencerBean).evaluate(modelGraph, metamodelGraph, seqAndBeanClass.getSequencerConfiguration().getSequencerOptions())
+                                globalSequencerBean -> ((GraphTransformer) globalSequencerBean).evaluate(modelGraph, metamodelGraph, seqAndBeanClass.sequencerConfiguration().getSequencerOptions())
                         );
                     }
                     return seqAndBeanClass;
                 })
-                .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.getSequencerConfiguration().getEntityClass()).toStream()
+                .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .map(vertexAndSequencerBean -> {
                     MetamodelVertex metamodelVertex = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
@@ -90,14 +90,14 @@ public class SequenceProcessor {
                     Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
                     return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
                 }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
-                        sequencersBeansMetamodelVertexAndEntity.getBeans().stream()
-                                .map(bean -> new SequencerBeanMetamodelVertexAndEntity(bean, sequencersBeansMetamodelVertexAndEntity.getMetamodelVertex(), sequencersBeansMetamodelVertexAndEntity.getEntity())))
+                        sequencersBeansMetamodelVertexAndEntity.beans().stream()
+                                .map(bean -> new SequencerBeanMetamodelVertexAndEntity(bean, sequencersBeansMetamodelVertexAndEntity.metamodelVertex(), sequencersBeansMetamodelVertexAndEntity.entity())))
                 .forEach(sbmvae -> {
                     SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
-                    if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof MetamodelColumnCellTransformer) {
-                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.getBean(), sequencerBeanMetamodelVertexAndEntity.getEntity(), sequencerBeanMetamodelVertexAndEntity.getMetamodelVertex());
-                    } else if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof ModelElementColumnTransformer ject) {
-                        processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.getEntity());
+                    if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof MetamodelColumnCellTransformer) {
+                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity(), sequencerBeanMetamodelVertexAndEntity.metamodelVertex());
+                    } else if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof ModelElementColumnTransformer ject) {
+                        processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.entity());
                     }
                 });
     }

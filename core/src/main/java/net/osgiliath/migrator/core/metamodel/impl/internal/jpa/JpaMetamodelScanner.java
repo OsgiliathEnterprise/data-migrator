@@ -48,7 +48,7 @@ public class JpaMetamodelScanner implements MetamodelScanner {
         this.dataAnonymizationConfiguration = dataAnonymizationConfiguration;
     }
 
-    public Collection<BeanDefinition> scanBeandefinition() {
+    private Collection<BeanDefinition> scanBeandefinition() {
         ClassPathScanningCandidateComponentProvider scanner = new AbstractClassAwareClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(StaticMetamodel.class));
         return scanner.findCandidateComponents(dataAnonymizationConfiguration.getModelBasePackage());
@@ -63,6 +63,7 @@ public class JpaMetamodelScanner implements MetamodelScanner {
         }
     }
 
+    @Override
     public Collection<Class<?>> scanMetamodelClasses() {
         return this.scanBeandefinition()
                 .stream()
