@@ -23,24 +23,13 @@ package net.osgiliath.migrator.core.processing.model;
 import net.osgiliath.migrator.core.configuration.SequencerDefinition;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-public class VertexAndSequencerBeanClass {
-    private final Vertex vertex;
-    private final SequencerDefinitionAndBean definitionAndBeanClass;
+public record VertexAndSequencerBeanClass(Vertex vertex, SequencerDefinitionAndBean definitionAndBeanClass) {
 
-    public VertexAndSequencerBeanClass(Vertex vertex, SequencerDefinitionAndBean definitionAndBeanClass) {
-        this.vertex = vertex;
-        this.definitionAndBeanClass = definitionAndBeanClass;
-    }
-
-    public Vertex getVertex() {
-        return vertex;
-    }
-
-    public Class getBeanClass() {
+    public Class beanClass() {
         return definitionAndBeanClass.beanClass();
     }
 
-    public SequencerDefinition getDefinition() {
+    public SequencerDefinition definition() {
         return definitionAndBeanClass.sequencerConfiguration();
     }
 }

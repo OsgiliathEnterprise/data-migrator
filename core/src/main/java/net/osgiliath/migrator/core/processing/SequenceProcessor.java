@@ -85,8 +85,8 @@ public class SequenceProcessor {
                 .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .map(vertexAndSequencerBean -> {
-                    MetamodelVertex metamodelVertex = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-                    ModelElement entity = vertexAndSequencerBean.getVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+                    MetamodelVertex metamodelVertex = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
+                    ModelElement entity = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
                     Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
                     return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
                 }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
@@ -104,14 +104,14 @@ public class SequenceProcessor {
 
     private Collection findSequencerBeans(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph, VertexAndSequencerBeanClass vertexAndSequencerBean, MetamodelVertex metamodelVertex, ModelElement entity) {
         Collection beans = new HashSet<>();
-        if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
-            beans.addAll(context.getBeansOfType(vertexAndSequencerBean.getBeanClass()).values());
-        } else if (vertexAndSequencerBean.getDefinition().getType().equals(TRANSFORMER_TYPE.FACTORY)) {
-            if (vertexAndSequencerBean.getDefinition().getColumnTransformationDefinitions().isEmpty()) {
-                beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, null));
+        if (vertexAndSequencerBean.definition().getType().equals(TRANSFORMER_TYPE.BEAN)) {
+            beans.addAll(context.getBeansOfType(vertexAndSequencerBean.beanClass()).values());
+        } else if (vertexAndSequencerBean.definition().getType().equals(TRANSFORMER_TYPE.FACTORY)) {
+            if (vertexAndSequencerBean.definition().getColumnTransformationDefinitions().isEmpty()) {
+                beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.beanClass(), vertexAndSequencerBean.definition(), metamodelGraph, metamodelVertex, entity, null));
             } else {
-                for (ColumnTransformationDefinition columnName : vertexAndSequencerBean.getDefinition().getColumnTransformationDefinitions()) {
-                    beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.getBeanClass(), vertexAndSequencerBean.getDefinition(), metamodelGraph, metamodelVertex, entity, columnName));
+                for (ColumnTransformationDefinition columnName : vertexAndSequencerBean.definition().getColumnTransformationDefinitions()) {
+                    beans.add(sequencerFactory.createSequencerBean(vertexAndSequencerBean.beanClass(), vertexAndSequencerBean.definition(), metamodelGraph, metamodelVertex, entity, columnName));
                 }
             }
         }

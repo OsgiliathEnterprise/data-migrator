@@ -105,10 +105,10 @@ public class SinkEntityInjector {
         metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream().flatMap(metamodelEdge ->
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
-                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
+                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.modelEdge().inVertex().label(), modelAndMetamodelEdge.modelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
                 .forEach(modelAndMetamodelEdge -> {
-                    ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-                    modelElementProcessor.setEdgeBetweenEntities(sourceMetamodelVertex, modelAndMetamodelEdge.getMetamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
+                    ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.modelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+                    modelElementProcessor.setEdgeBetweenEntities(sourceMetamodelVertex, modelAndMetamodelEdge.metamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
                 });
     }
 

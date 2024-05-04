@@ -23,20 +23,5 @@ package net.osgiliath.migrator.core.db.inject.model;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 
-public class ModelAndMetamodelEdge {
-    private final Edge edge;
-    private final FieldEdge metamodelEdge;
-
-    public ModelAndMetamodelEdge(Edge modelEdge, FieldEdge metamodelEdge) {
-        this.edge = modelEdge;
-        this.metamodelEdge = metamodelEdge;
-    }
-
-    public Edge getModelEdge() {
-        return edge;
-    }
-
-    public FieldEdge getMetamodelEdge() {
-        return metamodelEdge;
-    }
+public record ModelAndMetamodelEdge(Edge modelEdge, FieldEdge metamodelEdge) {
 }
