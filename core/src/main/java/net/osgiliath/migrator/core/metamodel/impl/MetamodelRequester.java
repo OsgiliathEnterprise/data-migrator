@@ -20,28 +20,38 @@ package net.osgiliath.migrator.core.metamodel.impl;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.jgrapht.Graph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
+import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
+public class MetamodelRequester {
 
-public abstract class MetamodelGraphRequester<M extends MetamodelVertex> {
-
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MetamodelGraphRequester.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MetamodelRequester.class);
     public static final String LABEL = "label";
+    private final RawElementProcessor rawElementProcessor;
 
-    public void displayGraphWithGraphiz(Graph<M, FieldEdge<M>> graph) {
-        DOTExporter<M, FieldEdge<M>> exporter =
+    public MetamodelRequester(RawElementProcessor rawElementProcessor) {
+
+        this.rawElementProcessor = rawElementProcessor;
+    }
+
+    public void displayGraphWithGraphiz(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
+        DOTExporter<MetamodelVertex, FieldEdge<MetamodelVertex>> exporter =
                 new DOTExporter<>(v -> v.getTypeName().toLowerCase());
         exporter.setVertexAttributeProvider(v -> {
             Map<String, Attribute> map = new LinkedHashMap<>();
@@ -60,7 +70,24 @@ public abstract class MetamodelGraphRequester<M extends MetamodelVertex> {
         log.warn("*************** End Metamodel graph ***************");
     }
 
-    public abstract Collection<FieldEdge<M>> getOutboundFieldEdges(M sourceVertex, Graph<M, FieldEdge<M>> graph);
+    /**
+     * Get the type of the relationship (one to one, one to many, many to one, many to many).
+     *
+     * @param fieldEdge the field edge to get the type of relationship for
+     * @return the type of the relationship.
+     */
+    public RelationshipType getRelationshipType(FieldEdge<MetamodelVertex> fieldEdge) {
+        Method getterMethod = relationshipGetter(fieldEdge);
+        return rawElementProcessor.relationshipType(getterMethod);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<FieldEdge<MetamodelVertex>> getOutboundFieldEdges(MetamodelVertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
+        return graph.outgoingEdgesOf(sourceVertex);
+    }
 
     /**
      * Get the inverse relationship of an edge.
@@ -71,7 +98,20 @@ public abstract class MetamodelGraphRequester<M extends MetamodelVertex> {
      * @param graph        The metamodel graph.
      * @return The inverse edge.
      */
-    public abstract Optional<FieldEdge<M>> getInverseFieldEdge(FieldEdge<M> fieldEdge, M targetVertex, Graph<M, FieldEdge<M>> graph);
+    public Optional<FieldEdge<MetamodelVertex>> getInverseFieldEdge(FieldEdge<MetamodelVertex> fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
+        Method getterMethod = relationshipGetter(fieldEdge);
+        return rawElementProcessor.inverseRelationshipField(getterMethod, targetVertex).flatMap(
+                f -> getOutboundFieldEdges(targetVertex, graph).stream().filter(e -> e.getFieldName().equals(f.getName())).findAny()
+        );
+    }
 
+    /**
+     * returns the getter method of the entity's relationship.
+     *
+     * @return the getter method of the entity's relationship.
+     */
+    public Method relationshipGetter(FieldEdge<MetamodelVertex> fieldEdge) {
+        return rawElementProcessor.getterMethod(fieldEdge.getSource(), fieldEdge.getMetamodelField());
+    }
 
 }

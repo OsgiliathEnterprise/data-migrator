@@ -9,7 +9,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Test;
@@ -94,7 +94,7 @@ class MetamodelIT {
     private MetamodelScanner scanner;
 
     @Autowired
-    private MetamodelGraphRequester graphRequester;
+    private MetamodelRequester graphRequester;
 
     @Test
     void givenHrMetaClassesWhenMetamodelScannerScanIsCalledThenMetaclassesAreRetreived() {
@@ -114,7 +114,7 @@ class MetamodelIT {
     @Test
     void givenHrMetaClassesAndEntitiesWhenGraphBuilderIsCalledThenGraphIsBuilt() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         graphRequester.displayGraphWithGraphiz(graph);
         assertThat(graph).isNotNull();
         assertThat(graph.vertexSet()).hasSize(11);

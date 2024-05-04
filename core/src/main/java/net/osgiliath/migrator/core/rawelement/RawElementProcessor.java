@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.rawelement;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,15 +30,19 @@ import java.util.Optional;
 public interface RawElementProcessor {
     Optional<Object> getId(Class<?> elementClass, Object instance);
 
+    Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity);
+
     Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass);
 
-    Object getFieldValue(Class<?> entityClass, Object entity, String attributeName);
+    Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass);
+
+    Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName);
 
     void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value);
 
-    boolean isDerived(Class<?> entityClass, String attributeName);
+    void setFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName, Object value);
 
     RelationshipType relationshipType(Method getterMethod);
 
-    Optional<String> getPrimaryKeyFieldName(Class<?> entityClass);
+    Method getterMethod(MetamodelVertex entityClass, Field attribute);
 }

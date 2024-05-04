@@ -22,6 +22,8 @@ package net.osgiliath.migrator.core.rawelement.jpa;
 
 import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
@@ -120,6 +122,18 @@ public class JpaEntityProcessor implements RawElementProcessor {
     /**
      * Gets the primary key value.
      *
+     * @param metamodelVertex the metamodel vertex.
+     * @param entity          the entity.
+     * @return the primary key value.
+     */
+    @Override
+    public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
+        return getId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
+    }
+
+    /**
+     * Gets the primary key value.
+     *
      * @param entityClass the entity class.
      * @param entity      the entity.
      * @return the primary key value.
@@ -137,6 +151,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
         );
     }
 
+    @Override
+    public Method getterMethod(MetamodelVertex entityClass, Field attribute) {
+        return getterMethod(((JpaMetamodelVertex) entityClass).entityClass(), attribute);
+    }
+
     /**
      * Gets the getter method for a field.
      *
@@ -144,7 +163,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param attribute   the attribute.
      * @return the getter method.
      */
-    public Method getterMethod(Class<?> entityClass, Field attribute) {
+    private Method getterMethod(Class<?> entityClass, Field attribute) {
         final String getterName = fieldToGetter(attribute.getName());
         return Arrays.stream(entityClass.getDeclaredMethods()).filter((Method m) -> m.getName().equals(getterName)).findAny().orElseThrow(() -> new RuntimeException("No getter for field " + attribute.getName() + " in class " + entityClass.getName()));
     }
@@ -239,6 +258,16 @@ public class JpaEntityProcessor implements RawElementProcessor {
         }
     }
 
+    @Override
+    public Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass) {
+        return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
+    }
+
+    @Override
+    public Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName) {
+        return getFieldValue(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity, attributeName);
+    }
+
     /**
      * Finds the inverse relationship field without mappedBy information.
      *
@@ -318,8 +347,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param attributeName the attribute name to get value from.
      * @return the field value.
      */
-    @Override
-    public Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
+    private Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         return field.map(f -> getterMethod(entityClass, f)).map(getterMethod -> {
                     Method attachedGetterMethod = null;
@@ -375,6 +403,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
         field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {
             throw new RuntimeException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
         });
+    }
+
+    @Override
+    public void setFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName, Object value) {
+        setFieldValue(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity, attributeName, value);
     }
 
     /**

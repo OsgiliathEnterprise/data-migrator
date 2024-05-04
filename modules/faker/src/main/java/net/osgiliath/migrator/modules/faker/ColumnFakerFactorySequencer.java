@@ -25,12 +25,21 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.SequencerDefinition;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.processing.FactorySequencer;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ColumnFakerFactorySequencer implements FactorySequencer {
+
+    private final ModelElementProcessor modelElementProcessor;
+
+    public ColumnFakerFactorySequencer(ModelElementProcessor modelElementProcessor) {
+
+        this.modelElementProcessor = modelElementProcessor;
+    }
+
     @Override
     public boolean canHandle(Class beanClass) {
         return ColumnFaker.class.isAssignableFrom(beanClass);
@@ -38,6 +47,6 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     @Override
     public Object createSequencerBean(Class beanClass, SequencerDefinition definition, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex metamodelVertex, ModelElement entity, ColumnTransformationDefinition columnTransformationDefinition) {
-        return new ColumnFaker(metamodelVertex, columnTransformationDefinition);
+        return new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition);
     }
 }

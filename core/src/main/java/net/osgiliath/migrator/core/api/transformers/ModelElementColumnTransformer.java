@@ -23,15 +23,18 @@ package net.osgiliath.migrator.core.api.transformers;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.transformers.internal.CamelExchangeWrapper;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class JpaEntityColumnTransformer<FIELD_TYPE> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
-    private static final Logger log = LoggerFactory.getLogger(JpaEntityColumnTransformer.class);
+public abstract class ModelElementColumnTransformer<FIELD_TYPE> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
+    private static final Logger log = LoggerFactory.getLogger(ModelElementColumnTransformer.class);
+    private final ModelElementProcessor modelElementProcessor;
     private final MetamodelVertex metamodel;
     private final String columnName;
 
-    protected JpaEntityColumnTransformer(MetamodelVertex metamodel, String columnName) {
+    protected ModelElementColumnTransformer(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, String columnName) {
+        this.modelElementProcessor = modelElementProcessor;
         this.metamodel = metamodel;
         this.columnName = columnName;
     }
@@ -42,10 +45,10 @@ public abstract class JpaEntityColumnTransformer<FIELD_TYPE> extends CamelExchan
 
     @Override
     public ModelElement evaluate(ModelElement toBeTransformed) {
-        Object rawValue = toBeTransformed.getFieldRawValue(metamodel, columnName);
+        Object rawValue = modelElementProcessor.getFieldRawValue(metamodel, columnName, toBeTransformed);
         log.info("transforming Vertex of class {} with column {} and value {}", metamodel.getTypeName(), columnName, rawValue);
         Object transformedValue = evaluateField((FIELD_TYPE) rawValue);
-        toBeTransformed.setFieldRawValue(metamodel, columnName, transformedValue);
+        modelElementProcessor.setFieldRawValue(metamodel, columnName, toBeTransformed, transformedValue);
         return toBeTransformed;
     }
 

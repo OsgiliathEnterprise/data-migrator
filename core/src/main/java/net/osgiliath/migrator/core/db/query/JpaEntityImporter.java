@@ -30,8 +30,9 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.graph.ModelElementFactory;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
-import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +56,8 @@ public class JpaEntityImporter implements EntityImporter {
      * Model element factory (to create model elements from the entries.
      */
     private final ModelElementFactory modelElementFactory;
-    private final RawElementProcessor elementProcessor;
+    private final JpaEntityProcessor elementProcessor;
+    private final ModelElementProcessor modelElementProcessor;
 
     /**
      * Source Entity manager.
@@ -68,9 +70,10 @@ public class JpaEntityImporter implements EntityImporter {
      *
      * @param modelElementFactory model element factory
      */
-    public JpaEntityImporter(ModelElementFactory modelElementFactory, RawElementProcessor elementProcessor) {
+    public JpaEntityImporter(ModelElementFactory modelElementFactory, JpaEntityProcessor elementProcessor, ModelElementProcessor modelElementProcessor) {
         this.modelElementFactory = modelElementFactory;
         this.elementProcessor = elementProcessor;
+        this.modelElementProcessor = modelElementProcessor;
     }
 
     /**
@@ -85,7 +88,7 @@ public class JpaEntityImporter implements EntityImporter {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = null;
-        Class entityClass = ((JpaMetamodelVertex) entityVertex).getEntityClass();
+        Class entityClass = ((JpaMetamodelVertex) entityVertex).entityClass();
         query = builder.createQuery(entityClass);// Didn't find any better idea
         Root root = query.from(entityClass);
         CriteriaQuery<?> select = query.select(root);
@@ -119,7 +122,7 @@ public class JpaEntityImporter implements EntityImporter {
                 .map(object ->
                         builder.not(
                                 builder.equal(
-                                        root.get(pk), object.getId(entityVertex)))
+                                        root.get(pk), modelElementProcessor.getId(entityVertex, object)))
                 ).toList()).orElseGet(ArrayList::new);
     }
 
@@ -127,7 +130,7 @@ public class JpaEntityImporter implements EntityImporter {
      * {@inheritDoc}
      */
     private Optional<String> getPrimaryKeyField(JpaMetamodelVertex jpaMetamodelVertex) {
-        return elementProcessor.getPrimaryKeyFieldName(jpaMetamodelVertex.getEntityClass());
+        return elementProcessor.getPrimaryKeyFieldName(jpaMetamodelVertex.entityClass());
     }
 
 }

@@ -20,50 +20,162 @@ package net.osgiliath.migrator.core.graph;
  * #L%
  */
 
+import jakarta.persistence.Persistence;
+import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import org.jgrapht.Graph;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
 public class ModelElementProcessor {
 
-    private final RawElementProcessor rawElementHelper;
+    private final RawElementProcessor rawElementProcessor;
+    private final MetamodelRequester metamodelRequester;
 
-    public ModelElementProcessor(RawElementProcessor rawElementHelper) {
+    public ModelElementProcessor(RawElementProcessor rawElementProcessor, MetamodelRequester metamodelRequester) {
 
-        this.rawElementHelper = rawElementHelper;
+        this.rawElementProcessor = rawElementProcessor;
+        this.metamodelRequester = metamodelRequester;
     }
 
-    public void removeEdgeValueFromModelElementRelationShip(ModelElement sourceModelElement, FieldEdge fieldEdge, ModelElement targetModelElement) {
-        Object targetValue = sourceModelElement.getEdgeRawValue(fieldEdge);
-        if (targetValue instanceof Collection) {
-            Collection targetValues = (Collection) targetValue;
-            targetValues.remove(targetModelElement.getRawElement());
-            sourceModelElement.setEdgeRawValue(fieldEdge.getSource(), fieldEdge, targetValue);
+    public void removeEdgeValueFromModelElementRelationShip(ModelElement sourceModelElement, FieldEdge<MetamodelVertex> fieldEdge, ModelElement targetModelElement) {
+        Object targetValue = getEdgeRawValue(fieldEdge, sourceModelElement);
+        if (targetValue instanceof Collection targetValues) {
+            targetValues.remove(targetModelElement.rawElement());
+            setEdgeRawValue(fieldEdge.getSource(), fieldEdge, sourceModelElement, targetValue);
         } else {
-            sourceModelElement.setEdgeRawValue(fieldEdge.getSource(), fieldEdge, null);
+            setEdgeRawValue(fieldEdge.getSource(), fieldEdge, sourceModelElement, null);
         }
-        Method getterMethod = fieldEdge.relationshipGetter();
-        Optional<Field> inverseFieldOpt = rawElementHelper.inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass());
+        Method getterMethod = metamodelRequester.relationshipGetter(fieldEdge);
+        Optional<Field> inverseFieldOpt = rawElementProcessor.inverseRelationshipField(getterMethod, fieldEdge.getTarget());
         inverseFieldOpt.ifPresent(
                 inverseField -> {
-                    Object inverseValue = rawElementHelper.getFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName());
-                    if (inverseValue instanceof Collection) {
-                        Collection inverseValues = (Collection) inverseValue;
-                        inverseValues.remove(sourceModelElement.getRawElement());
-                        rawElementHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), inverseValues);
+                    Object inverseValue = rawElementProcessor.getFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName());
+                    if (inverseValue instanceof Collection inverseValues) {
+                        inverseValues.remove(sourceModelElement.rawElement());
+                        rawElementProcessor.setFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName(), inverseValues);
                     } else {
-                        rawElementHelper.setFieldValue(((JpaMetamodelVertex) fieldEdge.getTarget()).getEntityClass(), targetModelElement.getRawElement(), inverseField.getName(), null);
+                        rawElementProcessor.setFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName(), null);
                     }
                 }
         );
+    }
 
+    /**
+     * Sets a relationship between two entities.
+     *
+     * @param sourceMetamodelVertex the source entity definition.
+     * @param sourceEntity          the source entity.
+     * @param targetEntity          the target entity.
+     * @param graph                 the metamodel graph.
+     */
+    public void setEdgeBetweenEntities(MetamodelVertex sourceMetamodelVertex, FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
+        RelationshipType relationshipType = metamodelRequester.getRelationshipType(fieldEdge);
+        MetamodelVertex targetVertex = graph.getEdgeTarget(fieldEdge);
+        switch (relationshipType) {
+            case ONE_TO_ONE -> {
+                setEdgeRawValue(sourceMetamodelVertex, fieldEdge, sourceEntity, targetEntity.rawElement());
+                metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge ->
+                        setEdgeRawValue(targetVertex, inverseFieldEdge, targetEntity, sourceEntity.rawElement())
+                );
+            }
+            case ONE_TO_MANY -> {
+                Collection set = (Collection) getEdgeRawValue(fieldEdge, sourceEntity);
+                set.add(targetEntity.rawElement());
+                setEdgeRawValue(sourceMetamodelVertex, fieldEdge, sourceEntity, set);
+                metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge ->
+                        setEdgeRawValue(targetVertex, inverseFieldEdge, targetEntity, sourceEntity.rawElement())
+                );
+            }
+            case MANY_TO_ONE -> {
+                setEdgeRawValue(sourceMetamodelVertex, fieldEdge, sourceEntity, targetEntity.rawElement());
+                addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
+            }
+            case MANY_TO_MANY -> {
+                Collection set = (Collection) getEdgeRawValue(fieldEdge, sourceEntity);
+                set.add(targetEntity.rawElement());
+                setEdgeRawValue(sourceMetamodelVertex, fieldEdge, sourceEntity, set);
+                addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
+            }
+        }
+    }
+
+    private void addEntityToInverseToManyTargetEntity(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex targetVertex) {
+        metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
+            Collection inverseCollection = (Collection) getEdgeRawValue(inverseFieldEdge, targetEntity);
+            if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
+                inverseCollection = new HashSet(0);
+            }
+            inverseCollection.add(sourceEntity.rawElement());
+            setEdgeRawValue(targetVertex, inverseFieldEdge, targetEntity, inverseCollection);
+        });
+    }
+
+    /**
+     * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
+     *
+     * @param sourceMetamodelVertex the Metamodel Vertex
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
+     */
+    public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName, ModelElement modelElement) {
+        return rawElementProcessor.getFieldValue(sourceMetamodelVertex, modelElement.rawElement(), fieldName);
+    }
+
+
+    /**
+     * Sets a value on the underlying element
+     *
+     * @param entityClass The entity class (can be null)
+     * @param fieldName   The field name
+     * @param value       The value to set
+     */
+    public void setFieldRawValue(MetamodelVertex entityClass, String fieldName, ModelElement modelElement, Object value) {
+        if (entityClass != null) {
+            rawElementProcessor.setFieldValue(entityClass, modelElement.rawElement(), fieldName, value);
+        } else {
+            rawElementProcessor.setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), fieldName, value);
+        }
+    }
+
+    public void setEdgeRawValue(MetamodelVertex metamodelVertex, FieldEdge<MetamodelVertex> field, ModelElement modelElement, Object value) {
+        if (metamodelVertex != null) {
+            rawElementProcessor.setFieldValue(metamodelVertex, modelElement.rawElement(), field.getFieldName(), value);
+        } else {
+            rawElementProcessor.setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), field.getFieldName(), value);
+        }
+    }
+
+    /**
+     * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
+     *
+     * @param fieldEdge the edge to get the target vertices from
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
+     */
+    public Object getEdgeRawValue(FieldEdge<MetamodelVertex> fieldEdge, ModelElement modelElement) {
+        Method getterMethod = metamodelRequester.relationshipGetter(fieldEdge);
+        try {
+            return getterMethod.invoke(modelElement.rawElement());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<Object> getId(MetamodelVertex metamodelVertex, ModelElement modelElement) {
+        if (metamodelVertex != null) {
+            return rawElementProcessor.getId(metamodelVertex, modelElement.rawElement());
+        } else {
+            return rawElementProcessor.getId(this.getClass(), modelElement.rawElement());
+        }
     }
 }

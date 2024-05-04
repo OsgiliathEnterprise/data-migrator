@@ -26,21 +26,25 @@ import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.metamodel.impl.model.FieldAndTargetType;
-import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
 public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodelVertex> {
 
-    private final RawElementProcessor rawElementProcessor;
+    private final JpaEntityProcessor rawElementProcessor;
     private final MetamodelVertexFactory<JpaMetamodelVertex> metamodelVertexFactory;
 
-    public JpaMetamodelGraphBuilder(MetamodelVertexFactory<JpaMetamodelVertex> metamodelVertexFactory, RawElementProcessor rawElementProcessor) {
+    public JpaMetamodelGraphBuilder(MetamodelVertexFactory<JpaMetamodelVertex> metamodelVertexFactory, JpaEntityProcessor rawElementProcessor) {
         super(metamodelVertexFactory);
         this.rawElementProcessor = rawElementProcessor;
         this.metamodelVertexFactory = metamodelVertexFactory;
@@ -51,12 +55,12 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
      */
     @Override
     protected Collection<OutboundEdge<JpaMetamodelVertex>> computeOutboundEdges(JpaMetamodelVertex sourceVertex, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
-        return Stream.of(sourceVertex.getMetamodelClass().getDeclaredFields())
-                .flatMap(f -> sourceVertex.targetTypeOfMetamodelField(f)
+        return Stream.of(sourceVertex.metamodelClass().getDeclaredFields())
+                .flatMap(f -> targetTypeOfMetamodelField(f)
                         .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
                 .flatMap(t ->
-                        graph.vertexSet().stream().filter(candidateVertex -> candidateVertex.getEntityClass().equals(t.targetType()))
-                                .filter(targetMetamodelVertex -> !rawElementProcessor.isDerived(sourceVertex.getEntityClass(), t.field().getName()))
+                        graph.vertexSet().stream().filter(candidateVertex -> candidateVertex.entityClass().equals(t.targetType()))
+                                .filter(targetMetamodelVertex -> !rawElementProcessor.isDerived(sourceVertex.entityClass(), t.field().getName()))
                                 .map(targetMetamodelVertex ->
                                         metamodelVertexFactory.createOutboundEdge(metamodelVertexFactory.createFieldEdge(t.field()), targetMetamodelVertex)
                                 )
@@ -65,6 +69,20 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
 
     @Override
     protected boolean isEntity(JpaMetamodelVertex metamodelVertex) {
-        return metamodelVertex.getEntityClass().isAnnotationPresent(jakarta.persistence.Entity.class);
+        return metamodelVertex.entityClass().isAnnotationPresent(jakarta.persistence.Entity.class);
+    }
+
+    /**
+     * Get the Java Type of the target of a field.
+     */
+    private Optional<Type> targetTypeOfMetamodelField(Field f) {
+        Type t = f.getGenericType();
+        if (t instanceof ParameterizedType pt) {
+            Type[] types = pt.getActualTypeArguments();
+            if (types.length == 2) {
+                return Optional.of(types[1]);
+            }
+        }
+        return Optional.empty();
     }
 }

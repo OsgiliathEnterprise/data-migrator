@@ -27,7 +27,7 @@ import net.osgiliath.migrator.core.api.transformers.GraphTransformer;
 import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import org.apache.tinkerpop.gremlin.process.traversal.Order;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -51,12 +51,12 @@ public class RowLimiter implements GraphTransformer {
     public static final String LIMIT = "rows-to-keep";
     private static final Logger log = LoggerFactory.getLogger(RowLimiter.class);
     private final ModelElementProcessor modelElementProcessor;
-    private final MetamodelGraphRequester<MetamodelVertex> metamodelGraphRequester;
+    private final MetamodelRequester metamodelGraphRequester;
 
-    public RowLimiter(ModelElementProcessor modelElementProcessor, MetamodelGraphRequester<? extends MetamodelVertex> metamodelGraphRequester) {
+    public RowLimiter(ModelElementProcessor modelElementProcessor, MetamodelRequester metamodelGraphRequester) {
 
         this.modelElementProcessor = modelElementProcessor;
-        this.metamodelGraphRequester = (MetamodelGraphRequester<MetamodelVertex>) metamodelGraphRequester;
+        this.metamodelGraphRequester = metamodelGraphRequester;
     }
 
     @Override

@@ -24,12 +24,13 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.transformers.GraphTransformer;
-import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
 import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransformer;
+import net.osgiliath.migrator.core.api.transformers.ModelElementColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
@@ -51,11 +52,13 @@ public class SequenceProcessor {
     private final DataMigratorConfiguration dataMigratorConfiguration;
     private final ApplicationContext context;
     private final SequencerFactory sequencerFactory;
+    private final ModelElementProcessor modelElementProcessor;
 
-    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory) {
+    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.context = context;
         this.sequencerFactory = sequencerFactory;
+        this.modelElementProcessor = modelElementProcessor;
     }
 
     @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
@@ -93,7 +96,7 @@ public class SequenceProcessor {
                     SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
                     if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof MetamodelColumnCellTransformer) {
                         processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.getBean(), sequencerBeanMetamodelVertexAndEntity.getEntity(), sequencerBeanMetamodelVertexAndEntity.getMetamodelVertex());
-                    } else if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof JpaEntityColumnTransformer ject) {
+                    } else if (sequencerBeanMetamodelVertexAndEntity.getBean() instanceof ModelElementColumnTransformer ject) {
                         processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.getEntity());
                     }
                 });
@@ -115,13 +118,13 @@ public class SequenceProcessor {
         return beans;
     }
 
-    private void processJpaEntityColumnTransformer(JpaEntityColumnTransformer<Object> bean, ModelElement entity) {
+    private void processJpaEntityColumnTransformer(ModelElementColumnTransformer<Object> bean, ModelElement entity) {
         bean.evaluate(entity);
     }
 
     private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity, MetamodelVertex metamodelVertex) {
-        Object value = entity.getFieldRawValue(metamodelVertex, transformerBean.columnName());
+        Object value = modelElementProcessor.getFieldRawValue(metamodelVertex, transformerBean.columnName(), entity);
         Object transformedValue = transformerBean.evaluate(value);
-        entity.setFieldRawValue(metamodelVertex, transformerBean.columnName(), transformedValue);
+        modelElementProcessor.setFieldRawValue(metamodelVertex, transformerBean.columnName(), entity, transformedValue);
     }
 }

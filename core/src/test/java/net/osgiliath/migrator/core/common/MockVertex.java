@@ -58,12 +58,12 @@ public class MockVertex implements Vertex {
 
     @Override
     public Object id() {
-        return ((FakeEntity) me.getRawElement()).getId();
+        return ((FakeEntity) me.rawElement()).getId();
     }
 
     @Override
     public String label() {
-        return ((FakeEntity) me.getRawElement()).getClass().getSimpleName();
+        return ((FakeEntity) me.rawElement()).getClass().getSimpleName();
     }
 
     @Override
@@ -81,7 +81,7 @@ public class MockVertex implements Vertex {
     }
 
     public FakeEntity getFe() {
-        return ((FakeEntity) me.getRawElement());
+        return ((FakeEntity) me.rawElement());
     }
 
     public ModelElement getMe() {

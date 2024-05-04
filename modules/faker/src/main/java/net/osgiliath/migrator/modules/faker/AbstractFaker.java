@@ -23,8 +23,9 @@ package net.osgiliath.migrator.modules.faker;
 
 import net.datafaker.Faker;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.api.transformers.JpaEntityColumnTransformer;
+import net.osgiliath.migrator.core.api.transformers.ModelElementColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransformer<COLUMN_TYPE> {
+public abstract class AbstractFaker<COLUMN_TYPE> extends ModelElementColumnTransformer<COLUMN_TYPE> {
 
     public static final String FAKER = "faker";
     private final ColumnTransformationDefinition columnTransformationDefinition;
@@ -46,8 +47,8 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends JpaEntityColumnTransfor
     private static final Random RANDOM = new Random();
     private static Map<String, String> fakedKeys = new HashMap<>();
 
-    protected AbstractFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
-        super(metamodel, columnTransformationDefinition.getColumnName());
+    protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
+        super(modelElementProcessor, metamodel, columnTransformationDefinition.getColumnName());
         this.columnTransformationDefinition = columnTransformationDefinition;
     }
 

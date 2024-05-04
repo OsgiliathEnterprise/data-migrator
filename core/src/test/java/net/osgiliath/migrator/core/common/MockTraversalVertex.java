@@ -42,11 +42,11 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
 
     public MockTraversalVertex(JpaEntityProcessor jpaEntityHelper) {
         FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
-        ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);
+        ModelElement me1 = new ModelElement(fe1);
         MockVertex mv1 = new MockVertex(me1);
         vertices.add(mv1);
         FakeEntity fe2 = new FakeEntity(ENTITY_ID_2, this);
-        ModelElement me2 = new ModelElement(fe2, jpaEntityHelper);
+        ModelElement me2 = new ModelElement(fe2);
         MockVertex mv2 = new MockVertex(me2);
         vertices.add(mv2);
         vertexIterator = vertices.iterator();
@@ -56,7 +56,7 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
     public MockTraversalVertex(int id, JpaEntityProcessor jpaEntityHelper) {
         if (id == ENTITY_ID_1) {
             FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
-            ModelElement me1 = new ModelElement(fe1, jpaEntityHelper);
+            ModelElement me1 = new ModelElement(fe1);
             MockVertex mv1 = new MockVertex(me1);
             vertices.add(mv1);
             vertexIterator = vertices.iterator();

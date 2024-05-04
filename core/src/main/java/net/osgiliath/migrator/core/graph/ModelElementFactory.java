@@ -21,19 +21,12 @@ package net.osgiliath.migrator.core.graph;
  */
 
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ModelElementFactory {
 
-    private final JpaEntityProcessor jpaEntityHelper;
-
-    public ModelElementFactory(JpaEntityProcessor jpaEntityHelper) {
-        this.jpaEntityHelper = jpaEntityHelper;
-    }
-
     public ModelElement createModelElement(Object entity) {
-        return new ModelElement(entity, jpaEntityHelper);
+        return new ModelElement(entity);
     }
 }

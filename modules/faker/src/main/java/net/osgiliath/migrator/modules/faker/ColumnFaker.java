@@ -22,6 +22,7 @@ package net.osgiliath.migrator.modules.faker;
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 
 public class ColumnFaker extends AbstractFaker<Object> {
 
@@ -32,8 +33,8 @@ public class ColumnFaker extends AbstractFaker<Object> {
      * @param metamodel                      the Vertex metamodel (class)
      * @param columnTransformationDefinition the column transformation definition
      */
-    public ColumnFaker(MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
-        super(metamodel, columnTransformationDefinition);
+    public ColumnFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
+        super(modelElementProcessor, metamodel, columnTransformationDefinition);
     }
 
     /**

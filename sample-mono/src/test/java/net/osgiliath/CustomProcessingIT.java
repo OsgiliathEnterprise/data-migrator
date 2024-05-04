@@ -10,7 +10,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -51,7 +51,7 @@ class CustomProcessingIT {
     static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
 
     @Autowired
-    private MetamodelGraphRequester graphRequester;
+    private MetamodelRequester graphRequester;
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {

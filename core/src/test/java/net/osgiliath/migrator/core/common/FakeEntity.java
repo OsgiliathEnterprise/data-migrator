@@ -46,7 +46,7 @@ public class FakeEntity {
 
     public Set<FakeEntity> getMany() {
         Set<FakeEntity> fes = new HashSet<>();
-        fes.add((FakeEntity) mockTraversalVertex.getModelElement(MockTraversalVertex.ENTITY_ID_1).getRawElement());
+        fes.add((FakeEntity) mockTraversalVertex.getModelElement(MockTraversalVertex.ENTITY_ID_1).rawElement());
         // fes.add((FakeEntity) mockTraversalVertex.getModelElement(MockTraversalVertex.ENTITY_ID_2).getEntity());
         return fes;
     }

@@ -20,104 +20,23 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
-import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * JPA implementation of a metamodel vertex.
+ *
+ * @param metamodelClass The JPA metamodel class.
+ * @param entityClass    The entity class.
  */
-public class JpaMetamodelVertex implements MetamodelVertex {
 
-    /**
-     * The JPA metamodel class.
-     */
-    private final Class<?> metamodelClass;
-
-    /**
-     * The entity class.
-     */
-    private final Class<?> entityClass;
-    /**
-     * JPA entity helper.
-     */
-    private final RawElementProcessor rawElementProcessor;
-
-    /**
-     * Constructor.
-     *
-     * @param metamodelClass      The JPA metamodel class.
-     * @param entityClass         The entity class.
-     * @param rawElementProcessor JPA entity helper.
-     */
-    public JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass, RawElementProcessor rawElementProcessor) {
-        this.metamodelClass = metamodelClass;
-        this.entityClass = entityClass;
-        this.rawElementProcessor = rawElementProcessor;
-    }
-
-    /**
-     * Get the entity class.
-     *
-     * @return The entity class.
-     */
-    public Class<?> getEntityClass() {
-        return entityClass;
-    }
-
-    /**
-     * Get the metamodel class.
-     *
-     * @return The metamodel class.
-     */
-    public Class<?> getMetamodelClass() {
-        return metamodelClass;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, Object> getAdditionalModelVertexProperties(Object entity) {
-        return new HashMap<>();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RelationshipType relationshipType(Method getterMethod) {
-        return rawElementProcessor.relationshipType(getterMethod);
-    }
+public record JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) implements MetamodelVertex {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getTypeName() {
-        return getEntityClass().getSimpleName();
-    }
-
-    /**
-     * Get the Java Type of the target of a field.
-     */
-    public Optional<Type> targetTypeOfMetamodelField(Field f) {
-        Type t = f.getGenericType();
-        if (t instanceof ParameterizedType pt) {
-            Type[] types = pt.getActualTypeArguments();
-            if (types.length == 2) {
-                return Optional.of(types[1]);
-            }
-        }
-        return Optional.empty();
+        return entityClass().getSimpleName();
     }
 
     /**

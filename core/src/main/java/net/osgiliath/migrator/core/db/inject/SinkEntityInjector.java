@@ -24,8 +24,9 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
-import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphRequester;
+import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -51,12 +52,14 @@ public class SinkEntityInjector {
     private static final Logger log = LoggerFactory.getLogger(SinkEntityInjector.class);
     public static final Integer CYCLE_DETECTION_DEPTH = 10;
     private final VertexPersister vertexPersister;
-    private final MetamodelGraphRequester<MetamodelVertex> metamodelGraphRequester;
+    private final MetamodelRequester metamodelGraphRequester;
+    private final ModelElementProcessor modelElementProcessor;
 
-    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelGraphRequester<? extends MetamodelVertex> metamodelGraphRequester) {
+    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelRequester metamodelGraphRequester, ModelElementProcessor modelElementProcessor) {
         super();
         this.vertexPersister = vertexPersister;
-        this.metamodelGraphRequester = (MetamodelGraphRequester<MetamodelVertex>) metamodelGraphRequester;
+        this.metamodelGraphRequester = metamodelGraphRequester;
+        this.modelElementProcessor = modelElementProcessor;
     }
 
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
@@ -105,7 +108,7 @@ public class SinkEntityInjector {
                 .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.getModelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.getModelEdge().inVertex().label(), modelAndMetamodelEdge.getModelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
                 .forEach(modelAndMetamodelEdge -> {
                     ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.getModelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-                    modelAndMetamodelEdge.getMetamodelEdge().setEdgeBetweenEntities(sourceMetamodelVertex, sourceEntity, targetEntity, entityMetamodelGraph);
+                    modelElementProcessor.setEdgeBetweenEntities(sourceMetamodelVertex, modelAndMetamodelEdge.getMetamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
                 });
     }
 
