@@ -50,7 +50,7 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 @Component
 public class SinkEntityInjector {
     private static final Logger log = LoggerFactory.getLogger(SinkEntityInjector.class);
-    public static final Integer CYCLE_DETECTION_DEPTH = 10;
+    public static final Integer CYCLE_DETECTION_DEPTH = 30;
     private final VertexPersister vertexPersister;
     private final MetamodelRequester metamodelGraphRequester;
     private final ModelElementProcessor modelElementProcessor;
@@ -108,7 +108,7 @@ public class SinkEntityInjector {
                 .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.modelEdge().inVertex().label(), modelAndMetamodelEdge.modelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
                 .forEach(modelAndMetamodelEdge -> {
                     ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.modelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-                    modelElementProcessor.setEdgeBetweenEntities(sourceMetamodelVertex, modelAndMetamodelEdge.metamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
+                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
                 });
     }
 
