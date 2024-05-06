@@ -1,0 +1,32 @@
+# This workflow will build a Java project with Maven
+
+name: PR compiling and checks
+
+on:
+  pull_request:
+    types: [ opened, reopened ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21.0.1
+          distribution: 'temurin'
+          java-package: 'jdk'
+          cache: 'maven'
+          server-id: ossrh
+      - name: Build, test and report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw -DskipTests install
+          cd sample-mono
+          ./mvnw generate-sources -Pentities-from-changelog
+          cd .. 
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pentities-from-changelog,coverage -Dsonar.projectKey=OsgiliathEnterprise_data-migrator
+          rm -rf src/main/java
