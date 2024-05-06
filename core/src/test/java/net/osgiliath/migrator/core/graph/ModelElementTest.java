@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.graph;
  * #L%
  */
 
+import jakarta.transaction.Transactional;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
@@ -43,7 +44,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -96,6 +99,7 @@ public class ModelElementTest {
         Assertions.assertEquals(((UnitaryEdgeTarget) result.get()).target().id(), MockTraversalVertex.ENTITY_ID_1);
     }
 
+    @Transactional
     @Test
     public void testGetEdgeValueFromVertexGraphToMany() throws NoSuchMethodException {
         Vertex modelElement = traversal.getVertex(MockTraversalVertex.ENTITY_ID_1);
@@ -109,8 +113,9 @@ public class ModelElementTest {
         Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
-        Assertions.assertEquals(((ManyEdgeTarget) result.get()).target().toList().size(), 1);
-        assertEquals(((MockVertex) ((ManyEdgeTarget) result.get()).target().iterator().next()).getFe().getId(), MockTraversalVertex.ENTITY_ID_1);
+        Collection<Vertex> target = ((ManyEdgeTarget) result.get()).target().collect(Collectors.toSet());
+        Assertions.assertEquals(target.size(), 1);
+        assertEquals(((MockVertex) target.iterator().next()).getFe().getId(), MockTraversalVertex.ENTITY_ID_1);
 
     }
 }
