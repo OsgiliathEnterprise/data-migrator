@@ -32,7 +32,6 @@
             <artifactId>faker</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}.sample</groupId>
             <artifactId>sample-mono</artifactId>
