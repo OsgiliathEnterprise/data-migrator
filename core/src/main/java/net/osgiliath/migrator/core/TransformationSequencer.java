@@ -62,6 +62,12 @@ public class TransformationSequencer implements CommandLineRunner {
         this.sinkEntityInjector = sinkEntityInjector;
     }
 
+    /**
+     * Standard workflow: building the graph of entity definitions (metamodel) from hibernate classes, then building the entity instances graph, then processing the model graph, and finally persisting.
+     *
+     * @param args incoming main method arguments
+     * @throws Exception
+     */
     @Override
     public void run(String... args) throws Exception {
         log.warn("Starting the anonymization sequence");
