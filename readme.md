@@ -1,4 +1,4 @@
-![tests and snapshot deployment](https://github.com/OsgiliathEnterprise/data-migrator/actions/workflows/maven.yml/badge.svg)
+![tests and snapshot deployment](https://github.com/OsgiliathEnterprise/data-migrator/actions/workflows/release.yml/badge.svg)
 ![Maven Central](https://img.shields.io/maven-central/v/net.osgiliath.datamigrator/data-migrator)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OsgiliathEnterprise_data-migrator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OsgiliathEnterprise_data-migrator)
 
