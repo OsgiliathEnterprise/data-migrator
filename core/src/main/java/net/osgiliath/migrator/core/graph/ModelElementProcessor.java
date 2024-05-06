@@ -25,6 +25,7 @@ import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.jgrapht.Graph;
@@ -115,7 +116,7 @@ public class ModelElementProcessor {
         metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
             Collection inverseCollection = (Collection) getEdgeRawValue(inverseFieldEdge, targetEntity);
             if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
-                inverseCollection = new HashSet(0);
+                inverseCollection = HashSet.newHashSet(0);
             }
             inverseCollection.add(sourceEntity.rawElement());
             setEdgeRawValue(inverseFieldEdge, targetEntity, inverseCollection);
@@ -167,7 +168,7 @@ public class ModelElementProcessor {
         try {
             return getterMethod.invoke(modelElement.rawElement());
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new ErrorCallingRawElementMethodException(e);
         }
     }
 

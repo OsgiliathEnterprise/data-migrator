@@ -101,8 +101,7 @@ class MetamodelIT {
     @Test
     void givenHrMetaClassesWhenMetamodelScannerScanIsCalledThenMetaclassesAreRetreived() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
-        assertThat(metamodelClasses).isNotEmpty();
-        assertThat(metamodelClasses).contains(
+        assertThat(metamodelClasses).isNotEmpty().contains(
                 Country_.class,
                 Department_.class,
                 Employee_.class,

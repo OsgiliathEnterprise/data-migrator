@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.graph.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 public record SourceVertexFieldEdgeAndTargetVertex(SourceVertexFieldEdgeAndTargetVertices edgeAndTargetVertex,
@@ -30,7 +31,7 @@ public record SourceVertexFieldEdgeAndTargetVertex(SourceVertexFieldEdgeAndTarge
         return edgeAndTargetVertex.sourceVertex();
     }
 
-    public FieldEdge edge() {
+    public FieldEdge<MetamodelVertex> edge() {
         return edgeAndTargetVertex.edge();
     }
 }

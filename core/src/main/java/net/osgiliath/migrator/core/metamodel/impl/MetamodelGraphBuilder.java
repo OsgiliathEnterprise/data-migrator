@@ -37,7 +37,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
     private static final Logger log = LoggerFactory.getLogger(MetamodelGraphBuilder.class);
     private final MetamodelVertexFactory<M> metamodelVertexFactory;
 
-    public MetamodelGraphBuilder(MetamodelVertexFactory metamodelVertexFactory) {
+    protected MetamodelGraphBuilder(MetamodelVertexFactory metamodelVertexFactory) {
         this.metamodelVertexFactory = metamodelVertexFactory;
     }
 

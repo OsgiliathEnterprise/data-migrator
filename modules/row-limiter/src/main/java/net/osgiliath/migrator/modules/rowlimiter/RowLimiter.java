@@ -63,7 +63,7 @@ public class RowLimiter implements GraphTransformer {
     @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void evaluate(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Map<String, String> sequencerOptions) {
         Integer limit = Integer.valueOf(sequencerOptions.get(LIMIT));
-        Comparator<MetamodelVertex> asc = Comparator.comparingInt(o -> entityMetamodelGraph.inDegreeOf(o));
+        Comparator<MetamodelVertex> asc = Comparator.comparingInt(entityMetamodelGraph::inDegreeOf);
         entityMetamodelGraph.vertexSet().stream().sorted(asc)
                 .forEach(metamodelVertex -> processEntities(metamodelVertex, modelGraph, limit, entityMetamodelGraph));
     }

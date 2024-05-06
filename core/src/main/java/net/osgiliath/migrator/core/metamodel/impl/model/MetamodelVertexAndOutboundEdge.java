@@ -30,7 +30,7 @@ public record MetamodelVertexAndOutboundEdge<M extends MetamodelVertex>(M source
         return outboundEdge.targetVertex();
     }
 
-    public FieldEdge fieldEdge() {
+    public FieldEdge<M> fieldEdge() {
         return outboundEdge.fieldEdge();
     }
 }

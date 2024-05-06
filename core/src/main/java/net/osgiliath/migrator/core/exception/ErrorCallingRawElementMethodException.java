@@ -1,8 +1,8 @@
-package net.osgiliath.migrator.modules.rowlimiter.model;
+package net.osgiliath.migrator.core.exception;
 
 /*-
  * #%L
- * row-limiter
+ * data-migrator-core
  * %%
  * Copyright (C) 2024 Osgiliath Inc.
  * %%
@@ -20,26 +20,17 @@ package net.osgiliath.migrator.modules.rowlimiter.model;
  * #L%
  */
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
-
-import java.util.List;
-
-public class VerticesTargettingVertex {
-
-    private final List<Vertex> sourceVertices;
-    private final Vertex targetVertex;
-
-    public VerticesTargettingVertex(Object leafElement, List<Vertex> sourceVertices, Vertex targetVertex) {
-
-        this.sourceVertices = sourceVertices;
-        this.targetVertex = targetVertex;
+public class ErrorCallingRawElementMethodException extends RuntimeException {
+    public ErrorCallingRawElementMethodException(String message) {
+        super(message);
     }
 
-    public List<Vertex> getSourceVertices() {
-        return sourceVertices;
+    public ErrorCallingRawElementMethodException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public Vertex getTargetVertex() {
-        return targetVertex;
+    public ErrorCallingRawElementMethodException(Throwable cause) {
+        super(cause);
     }
+
 }

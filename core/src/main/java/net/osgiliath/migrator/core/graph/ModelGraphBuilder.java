@@ -111,19 +111,17 @@ public class ModelGraphBuilder {
     }
 
     private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList =
-                modelGraph.V().toStream().flatMap(v -> {
-                            TinkerVertex modelVertex = (TinkerVertex) v;
-                            MetamodelVertex metamodelVertex = v.value(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-                            log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.value(MODEL_GRAPH_VERTEX_ENTITY_ID));
-                            Collection<FieldEdge<MetamodelVertex>> edges = metamodelGraphRequester.getOutboundFieldEdges(metamodelVertex, entityMetamodelGraph);
-                            return edges.stream().map(edge ->
-                                    new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
-                            ).map(edgeAndTargetVertex ->
-                                    new SourceVertexFieldEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
-                        })
-                        .flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.targetVertices().map(targetVertex -> new SourceVertexFieldEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)));
-        return sourceVertexEdgeAndTargetVertexList;
+        return modelGraph.V().toStream().flatMap(v -> {
+                    TinkerVertex modelVertex = (TinkerVertex) v;
+                    MetamodelVertex metamodelVertex = v.value(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
+                    log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.value(MODEL_GRAPH_VERTEX_ENTITY_ID));
+                    Collection<FieldEdge<MetamodelVertex>> edges = metamodelGraphRequester.getOutboundFieldEdges(metamodelVertex, entityMetamodelGraph);
+                    return edges.stream().map(edge ->
+                            new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(modelVertex, edge, modelGraph))
+                    ).map(edgeAndTargetVertex ->
+                            new SourceVertexFieldEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
+                })
+                .flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.targetVertices().map(targetVertex -> new SourceVertexFieldEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)));
     }
 
 
@@ -139,7 +137,7 @@ public class ModelGraphBuilder {
                                     .property(MODEL_GRAPH_VERTEX_ENTITY_ID, mvaei.id())
                                     .property(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX, mvaei.metamodelVertex())
                                     .property(MODEL_GRAPH_VERTEX_ENTITY, mvaei.modelElement());
-                            modelVertexCustomizer.getAdditionalModelVertexProperties(mvaei.metamodelVertex()).forEach((k, v) -> traversal.property(k, v));
+                            modelVertexCustomizer.getAdditionalModelVertexProperties(mvaei.metamodelVertex()).forEach(traversal::property);
                             traversal.next();
                         });
     }

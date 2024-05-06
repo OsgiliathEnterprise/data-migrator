@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.graph.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.stream.Stream;
@@ -28,5 +29,5 @@ import java.util.stream.Stream;
 /**
  * Field edge and target vertices (entity definition).
  */
-public record FieldEdgeTargetVertices(FieldEdge edge, Stream<Vertex> targetVertices) {
+public record FieldEdgeTargetVertices(FieldEdge<MetamodelVertex> edge, Stream<Vertex> targetVertices) {
 }

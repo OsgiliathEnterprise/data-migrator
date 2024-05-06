@@ -30,6 +30,7 @@ import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
+import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
@@ -69,7 +70,7 @@ public class SequenceProcessor {
                             try {
                                 return new SequencerDefinitionAndBean(seq, Class.forName(seq.getTransformerClass()));
                             } catch (ClassNotFoundException e) {
-                                throw new RuntimeException(e);
+                                throw new RawElementFieldOrMethodNotFoundException(e);
                             }
                         }
                 )

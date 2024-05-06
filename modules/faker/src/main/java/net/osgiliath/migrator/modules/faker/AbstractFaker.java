@@ -38,7 +38,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-public abstract class AbstractFaker<COLUMN_TYPE> extends ModelElementColumnTransformer<COLUMN_TYPE> {
+/**
+ * Column faker superclass
+ *
+ * @param <T> the Type of the column
+ */
+public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> {
 
     public static final String FAKER = "faker";
     private final ColumnTransformationDefinition columnTransformationDefinition;
@@ -66,10 +71,8 @@ public abstract class AbstractFaker<COLUMN_TYPE> extends ModelElementColumnTrans
     }
 
     private Optional<String> getCachedKey(String originalValue) {
-        if (columnTransformationDefinition.getConsistentKey()) {
-            if (fakedKeys.containsKey(originalValue)) {
-                return Optional.of(fakedKeys.get(originalValue));
-            }
+        if (columnTransformationDefinition.getConsistentKey() && fakedKeys.containsKey(originalValue)) {
+            return Optional.of(fakedKeys.get(originalValue));
         }
         return Optional.empty();
     }

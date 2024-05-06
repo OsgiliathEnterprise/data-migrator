@@ -24,5 +24,5 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.stream.Stream;
 
-public record ManyEdgeTarget(Stream<Vertex> target) implements EdgeTargetVertexOrVertices<Stream<Vertex>> {
+public record ManyEdgeTarget(Stream<Vertex> target) implements EdgeTargetVertexOrVertices {
 }

@@ -20,5 +20,5 @@ package net.osgiliath.migrator.core.graph.model;
  * #L%
  */
 
-public sealed interface EdgeTargetVertexOrVertices<M> permits UnitaryEdgeTarget, ManyEdgeTarget {
+public sealed interface EdgeTargetVertexOrVertices permits UnitaryEdgeTarget, ManyEdgeTarget {
 }

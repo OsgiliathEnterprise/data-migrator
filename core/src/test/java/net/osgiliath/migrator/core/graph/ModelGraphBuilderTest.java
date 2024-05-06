@@ -48,7 +48,7 @@ import java.util.Set;
 import static org.mockito.Mockito.*;
 
 
-public class ModelGraphBuilderTest {
+class ModelGraphBuilderTest {
 
     @Mock
     private EntityImporter entityImporter;
@@ -80,7 +80,7 @@ public class ModelGraphBuilderTest {
     }
 
     @Test
-    public void testModelGraphFromMetamodelGraph() {
+    void testModelGraphFromMetamodelGraph() {
         GraphTraversal<Vertex, Vertex> traversal = mock(GraphTraversal.class);
         when(graphTraversalSource.V()).thenReturn(traversal);
         when(graphTraversalSourceProvider.getGraph()).thenReturn(graphTraversalSource);
@@ -91,7 +91,7 @@ public class ModelGraphBuilderTest {
 
 
     @Test
-    public void testCreateEdges() {
+    void testCreateEdges() {
         // Arrange
         MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class);
         FieldEdge<MetamodelVertex> fieldEdge = new FieldEdge(null);

@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Wraps the processor into .
  *
- * @param <COLUMN_TYPE>
+ * @param <C> type of the column.
  */
-public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
+public abstract class CamelExchangeWrapper<C> implements Expression {
 
     /**
      * Logger.
@@ -43,7 +43,7 @@ public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
      * @param toBeTransformed the column to be transformed.
      * @return the transformed column.
      */
-    public abstract COLUMN_TYPE evaluate(COLUMN_TYPE toBeTransformed);
+    public abstract C evaluate(C toBeTransformed);
 
     /**
      * {@inheritDoc}
@@ -51,9 +51,9 @@ public abstract class CamelExchangeWrapper<COLUMN_TYPE> implements Expression {
     @Override
     public <T> T evaluate(Exchange exchange, Class<T> type) {
         log.debug("Transforming cell with transformer {}", this.getClass().getName());
-        COLUMN_TYPE preValue = (COLUMN_TYPE) exchange.getIn().getBody(type);
+        C preValue = (C) exchange.getIn().getBody(type);
         log.debug("Original cell value {}", preValue);
-        COLUMN_TYPE transformedValue = evaluate(preValue);
+        C transformedValue = evaluate(preValue);
         log.debug("Post transformation value {}", transformedValue);
         return (T) transformedValue;
     }

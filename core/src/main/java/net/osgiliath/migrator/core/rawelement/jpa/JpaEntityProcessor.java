@@ -23,6 +23,8 @@ package net.osgiliath.migrator.core.rawelement.jpa;
 import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
+import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
@@ -73,7 +75,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
             }
             return false;
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
+            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
         }
     }
 
@@ -145,7 +147,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                     try {
                         return primaryKeyGetterMethod.invoke(entity);
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                        throw new ErrorCallingRawElementMethodException(e);
                     }
                 }
         );
@@ -225,7 +227,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         } else if (getterMethod.isAnnotationPresent(ManyToOne.class)) {
             return RelationshipType.MANY_TO_ONE;
         } else {
-            throw new RuntimeException("The getter method " + getterMethod.getName() + " is not a relationship");
+            throw new RawElementFieldOrMethodNotFoundException("The getter method " + getterMethod.getName() + " is not a relationship");
         }
     }
 
@@ -303,17 +305,14 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the mappedBy value.
      */
     private static Optional<String> getMappedByValue(Method getterMethod) {
-        return Arrays.stream(getterMethod.getDeclaredAnnotations()).map(a -> {
-            if (a instanceof ManyToMany mtm) {
-                return mtm.mappedBy();
-            } else if (a instanceof OneToMany otm) {
-                return otm.mappedBy();
-            } else if (a instanceof OneToOne oto) {
-                return oto.mappedBy();
-            } else {
-                return null;
-            }
-        }).filter(mappedBy -> null != mappedBy && !mappedBy.isEmpty()).findAny();
+        return Arrays.stream(getterMethod.getDeclaredAnnotations()).map(a ->
+                switch (a) {
+                    case ManyToMany mtm -> mtm.mappedBy();
+                    case OneToMany otm -> otm.mappedBy();
+                    case OneToOne oto -> oto.mappedBy();
+                    default -> null;
+                }
+        ).filter(mappedBy -> null != mappedBy && !mappedBy.isEmpty()).findAny();
     }
 
     /**
@@ -334,7 +333,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         } else if (relationshipType.equals(RelationshipType.ONE_TO_ONE)) {
             return inverseRelationshipType.equals(RelationshipType.ONE_TO_ONE);
         } else {
-            throw new RuntimeException("The relationship type " + relationshipType + " is not supported");
+            throw new RawElementFieldOrMethodNotFoundException("The relationship type " + relationshipType + " is not supported");
         }
     }
 
@@ -360,12 +359,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
                         try {
                             attachedGetterMethod = entityToUse.getClass().getMethod(getterMethod.getName(), getterMethod.getParameterTypes());
                         } catch (NoSuchMethodException e) {
-                            throw new RuntimeException(e);
+                            throw new RawElementFieldOrMethodNotFoundException(e);
                         }
-                        Object res = attachedGetterMethod.invoke(entityToUse);
-                        return res;
+                        return attachedGetterMethod.invoke(entityToUse);
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                        throw new ErrorCallingRawElementMethodException(e);
                     }
                 })
                 .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
@@ -400,7 +398,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
     public void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value) {
         Optional<Field> field = attributeToField(entityClass, attributeName);
         field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {
-            throw new RuntimeException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
+            throw new RawElementFieldOrMethodNotFoundException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
         });
     }
 
@@ -422,10 +420,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
             try {
                 entity.getClass().getMethod(setterMethod.getName(), setterMethod.getParameterTypes()).invoke(entity, value);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
+                throw new ErrorCallingRawElementMethodException(e);
             }
         }, () -> {
-            throw new RuntimeException("No setter with name " + fieldToSetter(field.getName()) + " in class " + entityClass.getSimpleName());
+            throw new RawElementFieldOrMethodNotFoundException("No setter with name " + fieldToSetter(field.getName()) + " in class " + entityClass.getSimpleName());
         });
     }
 }

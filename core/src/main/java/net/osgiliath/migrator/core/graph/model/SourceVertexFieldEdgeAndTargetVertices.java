@@ -21,17 +21,14 @@ package net.osgiliath.migrator.core.graph.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.stream.Stream;
 
 public record SourceVertexFieldEdgeAndTargetVertices(Vertex sourceVertex,
                                                      FieldEdgeTargetVertices edgeAndTargetVertices) {
-    public Vertex sourceVertex() {
-        return sourceVertex;
-    }
-
-    public FieldEdge edge() {
+    public FieldEdge<MetamodelVertex> edge() {
         return edgeAndTargetVertices.edge();
     }
 

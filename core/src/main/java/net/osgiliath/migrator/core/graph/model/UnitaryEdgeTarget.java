@@ -22,5 +22,5 @@ package net.osgiliath.migrator.core.graph.model;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-public record UnitaryEdgeTarget(Vertex target) implements EdgeTargetVertexOrVertices<Vertex> {
+public record UnitaryEdgeTarget(Vertex target) implements EdgeTargetVertexOrVertices {
 }

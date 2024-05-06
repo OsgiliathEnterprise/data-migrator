@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ModelElementTest {
+class ModelElementTest {
 
     // @Mock
     private JpaEntityProcessor jpaEntityHelper;
@@ -85,7 +85,7 @@ public class ModelElementTest {
     }
 
     @Test
-    public void testGetEdgeValueFromVertexGraphToOne() throws NoSuchMethodException {
+    void testGetEdgeValueFromVertexGraphToOne() throws NoSuchMethodException {
         // Arrange
         Vertex modelElement = traversal.getVertex(MockTraversalVertex.ENTITY_ID_1);
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
@@ -101,7 +101,7 @@ public class ModelElementTest {
 
     @Transactional
     @Test
-    public void testGetEdgeValueFromVertexGraphToMany() throws NoSuchMethodException {
+    void testGetEdgeValueFromVertexGraphToMany() throws NoSuchMethodException {
         Vertex modelElement = traversal.getVertex(MockTraversalVertex.ENTITY_ID_1);
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
 

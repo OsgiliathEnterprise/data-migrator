@@ -32,7 +32,7 @@ public class FieldEdge<M extends MetamodelVertex> extends DefaultEdge {
     /**
      * Entity field representing to call in order to get the relationship.
      */
-    private final Field rawElementField;
+    private final transient Field rawElementField;
 
     /**
      * Constructor.

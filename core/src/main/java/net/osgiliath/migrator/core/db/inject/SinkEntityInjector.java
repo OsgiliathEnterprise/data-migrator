@@ -92,7 +92,10 @@ public class SinkEntityInjector {
                     log.info("Persisting vertex of type {} with id {}", tv.label(), tv.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
                 });
         vertexPersister.persistVertices(res
-                .peek(modelVertex -> processedVertices.add(modelVertex))
+                .map(modelVertex -> {
+                    processedVertices.add(modelVertex);
+                    return modelVertex;
+                })
                 .map(modelVertex -> modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY)));
         processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
     }

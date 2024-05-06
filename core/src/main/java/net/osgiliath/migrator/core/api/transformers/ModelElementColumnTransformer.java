@@ -27,7 +27,12 @@ import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ModelElementColumnTransformer<FIELD_TYPE> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
+/**
+ * Column transformer
+ *
+ * @param <F> the field type
+ */
+public abstract class ModelElementColumnTransformer<F> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
     private static final Logger log = LoggerFactory.getLogger(ModelElementColumnTransformer.class);
     private final ModelElementProcessor modelElementProcessor;
     private final MetamodelVertex metamodel;
@@ -47,10 +52,10 @@ public abstract class ModelElementColumnTransformer<FIELD_TYPE> extends CamelExc
     public ModelElement evaluate(ModelElement toBeTransformed) {
         Object rawValue = modelElementProcessor.getFieldRawValue(metamodel, columnName, toBeTransformed);
         log.info("transforming Vertex of class {} with column {} and value {}", metamodel.getTypeName(), columnName, rawValue);
-        Object transformedValue = evaluateField((FIELD_TYPE) rawValue);
+        Object transformedValue = evaluateField((F) rawValue);
         modelElementProcessor.setFieldRawValue(metamodel, columnName, toBeTransformed, transformedValue);
         return toBeTransformed;
     }
 
-    protected abstract FIELD_TYPE evaluateField(FIELD_TYPE fieldValue);
+    protected abstract F evaluateField(F fieldValue);
 }

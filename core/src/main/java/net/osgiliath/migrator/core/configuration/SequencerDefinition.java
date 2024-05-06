@@ -50,12 +50,12 @@ public class SequencerDefinition {
      */
     private String entityClass = WILDCARD;
 
-    private Map<String, String> sequencerOptions = new HashMap<>();
+    private Map<String, String> sequencerOptions = HashMap.newHashMap(0);
 
     /**
      * Columns to be handled by the transformer.
      */
-    private Collection<ColumnTransformationDefinition> columnTransformationDefinitions = new HashSet<>();
+    private Collection<ColumnTransformationDefinition> columnTransformationDefinitions = HashSet.newHashSet(0);
 
     /**
      * Get name of the sequencer to be referenced by the sequence.
@@ -92,7 +92,7 @@ public class SequencerDefinition {
     /**
      * Get the transformer class.
      *
-     * @return
+     * @return the transformer class.
      */
     public String getTransformerClass() {
         return transformerClass;
@@ -128,7 +128,7 @@ public class SequencerDefinition {
     /**
      * Get the columns to be handled by the transformer.
      *
-     * @return
+     * @return the column transformation definition
      */
     public Collection<ColumnTransformationDefinition> getColumnTransformationDefinitions() {
         return columnTransformationDefinitions;
@@ -144,7 +144,7 @@ public class SequencerDefinition {
     }
 
     public Map<String, String> getSequencerOptions() {
-        Map<String, String> ret = new HashMap<>();
+        Map<String, String> ret = HashMap.newHashMap(0);
         for (Map.Entry<String, String> entry : this.sequencerOptions.entrySet()) {
             String key = entry.getKey();
             ret.put(key.replaceFirst("\\d+\\.", ""), entry.getValue());

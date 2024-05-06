@@ -25,6 +25,7 @@ import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
+import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMeta
     private EntityManager entityManager;
 
     public JpaMetamodelVertexFactory() {
+        // empty constructor to get entotyManager injected
     }
 
     public JpaMetamodelVertex createMetamodelVertex(Class<?> metamodelClass) {
@@ -52,12 +54,12 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMeta
 
     public OutboundEdge<JpaMetamodelVertex> createOutboundEdge(FieldEdge<JpaMetamodelVertex> fieldEdge, JpaMetamodelVertex targetMetamodelVertex) {
         log.info("Creating a new field edge {} with target metamodel class {}", fieldEdge.getFieldName(), targetMetamodelVertex.getTypeName());
-        return new OutboundEdge(fieldEdge, targetMetamodelVertex);
+        return new OutboundEdge<>(fieldEdge, targetMetamodelVertex);
     }
 
     public FieldEdge<JpaMetamodelVertex> createFieldEdge(Field field) {
         log.info("Creating a new field edge {}", field.getName());
-        return new FieldEdge(field);
+        return new FieldEdge<>(field);
     }
 
     private Optional<JpaMetamodelVertex> metamodelClassToEntityVertexAdapter(final Class<?> metamodelClass) {
@@ -72,7 +74,7 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMeta
                     try {
                         return internalCreateMetamodelVertex(metamodelClass, entityManager.getClass().getClassLoader().loadClass(c.getName()));
                     } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
+                        throw new RawElementFieldOrMethodNotFoundException(e);
                     }
                 })
                 .findAny();
