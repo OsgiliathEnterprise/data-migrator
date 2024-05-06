@@ -1,10 +1,6 @@
 <project name="EntityPostProcessor" default="dist" basedir=".">
     <description>Post process the entities</description>
     <target name="amendEntities">
-        <mkdir dir="${maven.project.build.directory}/generated-sources/repositories"/>
-        <move todir="${maven.project.build.directory}/generated-sources/repositories">
-            <fileset dir="${maven.project.basedir}/src/main/java" includes="**/repository/*.java"/>
-        </move>
         <replace token=', nullable=false' value='' dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>

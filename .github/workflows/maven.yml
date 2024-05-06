@@ -43,7 +43,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pentities-from-changelog,coverage -Dsonar.projectKey=OsgiliathEnterprise_data-migrator
+        run: |
+          cd sample-mono
+          ./mvnw generate-sources -Pentities-from-changelog
+          cd .. 
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pentities-from-changelog,coverage -Dsonar.projectKey=OsgiliathEnterprise_data-migrator
+          rm -rf src/main/java
       - name: Verify Whether a Release is Ready
         id: release
         shell: bash
