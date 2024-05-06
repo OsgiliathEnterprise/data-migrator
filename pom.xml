@@ -78,7 +78,7 @@
         <spring-boot.version>3.2.5</spring-boot.version>
         <jdbc.h2.version>2.2.224</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
-        <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
+        <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
         <jdbc.oracle.version>23.4.0.24.05</jdbc.oracle.version>
         <jdbc.mssql.version>12.7.0.jre11-preview</jdbc.mssql.version>
         <jdbc.mariadb-java-client.varsion>3.3.3</jdbc.mariadb-java-client.varsion>
