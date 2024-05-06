@@ -42,7 +42,12 @@ jobs:
       - name: Test the sample
         id: test
         run: |
-          ./mvnw install && cd sample-mono && ./mvnw verify -Pentities-from-changelog
+          ./mvnw install && cd sample-mono && ./mvnw install -Pentities-from-changelog
+      - name: Sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=OsgiliathEnterprise_data-migrator
       - name: Verify Whether a Release is Ready
         id: release
         shell: bash

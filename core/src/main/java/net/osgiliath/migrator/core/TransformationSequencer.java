@@ -53,7 +53,7 @@ public class TransformationSequencer implements CommandLineRunner {
     private final SequenceProcessor sequenceProcessor;
     private final SinkEntityInjector sinkEntityInjector;
 
-    public TransformationSequencer(MetamodelScanner metamodelScanner, MetamodelGraphBuilder graphProcessor, MetamodelRequester graphRequester, ModelGraphBuilder modelGraphBuilder, SequenceProcessor sequenceProcessor, SinkEntityInjector sinkEntityInjector) {
+    public TransformationSequencer(MetamodelScanner metamodelScanner, MetamodelGraphBuilder<? extends MetamodelVertex> graphProcessor, MetamodelRequester graphRequester, ModelGraphBuilder modelGraphBuilder, SequenceProcessor sequenceProcessor, SinkEntityInjector sinkEntityInjector) {
         this.metamodelScanner = metamodelScanner;
         this.graphBuilder = graphProcessor;
         this.graphRequester = graphRequester;
