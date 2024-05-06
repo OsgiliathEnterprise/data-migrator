@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
 
@@ -84,7 +85,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @return list of model elements
      */
     // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER, propagation = Propagation.REQUIRES_NEW)
-    public List<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
+    public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<?> query = null;
@@ -97,14 +98,14 @@ public class JpaEntityImporter implements EntityImporter {
             predicates.add(builder.in(root).value(objectToExclude));
             select.where(predicates.toArray(new Predicate[predicates.size()]));
         }
-        List<?> resultList = new ArrayList<>();
+        Stream<?> resultList;
         try {
-            resultList = entityManager.createQuery(select).getResultList();
+            resultList = entityManager.createQuery(select).getResultStream();
+            return resultList.map(modelElementFactory::createModelElement);
         } catch (Exception e) {
             log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
         }
-        log.info("Found {} results when querying source datasource for entity {}", resultList.size(), entityVertex.getTypeName());
-        return resultList.stream().map(modelElementFactory::createModelElement).toList();
+        return Stream.empty();
     }
 
     /**

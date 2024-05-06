@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.graph.model;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
-public record ManyEdgeTarget(Collection<Vertex> target) implements EdgeTargetVertexOrVertices<Collection<Vertex>> {
+public record ManyEdgeTarget(Stream<Vertex> target) implements EdgeTargetVertexOrVertices<Stream<Vertex>> {
 }

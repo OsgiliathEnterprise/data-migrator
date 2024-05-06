@@ -33,9 +33,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -54,7 +52,7 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
      * {@inheritDoc}
      */
     @Override
-    protected Collection<OutboundEdge<JpaMetamodelVertex>> computeOutboundEdges(JpaMetamodelVertex sourceVertex, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
+    protected Stream<OutboundEdge<JpaMetamodelVertex>> computeOutboundEdges(JpaMetamodelVertex sourceVertex, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
         return Stream.of(sourceVertex.metamodelClass().getDeclaredFields())
                 .flatMap(f -> targetTypeOfMetamodelField(f)
                         .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
@@ -64,7 +62,7 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
                                 .map(targetMetamodelVertex ->
                                         metamodelVertexFactory.createOutboundEdge(metamodelVertexFactory.createFieldEdge(t.field()), targetMetamodelVertex)
                                 )
-                ).collect(Collectors.toSet());
+                );
     }
 
     @Override

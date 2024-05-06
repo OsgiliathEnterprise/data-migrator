@@ -23,7 +23,7 @@ package net.osgiliath.migrator.core.graph.model;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
-public record MetamodelVertexAndModelElements(MetamodelVertex metamodelVertex, Collection<ModelElement> modelElements) {
+public record MetamodelVertexAndModelElements(MetamodelVertex metamodelVertex, Stream<ModelElement> modelElements) {
 }

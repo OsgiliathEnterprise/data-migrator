@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Spliterators;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
@@ -76,12 +77,11 @@ public class SinkEntityInjector {
                 )
                 .filter(__.not(is(P.within(processedVertices))));
         if (!leafElements.hasNext()) {
-            modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream().forEach(modelVertex ->
-                    vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY))
-            );
+            vertexPersister.persistVertices(modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream()
+                    .map(modelVertex -> modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY)));
             return;
         }
-        leafElements.toStream()
+        Stream<TinkerVertex> res = leafElements.toStream()
                 .map(e -> {
                     TinkerVertex modelVertex = (TinkerVertex) e;
                     updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph);
@@ -90,12 +90,10 @@ public class SinkEntityInjector {
                 .peek(mv -> {
                     TinkerVertex tv = (TinkerVertex) mv;
                     log.info("Persisting vertex of type {} with id {}", tv.label(), tv.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
-                })
-                .forEach(e -> {
-                    Vertex modelVertex = (Vertex) e;
-                    vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
-                    processedVertices.add(modelVertex);
                 });
+        vertexPersister.persistVertices(res
+                .peek(modelVertex -> processedVertices.add(modelVertex))
+                .map(modelVertex -> modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY)));
         processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
     }
 

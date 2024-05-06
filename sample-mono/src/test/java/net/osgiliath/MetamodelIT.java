@@ -1,5 +1,6 @@
 package net.osgiliath;
 
+import jakarta.transaction.Transactional;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.*;
@@ -29,6 +30,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -121,12 +123,13 @@ class MetamodelIT {
         assertThat(graph.edgeSet()).hasSize(12);
     }
 
+    @Transactional
     @Test
     void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals("Employee")).findFirst().get();
-        List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>());
+        List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>()).collect(Collectors.toUnmodifiableList());
         assertThat(entities).isNotEmpty();
     }
 }

@@ -3,7 +3,9 @@ package net.osgiliath;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.Employee;
+import net.osgiliath.datamigrator.sample.domain.Job;
 import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
+import net.osgiliath.datamigrator.sample.repository.JobRepository;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
@@ -34,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest(classes = {DataMigratorApplication.class})
+@DirtiesContext
 class InjectionIT {
     static {
         System.setProperty("liquibase.duplicateFileMode", "WARN");
@@ -98,6 +102,9 @@ class InjectionIT {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private JobRepository jobRepository;
+
     @Test
     void givenFedGraphWhenEntityProcessorIsCalledThenTargetDatabaseIsPopulatedExcludingCyclicPath() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
@@ -105,7 +112,11 @@ class InjectionIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Employee> employees = employeeRepository.findAll();
-            assertThat(employees).hasSize(9);
+            assertThat(employees).hasSize(9); // One employee has a cycle
+            List<Job> jobs = jobRepository.findAll();
+            assertThat(jobs).hasSize(10); // has not been limited because intermediairy employee should have been removed
+
         }
     }
+
 }

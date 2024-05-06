@@ -3,7 +3,9 @@ package net.osgiliath;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.Employee;
+import net.osgiliath.datamigrator.sample.domain.Job;
 import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
+import net.osgiliath.datamigrator.sample.repository.JobRepository;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
@@ -97,6 +99,9 @@ class FakerProcessingIT {
     private SinkEntityInjector sinkEntityInjector;
 
     @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Autowired
@@ -109,8 +114,9 @@ class FakerProcessingIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
+            List<Job> jobs = jobRepository.findAll();
+            assertThat(jobs).hasSize(3); // has been row limited to 6
             List<Employee> employees = employeeRepository.findAll();
-            assertThat(employees).hasSize(6); // has been row limited to 6
             List<String> firstNames = employees.stream().map(Employee::getFirstName).toList();
             assertThat(firstNames).doesNotContain("Shanny", "Chaz", "Horace", "Korbin", "Israel", "Javon", "Beryl", "Everett", "Destiny", "Sandrine");
             firstNames.stream().forEach(c -> {

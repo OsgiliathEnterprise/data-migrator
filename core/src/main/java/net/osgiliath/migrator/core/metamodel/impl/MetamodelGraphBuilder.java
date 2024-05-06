@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
     private static final Logger log = LoggerFactory.getLogger(MetamodelGraphBuilder.class);
@@ -46,24 +45,23 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
         log.warn("Starting graph processing of the metamodel");
         Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
                 .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
-        Collection<M> vertex = metamodelClassesToEntityVertexAdapter(metamodelClasses);
-        vertex.stream().filter(this::isEntity).forEach(graph::addVertex);
+        Stream<M> vertex = metamodelVertexFromRawMetamodelClass(metamodelClasses);
+        vertex.filter(this::isEntity).forEach(graph::addVertex);
         addVertexEdgesFromMetamodel(graph);
         return graph;
     }
 
     private void addVertexEdgesFromMetamodel(Graph<M, FieldEdge<M>> graph) {
         graph.vertexSet().stream()
-                .flatMap(v -> computeOutboundEdges(v, graph).stream()
+                .flatMap(v -> computeOutboundEdges(v, graph)
                         .map(e -> new MetamodelVertexAndOutboundEdge<M>(v, e)))
                 .forEach(me ->
                         graph.addEdge(me.sourceVertex(), me.targetVertex(), me.fieldEdge()));
     }
 
-    private Set<M> metamodelClassesToEntityVertexAdapter(Collection<Class<?>> metamodelClasses) {
+    private Stream<M> metamodelVertexFromRawMetamodelClass(Collection<Class<?>> metamodelClasses) {
         return metamodelClasses.stream()
-                .map(metamodelVertexFactory::createMetamodelVertex)
-                .collect(Collectors.toSet());
+                .map(metamodelVertexFactory::createMetamodelVertex);
     }
 
     /**
@@ -73,7 +71,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
      * @param graph        The metamodel graph.
      * @return The outbound edges of this vertex.
      */
-    protected abstract Collection<OutboundEdge<M>> computeOutboundEdges(M sourceVertex, Graph<M, FieldEdge<M>> graph);
+    protected abstract Stream<OutboundEdge<M>> computeOutboundEdges(M sourceVertex, Graph<M, FieldEdge<M>> graph);
 
     protected abstract boolean isEntity(M metamodelVertex);
 }

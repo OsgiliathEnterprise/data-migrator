@@ -23,10 +23,10 @@ package net.osgiliath.migrator.core.graph.model;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Field edge and target vertices (entity definition).
  */
-public record FieldEdgeTargetVertices(FieldEdge edge, Collection<Vertex> targetVertices) {
+public record FieldEdgeTargetVertices(FieldEdge edge, Stream<Vertex> targetVertices) {
 }

@@ -38,8 +38,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
@@ -88,28 +90,18 @@ public class ModelGraphBuilder {
         createEdges(graphTraversalSource, entityMetamodelGraph);
     }
 
-    private Collection<Vertex> relatedVerticesOfOutgoingEdgeFromModelElementRelationship(Vertex modelVertex, FieldEdge<MetamodelVertex> edge, GraphTraversalSource modelGraph) {
+    private Stream<Vertex> relatedVerticesOfOutgoingEdgeFromModelElementRelationship(Vertex modelVertex, FieldEdge<MetamodelVertex> edge, GraphTraversalSource modelGraph) {
         log.debug("looking for related vertices for edge {}", edge);
         Optional<EdgeTargetVertexOrVertices> targetModelElementsOpt = getEdgeValueFromVertexGraph(modelVertex, edge, modelGraph);
         return targetModelElementsOpt.map(targetModelElements -> switch (targetModelElements) {
-                    case ManyEdgeTarget(Collection<Vertex> target) -> target;
-                    case UnitaryEdgeTarget(Vertex target) -> {
-                        Collection<Vertex> res = new ArrayList<>();
-                        res.add(target);
-                        yield res;
-                    }
+                    case ManyEdgeTarget(Stream<Vertex> target) -> target;
+                    case UnitaryEdgeTarget(Vertex target) -> Stream.of(target);
                 }
-        ).orElseGet(Collections::emptyList);
-    }
-
-    private List<Vertex> allVertices(GraphTraversalSource modelGraph) {
-        GraphTraversal<Vertex, Vertex> entities = modelGraph.V();
-        return entities.toList();
+        ).orElseGet(Stream::empty);
     }
 
     private void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        List<Vertex> list = allVertices(modelGraph);
-        Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph, list);
+        Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph);
         sourceVertexEdgeAndTargetVertexList.forEach(sourceVertexEdgeAndTargetVertex ->
                 sourceVertexEdgeAndTargetVertex
                         .sourceVertex()
@@ -118,9 +110,9 @@ public class ModelGraphBuilder {
         );
     }
 
-    private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, List<Vertex> list) {
+    private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList =
-                list.stream().flatMap(v -> {
+                modelGraph.V().toStream().flatMap(v -> {
                             TinkerVertex modelVertex = (TinkerVertex) v;
                             MetamodelVertex metamodelVertex = v.value(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
                             log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), v.value(MODEL_GRAPH_VERTEX_ENTITY_ID));
@@ -130,7 +122,7 @@ public class ModelGraphBuilder {
                             ).map(edgeAndTargetVertex ->
                                     new SourceVertexFieldEdgeAndTargetVertices(modelVertex, edgeAndTargetVertex));
                         })
-                        .flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.targetVertices().stream().map(targetVertex -> new SourceVertexFieldEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)));
+                        .flatMap(edgeAndTargetVertex -> edgeAndTargetVertex.targetVertices().map(targetVertex -> new SourceVertexFieldEdgeAndTargetVertex(edgeAndTargetVertex, targetVertex)));
         return sourceVertexEdgeAndTargetVertexList;
     }
 
@@ -138,7 +130,7 @@ public class ModelGraphBuilder {
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
         metamodelVertices.stream()
                 .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
-                .flatMap(mvaes -> mvaes.modelElements().stream().map(modelElement -> new MetamodelVertexAndModelElement(mvaes.metamodelVertex(), modelElement)))
+                .flatMap(mvaes -> mvaes.modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mvaes.metamodelVertex(), modelElement)))
                 .flatMap(mvae -> modelElementProcessor.getId(mvae.metamodelVertex(), mvae.modelElement()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid)).stream())
                 .forEach(
                         mvaei -> {
@@ -167,11 +159,11 @@ public class ModelGraphBuilder {
         Object res = modelElementProcessor.getEdgeRawValue(fieldEdge, sourceVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
         if (res instanceof Collection r) {
             log.trace("Target of the edge is a collection");
-            Collection<Vertex> targets = (Collection<Vertex>) r.stream()
+            Stream<Vertex> targets = r.stream()
                     .flatMap(ent -> elementHelper.getId(targetVertex, ent).stream())
                     .peek(id -> log.debug("Trying to seek for an existing vertex element with id: {} from the original collection", id))
                     .flatMap(id -> modelGraph.V().hasLabel(targetVertex.getTypeName())
-                            .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).toStream()).collect(Collectors.toSet());
+                            .has(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID, id).toStream());
             return Optional.of(new ManyEdgeTarget(targets));
         } else if (res != null) {
             log.trace("Target of the edge is a single element");

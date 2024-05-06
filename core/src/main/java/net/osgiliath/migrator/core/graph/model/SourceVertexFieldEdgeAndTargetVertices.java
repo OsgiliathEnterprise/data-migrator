@@ -23,7 +23,7 @@ package net.osgiliath.migrator.core.graph.model;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 public record SourceVertexFieldEdgeAndTargetVertices(Vertex sourceVertex,
                                                      FieldEdgeTargetVertices edgeAndTargetVertices) {
@@ -35,7 +35,7 @@ public record SourceVertexFieldEdgeAndTargetVertices(Vertex sourceVertex,
         return edgeAndTargetVertices.edge();
     }
 
-    public Collection<Vertex> targetVertices() {
+    public Stream<Vertex> targetVertices() {
         return edgeAndTargetVertices.targetVertices();
     }
 }

@@ -43,8 +43,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,7 +75,7 @@ public class ModelElementTest {
         jpaEntityHelper = new JpaEntityProcessor();
         traversal = new MockTraversalVertex(jpaEntityHelper);
         GraphTraversalSourceProvider provider = new GraphTraversalSourceProvider(null);
-        EntityImporter entityImporter = (entityVertex, objectToExclude) -> List.of();
+        EntityImporter entityImporter = (entityVertex, objectToExclude) -> Stream.empty();
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester);
         modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, provider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer());
 
@@ -109,7 +109,7 @@ public class ModelElementTest {
         Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
-        Assertions.assertEquals(((ManyEdgeTarget) result.get()).target().size(), 1);
+        Assertions.assertEquals(((ManyEdgeTarget) result.get()).target().toList().size(), 1);
         assertEquals(((MockVertex) ((ManyEdgeTarget) result.get()).target().iterator().next()).getFe().getId(), MockTraversalVertex.ENTITY_ID_1);
 
     }

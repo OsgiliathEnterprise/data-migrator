@@ -26,6 +26,8 @@ import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Stream;
+
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_PU;
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_TRANSACTION_MANAGER;
 
@@ -39,4 +41,10 @@ public class VertexPersister {
     public void persistVertex(ModelElement entity) {
         entityManager.persist(entity.rawElement());
     }
+
+    @Transactional(transactionManager = SINK_TRANSACTION_MANAGER)
+    public void persistVertices(Stream<ModelElement> entities) {
+        entities.map(ModelElement::rawElement).forEach(entityManager::persist);
+    }
+
 }
