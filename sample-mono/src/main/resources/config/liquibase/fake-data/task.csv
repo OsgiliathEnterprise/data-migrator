@@ -1,11 +1,11 @@
-id;title;description
-1;upon barge;honeybee eclipse geez
-2;quick wrathful;where but phew
-3;heartfelt instead;failing drat during
-4;unless macaroon ack;retrench aboard
-5;picturise meet behind;next huzzah
-6;concerning aha ugh;outline fear throw
-7;quaint;poorly waterproof gee
-8;vivaciously enthusiastically;reclassify um hallmark
-9;equalize;billboard
-10;term;even swoop fearful
+id;title;description;assignee_id
+1;upon barge;honeybee eclipse geez;9
+2;quick wrathful;where but phew;null
+3;heartfelt instead;failing drat during;null
+4;unless macaroon ack;retrench aboard;null
+5;picturise meet behind;next huzzah;null
+6;concerning aha ugh;outline fear throw;null
+7;quaint;poorly waterproof gee;null
+8;vivaciously enthusiastically;reclassify um hallmark;null
+9;equalize;billboard;null
+10;term;even swoop fearful;null

@@ -39,6 +39,9 @@
             <column name="department_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
+            <column name="job_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
         <dropDefaultValue tableName="employee" columnName="hire_date" columnDataType="${datetimeType}"/>

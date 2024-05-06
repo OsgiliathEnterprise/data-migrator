@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
 
     <property name="now" value="now()" dbms="h2"/>
@@ -35,4 +35,6 @@
     <include file="/config/liquibase/changelog/20231125144522_added_entity_constraints_Employee.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144622_added_entity_constraints_Job.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144722_added_entity_constraints_JobHistory.xml" context="test"/>
+    <include file="/config/liquibase/changelog/20231125144722_added_entity_constraints_Task.xml" context="test"/>
+
 </databaseChangeLog>

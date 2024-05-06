@@ -81,6 +81,16 @@ public class MetamodelRequester {
         return rawElementProcessor.relationshipType(getterMethod);
     }
 
+    /**
+     * Returns true if the target relationship is a collections, false if it's a single element.
+     *
+     * @param type the field edge to get the type of relationship for
+     * @return true if it's a many relationship.
+     */
+    public boolean isMany(RelationshipType type) {
+        return type.equals(RelationshipType.MANY_TO_MANY) || type.equals(RelationshipType.ONE_TO_MANY);
+    }
+
 
     /**
      * {@inheritDoc}

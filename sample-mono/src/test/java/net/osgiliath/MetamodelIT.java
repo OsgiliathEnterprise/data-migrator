@@ -118,7 +118,7 @@ class MetamodelIT {
         graphRequester.displayGraphWithGraphiz(graph);
         assertThat(graph).isNotNull();
         assertThat(graph.vertexSet()).hasSize(11);
-        assertThat(graph.edgeSet()).hasSize(11);
+        assertThat(graph.edgeSet()).hasSize(12);
     }
 
     @Test

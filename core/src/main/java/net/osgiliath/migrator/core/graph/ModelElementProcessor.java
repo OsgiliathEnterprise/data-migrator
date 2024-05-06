@@ -178,4 +178,12 @@ public class ModelElementProcessor {
             return rawElementProcessor.getId(this.getClass(), modelElement.rawElement());
         }
     }
+
+    public void resetModelElementEdge(FieldEdge<MetamodelVertex> metamodelEdge, ModelElement sourceModelElement) {
+        if (metamodelRequester.isMany(metamodelRequester.getRelationshipType(metamodelEdge))) {
+            setEdgeRawValue(metamodelEdge, sourceModelElement, new HashSet<>());
+        } else {
+            setEdgeRawValue(metamodelEdge, sourceModelElement, null);
+        }
+    }
 }

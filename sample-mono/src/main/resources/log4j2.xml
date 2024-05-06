@@ -17,6 +17,9 @@
         <Logger name="net.osgiliath" level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </Logger>
+        <!--<Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger> -->
         <Root level="info">
             <AppenderRef ref="CONSOLE"/>
         </Root>

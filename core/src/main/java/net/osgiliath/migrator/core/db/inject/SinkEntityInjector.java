@@ -84,7 +84,7 @@ public class SinkEntityInjector {
         leafElements.toStream()
                 .map(e -> {
                     TinkerVertex modelVertex = (TinkerVertex) e;
-                    updateEntityRelationships(modelVertex, entityMetamodelGraph);
+                    updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph);
                     return modelVertex;
                 })
                 .peek(mv -> {
@@ -99,18 +99,25 @@ public class SinkEntityInjector {
         processEntities(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
-    void updateEntityRelationships(TinkerVertex modelVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        ModelElement sourceEntity = (ModelElement) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-        MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) modelVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
-        metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream().flatMap(metamodelEdge ->
-                        StreamSupport.stream(Spliterators.spliteratorUnknownSize(modelVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false).map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+    void updateRawElementRelationshipsAccordingToGraphEdges(TinkerVertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
+        ModelElement sourceModelElement = (ModelElement) sourceVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+        MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) sourceVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
+        metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream()
+                .map(metamodelEdge -> {
+                    modelElementProcessor.resetModelElementEdge(metamodelEdge, sourceModelElement);
+                    return metamodelEdge;
+                })
+                .flatMap(metamodelEdge ->
+                        StreamSupport.stream(Spliterators.spliteratorUnknownSize(sourceVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false)
+                                .map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
-                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), modelVertex.label(), modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.modelEdge().inVertex().label(), modelAndMetamodelEdge.modelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
+                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), sourceVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.modelEdge().inVertex().label(), modelAndMetamodelEdge.modelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
                 .forEach(modelAndMetamodelEdge -> {
-                    ModelElement targetEntity = (ModelElement) modelAndMetamodelEdge.modelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceEntity, targetEntity, entityMetamodelGraph);
+                    ModelElement targetModelElement = (ModelElement) modelAndMetamodelEdge.modelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, targetModelElement, entityMetamodelGraph);
                 });
     }
+
 
     private void removeCyclicElements(GraphTraversalSource modelGraph) {
         GraphTraversal cyclicElements = modelGraph.V().as("a").repeat(out()).until(where(eq("a")).or().loops().is(CYCLE_DETECTION_DEPTH));

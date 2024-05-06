@@ -110,7 +110,7 @@ class FakerProcessingIT {
             sequenceProcessor.process(modelGraph, entityMetamodelGraph);
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Employee> employees = employeeRepository.findAll();
-            assertThat(employees).hasSize(5); // has been row limited to 5
+            assertThat(employees).hasSize(8); // has been row limited to 8
             List<String> firstNames = employees.stream().map(Employee::getFirstName).toList();
             assertThat(firstNames).doesNotContain("Shanny", "Chaz", "Horace", "Korbin", "Israel", "Javon", "Beryl", "Everett", "Destiny", "Sandrine");
             firstNames.stream().forEach(c -> {

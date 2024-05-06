@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
@@ -15,17 +15,15 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="job_title" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="min_salary" type="bigint">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="max_salary" type="bigint">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
-            <column name="employee_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>
@@ -56,10 +54,10 @@
     -->
     <changeSet id="20231125144622-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/job.csv"
-                  separator=";"
-                  tableName="job"
-                  usePreparedStatements="true">
+                file="config/liquibase/fake-data/job.csv"
+                separator=";"
+                tableName="job"
+                usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="job_title" type="string"/>
             <column name="min_salary" type="numeric"/>
@@ -67,12 +65,12 @@
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
-        <changeSet id="20231125144622-2-data" author="jhipster" context="faker">
+    <changeSet id="20231125144622-2-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/job-task.csv"
-                  separator=";"
-                  tableName="rel_job__task"
-                  usePreparedStatements="true">
+                file="config/liquibase/fake-data/job-task.csv"
+                separator=";"
+                tableName="rel_job__task"
+                usePreparedStatements="true">
             <column name="task_id" type="numeric"/>
             <column name="job_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
