@@ -127,6 +127,11 @@
         </profile>
         <profile>
             <id>coverage</id>
+            <properties>
+                <sonar.coverage.jacoco.xmlReportPaths>
+                    ${project.basedir}/../report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+                </sonar.coverage.jacoco.xmlReportPaths>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
