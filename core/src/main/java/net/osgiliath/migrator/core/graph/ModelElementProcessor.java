@@ -82,7 +82,7 @@ public class ModelElementProcessor {
      */
     public void addRawElementsRelationshipForEdge(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
         RelationshipType relationshipType = metamodelRequester.getRelationshipType(fieldEdge);
-        MetamodelVertex targetVertex = graph.getEdgeTarget(fieldEdge);
+        MetamodelVertex targetVertex = fieldEdge.getTarget();
         switch (relationshipType) {
             case ONE_TO_ONE -> {
                 setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());

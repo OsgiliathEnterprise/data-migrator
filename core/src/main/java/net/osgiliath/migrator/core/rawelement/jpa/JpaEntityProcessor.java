@@ -285,9 +285,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                         return true;
                     } else if (Collection.class.isAssignableFrom(field.getType())) {
                         Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        if (typeOfCollection.equals(sourceClass)) {
-                            return true;
-                        }
+                        return typeOfCollection.equals(sourceClass);
                     }
                     return false;
                 }).map((Field field) -> {
