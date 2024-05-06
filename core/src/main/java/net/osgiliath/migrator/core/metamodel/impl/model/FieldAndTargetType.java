@@ -25,6 +25,9 @@ import java.lang.reflect.Type;
 
 /**
  * Entity field and target type.
+ *
+ * @param field      rawElement field that targets the type
+ * @param targetType rawElement target type of the field
  */
 public record FieldAndTargetType(Field field, Type targetType) {
 }
