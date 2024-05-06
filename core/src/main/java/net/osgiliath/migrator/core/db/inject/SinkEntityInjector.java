@@ -65,14 +65,14 @@ public class SinkEntityInjector {
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
         removeCyclicElements(modelGraph);
-        processEntities(modelGraph, entityMetamodelGraph, new HashSet<>());
+        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, new HashSet<>());
     }
 
-    private void processEntities(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices) {
+    private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices) {
         GraphTraversal leafElements = modelGraph.V()
                 .repeat(out())
                 .until(
-                        out().filter(__.not(is(P.within(processedVertices)))).count().is(0).or().loops().is(CYCLE_DETECTION_DEPTH)
+                        out().filter(__.not(is(P.within(processedVertices)))).count().is(0)// .or().loops().is(CYCLE_DETECTION_DEPTH)
                 )
                 .filter(__.not(is(P.within(processedVertices))));
         if (!leafElements.hasNext()) {
@@ -96,7 +96,7 @@ public class SinkEntityInjector {
                     vertexPersister.persistVertex(modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY));
                     processedVertices.add(modelVertex);
                 });
-        processEntities(modelGraph, entityMetamodelGraph, processedVertices);
+        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
     void updateRawElementRelationshipsAccordingToGraphEdges(TinkerVertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
@@ -120,7 +120,11 @@ public class SinkEntityInjector {
 
 
     private void removeCyclicElements(GraphTraversalSource modelGraph) {
-        GraphTraversal cyclicElements = modelGraph.V().as("a").repeat(out()).until(where(eq("a")).or().loops().is(CYCLE_DETECTION_DEPTH));
+        GraphTraversal cyclicElements = modelGraph.V().as("a")
+                .repeat(out())
+                .until(where(eq("a"))
+                        .or().loops().is(CYCLE_DETECTION_DEPTH))
+                .filter(__.where(eq("a")));
         cyclicElements.toStream()
                 .peek(v -> {
                     TinkerVertex ve = (TinkerVertex) v;

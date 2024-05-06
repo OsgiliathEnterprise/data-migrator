@@ -3,10 +3,13 @@ package net.osgiliath;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.*;
+import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
+import net.osgiliath.datamigrator.sample.repository.JobRepository;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
@@ -27,6 +30,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
@@ -94,6 +98,15 @@ class ModelIT {
     @Autowired
     private MetamodelScanner scanner;
 
+    @Autowired
+    private SinkEntityInjector sinkEntityInjector;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
     @Test
     void givenFedModelWhenGraphBuilderIsCalledThenGraphModelVerticesArePopulated() throws Exception {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
@@ -123,6 +136,19 @@ class ModelIT {
             assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).rawElement()).getFirstName()).isEqualTo("Horace");
             assertThat(modelGraph.V().hasLabel(Job.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).toList()).hasSize(3);
             assertThat(modelGraph.V().hasLabel(Job.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(me -> ((ModelElement) me).rawElement()).map(a -> ((Employee) a).getLastName()).collect(Collectors.toSet())).containsExactlyInAnyOrder("Nolan", "Volkman", "Jones");
+        }
+    }
+
+    @Test
+    void givenFedGraphWhenEntityProcessorAndSequenceProcessorIsCalledThenTargetDatabaseIsPopulatedExcludingCyclicPath() throws Exception {
+        Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
+        try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
+            sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
+            List<Employee> employees = employeeRepository.findAll();
+            assertThat(employees).hasSize(9); // has been row limited to 9 because one employee is cyclic
+            List<Job> jobs = jobRepository.findAll();
+            assertThat(jobs).hasSize(10); // has not been limited because intermediairy employee should have been removed
         }
     }
 }
