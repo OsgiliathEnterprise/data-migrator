@@ -5,8 +5,6 @@ on:
     types:
       - reopened
       - opened
-
-
 jobs:
   branch-label:
     runs-on: ubuntu-latest

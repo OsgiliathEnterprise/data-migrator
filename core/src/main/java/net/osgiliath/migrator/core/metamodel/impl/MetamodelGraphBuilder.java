@@ -54,7 +54,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
     private void addVertexEdgesFromMetamodel(Graph<M, FieldEdge<M>> graph) {
         graph.vertexSet().stream()
                 .flatMap(v -> computeOutboundEdges(v, graph)
-                        .map(e -> new MetamodelVertexAndOutboundEdge<M>(v, e)))
+                        .map(e -> new MetamodelVertexAndOutboundEdge<>(v, e)))
                 .forEach(me ->
                         graph.addEdge(me.sourceVertex(), me.targetVertex(), me.fieldEdge()));
     }
