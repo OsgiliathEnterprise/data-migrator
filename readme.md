@@ -2,10 +2,6 @@
 ![Maven Central](https://img.shields.io/maven-central/v/net.osgiliath.datamigrator/data-migrator)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OsgiliathEnterprise_data-migrator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OsgiliathEnterprise_data-migrator)
 
-{% block extrahead %}
-  <meta property="robots" content="noindex, nofollow" />
-{% endblock %}
-
 # Welcome anonymous!
 
 ## Data Migrator tool
