@@ -23,6 +23,7 @@ package net.osgiliath.migrator.core.rawelement.jpa;
 import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
@@ -404,6 +405,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
         field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {
             throw new RawElementFieldOrMethodNotFoundException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
         });
+    }
+
+    @Override
+    public void setFieldValue(ModelElement modelElement, String attributeName, Object value) {
+        setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), attributeName, value);
     }
 
     @Override
