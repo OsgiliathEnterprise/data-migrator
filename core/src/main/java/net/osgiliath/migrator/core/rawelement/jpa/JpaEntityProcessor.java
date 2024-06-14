@@ -28,6 +28,8 @@ import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundExce
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
@@ -49,6 +51,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
      */
     private static final Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
+    private static final Logger log = LoggerFactory.getLogger(JpaEntityProcessor.class);
 
     @PersistenceContext(unitName = SOURCE_PU)
     private EntityManager entityManager;
@@ -116,8 +119,9 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the primary key getter method.
      */
     private Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
+        log.debug("Finding getId method for class: {}" + entityClass.getSimpleName());
         return Arrays.stream(entityClass.getDeclaredMethods()).filter(
-                m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof jakarta.persistence.Id)
+                m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof jakarta.persistence.Id || a instanceof jakarta.persistence.EmbeddedId)
         ).findAny();
     }
 

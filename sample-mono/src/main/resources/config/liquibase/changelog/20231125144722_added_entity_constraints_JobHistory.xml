@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!--
         Added the constraints for entity JobHistory.
     -->
@@ -13,20 +13,20 @@
                                  constraintName="fk_job_history__job_id"
                                  referencedColumnNames="id"
                                  referencedTableName="job"
-                                 />
+        />
 
         <addForeignKeyConstraint baseColumnNames="department_id"
                                  baseTableName="job_history"
                                  constraintName="fk_job_history__department_id"
                                  referencedColumnNames="id"
                                  referencedTableName="department"
-                                 />
+        />
 
-        <addForeignKeyConstraint baseColumnNames="employee_id"
+        <addForeignKeyConstraint baseColumnNames="employee_email,employee_hire_date"
                                  baseTableName="job_history"
                                  constraintName="fk_job_history__employee_id"
-                                 referencedColumnNames="id"
+                                 referencedColumnNames="email,hire_date"
                                  referencedTableName="employee"
-                                 />
+        />
     </changeSet>
 </databaseChangeLog>
