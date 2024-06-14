@@ -145,7 +145,7 @@ public class ModelElementProcessor {
         if (entityClass != null) {
             rawElementProcessor.setFieldValue(entityClass, modelElement.rawElement(), fieldName, value);
         } else {
-            rawElementProcessor.setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), fieldName, value);
+            rawElementProcessor.setFieldValue(modelElement, fieldName, value);
         }
     }
 
@@ -153,7 +153,7 @@ public class ModelElementProcessor {
         if (field.getSource() != null) {
             rawElementProcessor.setFieldValue(field.getSource(), modelElement.rawElement(), field.getFieldName(), value);
         } else {
-            rawElementProcessor.setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), field.getFieldName(), value);
+            rawElementProcessor.setFieldValue(modelElement, field.getFieldName(), value);
         }
     }
 

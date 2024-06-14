@@ -22,6 +22,7 @@ package net.osgiliath.migrator.core.rawelement;
 
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -37,6 +38,8 @@ public interface RawElementProcessor {
     Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName);
 
     void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value);
+
+    void setFieldValue(ModelElement entity, String attributeName, Object value);
 
     void setFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName, Object value);
 
