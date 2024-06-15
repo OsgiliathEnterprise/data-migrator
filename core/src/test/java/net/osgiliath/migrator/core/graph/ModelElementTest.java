@@ -89,7 +89,7 @@ class ModelElementTest {
         // Arrange
         Vertex modelElement = traversal.getVertex(MockTraversalVertex.ENTITY_ID_1);
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
-        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(fe.getClass().getMethod("getOne"));
+        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(Optional.of(fe.getClass().getMethod("getOne")));
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
@@ -106,7 +106,7 @@ class ModelElementTest {
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
 
         // Arrange
-        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(fe.getClass().getMethod("getMany"));
+        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(Optional.of(fe.getClass().getMethod("getMany")));
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
