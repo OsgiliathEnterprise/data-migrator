@@ -76,9 +76,9 @@ public class MetamodelRequester {
      * @param fieldEdge the field edge to get the type of relationship for
      * @return the type of the relationship.
      */
-    public RelationshipType getRelationshipType(FieldEdge<MetamodelVertex> fieldEdge) {
-        Method getterMethod = relationshipGetter(fieldEdge);
-        return rawElementProcessor.relationshipType(getterMethod);
+    public Optional<RelationshipType> getRelationshipType(FieldEdge<MetamodelVertex> fieldEdge) {
+        Optional<Method> getterMethodOpt = relationshipGetter(fieldEdge);
+        return getterMethodOpt.map(getterMethod -> rawElementProcessor.relationshipType(getterMethod));
     }
 
     /**
@@ -109,10 +109,10 @@ public class MetamodelRequester {
      * @return The inverse edge.
      */
     public Optional<FieldEdge<MetamodelVertex>> getInverseFieldEdge(FieldEdge<MetamodelVertex> fieldEdge, MetamodelVertex targetVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
-        Method getterMethod = relationshipGetter(fieldEdge);
-        return rawElementProcessor.inverseRelationshipField(getterMethod, targetVertex).flatMap(
+        Optional<Method> getterMethodOpt = relationshipGetter(fieldEdge);
+        return getterMethodOpt.flatMap(getterMethod -> rawElementProcessor.inverseRelationshipField(getterMethod, targetVertex).flatMap(
                 f -> getOutboundFieldEdges(targetVertex, graph).stream().filter(e -> e.getFieldName().equals(f.getName())).findAny()
-        );
+        ));
     }
 
     /**
@@ -120,7 +120,7 @@ public class MetamodelRequester {
      *
      * @return the getter method of the entity's relationship.
      */
-    public Method relationshipGetter(FieldEdge<MetamodelVertex> fieldEdge) {
+    public Optional<Method> relationshipGetter(FieldEdge<MetamodelVertex> fieldEdge) {
         return rawElementProcessor.getterMethod(fieldEdge.getSource(), fieldEdge.getMetamodelField());
     }
 
