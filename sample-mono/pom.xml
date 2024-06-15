@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.59-SNAPSHOT</version>
+        <version>1.60-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
