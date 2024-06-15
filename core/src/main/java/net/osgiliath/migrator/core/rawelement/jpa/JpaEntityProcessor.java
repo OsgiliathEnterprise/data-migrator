@@ -160,9 +160,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     @Override
     public Optional<Object> getId(ModelElement element) {
-        return getPrimaryKeyFieldName(((JpaMetamodelVertex) element.vertex()).entityClass()).map(
-                pk -> getFieldValue(element, pk)
-        );
+        return getId(element.vertex(), element.rawElement());
     }
 
     /**
