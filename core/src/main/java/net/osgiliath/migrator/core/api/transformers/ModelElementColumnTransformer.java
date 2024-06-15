@@ -50,10 +50,10 @@ public abstract class ModelElementColumnTransformer<F> extends CamelExchangeWrap
 
     @Override
     public ModelElement evaluate(ModelElement toBeTransformed) {
-        Object rawValue = modelElementProcessor.getFieldRawValue(metamodel, columnName, toBeTransformed);
+        Object rawValue = modelElementProcessor.getFieldRawValue(toBeTransformed, columnName);
         log.info("transforming Vertex of class {} with column {} and value {}", metamodel.getTypeName(), columnName, rawValue);
         Object transformedValue = evaluateField((F) rawValue);
-        modelElementProcessor.setFieldRawValue(metamodel, columnName, toBeTransformed, transformedValue);
+        modelElementProcessor.setFieldRawValue(toBeTransformed, columnName, transformedValue);
         return toBeTransformed;
     }
 

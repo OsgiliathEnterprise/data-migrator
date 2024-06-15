@@ -101,7 +101,7 @@ public class JpaEntityImporter implements EntityImporter {
         Stream<?> resultList;
         try {
             resultList = entityManager.createQuery(select).getResultStream();
-            return resultList.map(modelElementFactory::createModelElement);
+            return resultList.map(m -> modelElementFactory.createModelElement(entityVertex, m));
         } catch (Exception e) {
             log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
         }
@@ -123,7 +123,7 @@ public class JpaEntityImporter implements EntityImporter {
                 .map(object ->
                         builder.not(
                                 builder.equal(
-                                        root.get(pk), modelElementProcessor.getId(entityVertex, object)))
+                                        root.get(pk), modelElementProcessor.getId(object)))
                 ).toList()).orElseGet(ArrayList::new);
     }
 

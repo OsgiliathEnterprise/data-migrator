@@ -96,7 +96,7 @@ public class SequenceProcessor {
                 .forEach(sbmvae -> {
                     SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
                     if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof MetamodelColumnCellTransformer) {
-                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity(), sequencerBeanMetamodelVertexAndEntity.metamodelVertex());
+                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity());
                     } else if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof ModelElementColumnTransformer ject) {
                         processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.entity());
                     }
@@ -123,9 +123,9 @@ public class SequenceProcessor {
         bean.evaluate(entity);
     }
 
-    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity, MetamodelVertex metamodelVertex) {
-        Object value = modelElementProcessor.getFieldRawValue(metamodelVertex, transformerBean.columnName(), entity);
+    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity) {
+        Object value = modelElementProcessor.getFieldRawValue(entity, transformerBean.columnName());
         Object transformedValue = transformerBean.evaluate(value);
-        modelElementProcessor.setFieldRawValue(metamodelVertex, transformerBean.columnName(), entity, transformedValue);
+        modelElementProcessor.setFieldRawValue(entity, transformerBean.columnName(), transformedValue);
     }
 }

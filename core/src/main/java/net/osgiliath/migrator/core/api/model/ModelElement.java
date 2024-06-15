@@ -20,8 +20,10 @@ package net.osgiliath.migrator.core.api.model;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+
 /**
  * A vertex in the model graph.
  */
-public record ModelElement(Object rawElement) {
+public record ModelElement(MetamodelVertex vertex, Object rawElement) {
 }

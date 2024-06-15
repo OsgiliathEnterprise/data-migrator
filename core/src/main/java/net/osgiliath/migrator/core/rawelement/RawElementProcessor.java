@@ -29,19 +29,15 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 public interface RawElementProcessor {
-    Optional<Object> getId(Class<?> elementClass, Object instance);
+    Optional<Object> getId(ModelElement element);
 
-    Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity);
+    Optional<Object> getId(MetamodelVertex metamodelVertex, Object rawElement);
 
     Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass);
 
-    Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName);
-
-    void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value);
+    Object getFieldValue(ModelElement entity, String attributeName);
 
     void setFieldValue(ModelElement entity, String attributeName, Object value);
-
-    void setFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName, Object value);
 
     RelationshipType relationshipType(Method getterMethod);
 

@@ -31,7 +31,12 @@ import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -44,6 +49,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 /**
  * JPA entity helper containing JPA reflection queries.
@@ -59,6 +65,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     @PersistenceContext(unitName = SOURCE_PU)
     private EntityManager entityManager;
+
+    @Autowired
+    @Qualifier(SOURCE_TRANSACTION_MANAGER)
+    private PlatformTransactionManager sourcePlatformTransactionManager;
 
     /**
      * Assess if the class relationship is derived (not the owner side).
@@ -141,11 +151,18 @@ public class JpaEntityProcessor implements RawElementProcessor {
             return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors()).map(
                     PropertyDescriptor::getReadMethod
             ).filter(
-                    m -> Arrays.stream(m.getDeclaredAnnotations()).anyMatch(a -> a instanceof Id || a instanceof EmbeddedId)
+                    m -> m.getAnnotation(Id.class) != null || m.getAnnotation(EmbeddedId.class) != null
             ).findAny();
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Optional<Object> getId(ModelElement element) {
+        return getPrimaryKeyFieldName(((JpaMetamodelVertex) element.vertex()).entityClass()).map(
+                pk -> getFieldValue(element, pk)
+        );
     }
 
     /**
@@ -157,18 +174,12 @@ public class JpaEntityProcessor implements RawElementProcessor {
      */
     @Override
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
-        return getId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
+        return getRawId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
     }
 
-    /**
-     * Gets the primary key value.
-     *
-     * @param entityClass the entity class.
-     * @param entity      the entity.
-     * @return the primary key value.
-     */
-    @Override
-    public Optional<Object> getId(Class<?> entityClass, Object entity) {
+
+    private Optional<Object> getRawId(Class entityClass, Object entity) {
+        // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
         return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {
                     try {
@@ -202,16 +213,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private static Optional<PropertyDescriptor> getPropertyDescriptor(Class<?> entityClass, Field attribute) throws IntrospectionException {
         return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors()).filter(pd -> attribute.getName().equals(pd.getName())).findAny();
-    }
-
-    /**
-     * Gets the getter method name for a field.
-     *
-     * @param attributeName the attribute name to get the getter name.
-     * @return the getter name.
-     */
-    private static String fieldToGetter(String attributeName) {
-        return "get" + Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
     }
 
     /**
@@ -256,23 +257,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     /**
-     * Gets the Setter method for a field
-     *
-     * @param entityClass the entity class.
-     * @param field       the field.
-     * @return the setter method.
-     */
-    private Optional<Method> setterMethod(Class<?> entityClass, Field field) {
-        try {
-            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors()).filter(
-                    propertyDescriptor -> field.getName().equals(propertyDescriptor.getName())
-            ).map(PropertyDescriptor::getWriteMethod).findAny();
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
      * Gets the inverse relationship field.
      *
      * @param getterMethod      the getter method that targets an entity (relationship).
@@ -295,9 +279,46 @@ public class JpaEntityProcessor implements RawElementProcessor {
         return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
     }
 
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
-    public Object getFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName) {
-        return getFieldValue(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity, attributeName);
+    public Object getFieldValue(ModelElement modelElement, String attributeName) {
+        Object entity = modelElement.rawElement();
+        return getRawElementFieldValue(entity, attributeName);
+    }
+
+    private Object getRawElementFieldValue(Object entity, String attributeName) {
+        try {
+            if (null != entityManager) {
+                if (isDetached(entity.getClass(), entity)) {
+                    Session session = entityManager.unwrap(Session.class);
+                    entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
+                    entityManager.refresh(entity);
+                }
+            }
+            Object entityToUse = entity;
+            return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
+                            pd -> pd.getName().equals(attributeName)
+                    ).map(PropertyDescriptor::getReadMethod).map(getterMethod -> {
+                        try {
+                            Object result = getterMethod.invoke(entityToUse);
+                            if (null != entityManager && null != result && result instanceof Collection results) {
+                                PersistenceUnitUtil unitUtil =
+                                        entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+                                if (!unitUtil.isLoaded(entityToUse, attributeName)) {
+                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                    transactionTemplate.setReadOnly(true);
+                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+                                }
+                            }
+                            return result;
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            throw new ErrorCallingRawElementMethodException(e);
+                        }
+                    }).findAny()
+                    .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityToUse.getClass().getName()));
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -369,100 +390,42 @@ public class JpaEntityProcessor implements RawElementProcessor {
     /**
      * Gets the field value.
      *
-     * @param entityClass   the entity class.
-     * @param entity        the entity.
-     * @param attributeName the attribute name to get value from.
+     * @param entityClass the Class of the entity
+     * @param entity      the entity.
      * @return the field value.
      */
-    private Object getFieldValue(Class<?> entityClass, Object entity, String attributeName) {
-        try {
-            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors()).filter(
-                            pd -> pd.getName().equals(attributeName)
-                    ).map(PropertyDescriptor::getReadMethod).map(getterMethod -> {
-                        Method attachedGetterMethod = null;
-                        Object entityToUse = entity;
-                        try {
-                            if (isDetached(entityClass, entityToUse)) {
-                                Session session = entityManager.unwrap(Session.class);
-                                entityToUse = session.merge(entityToUse); // reattach entity to session (otherwise lazy loading won't work)
-                                entityManager.refresh(entityToUse);
-                            }
-                            try {
-                                attachedGetterMethod = entityToUse.getClass().getMethod(getterMethod.getName(), getterMethod.getParameterTypes());
-                            } catch (NoSuchMethodException e) {
-                                throw new RawElementFieldOrMethodNotFoundException(e);
-                            }
-                            return attachedGetterMethod.invoke(entityToUse);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new ErrorCallingRawElementMethodException(e);
-                        }
-                    }).findAny()
-                    .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityClass.getName()));
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean isDetached(Class entityClass, Object entity) {
-        Optional<Object> idValue = getId(entityClass, entity);
+        Optional<Object> idValue = getRawId(entityClass, entity);
         return idValue.isPresent()  // must not be transient
                 && !entityManager.contains(entity)  // must not be managed now
                 && entityManager.find(entityClass, idValue.get()) != null;  // must not have been removed
     }
 
-    /**
-     * Gets the field value regarding an attribute name.
-     *
-     * @param entityClass the entity class.
-     * @return the field.
-     */
-    private Optional<Field> attributeToField(Class<?> entityClass, String attributeName) {
-        return Arrays.stream(entityClass.getDeclaredFields()).filter(f -> f.getName().equals(attributeName)).findAny();
-    }
-
-    /**
-     * Sets the field value.
-     *
-     * @param entityClass   the entity class.
-     * @param entity        the entity to set value.
-     * @param attributeName the attribute name to set value.
-     * @param value         the value to set.
-     */
-    @Override
-    public void setFieldValue(Class<?> entityClass, Object entity, String attributeName, Object value) {
-        Optional<Field> field = attributeToField(entityClass, attributeName);
-        field.ifPresentOrElse(f -> setFieldValue(entityClass, entity, f, value), () -> {
-            throw new RawElementFieldOrMethodNotFoundException("No field with name " + attributeName + " in class " + entityClass.getSimpleName());
-        });
-    }
-
     @Override
     public void setFieldValue(ModelElement modelElement, String attributeName, Object value) {
-        setFieldValue(modelElement.rawElement().getClass(), modelElement.rawElement(), attributeName, value);
+        setFieldValue(modelElement.rawElement(), attributeName, value);
     }
 
-    @Override
-    public void setFieldValue(MetamodelVertex metamodelVertex, Object entity, String attributeName, Object value) {
-        setFieldValue(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity, attributeName, value);
-    }
-
-    /**
-     * Sets the field value.
-     *
-     * @param entityClass the entity class.
-     * @param entity      the entity to set value.
-     * @param field       the field to set value.
-     * @param value       the value to set.
-     */
-    private void setFieldValue(Class<?> entityClass, Object entity, Field field, Object value) {
-        setterMethod(entityClass, field).ifPresentOrElse(setterMethod -> {
-            try {
-                entity.getClass().getMethod(setterMethod.getName(), setterMethod.getParameterTypes()).invoke(entity, value);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new ErrorCallingRawElementMethodException(e);
-            }
-        }, () -> {
-            throw new RawElementFieldOrMethodNotFoundException("No setter for field name " + field.getName() + " in class " + entityClass.getSimpleName());
-        });
+    private void setFieldValue(Object entity, String attributeName, Object value) {
+        try {
+            Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
+                    .filter(pd -> pd.getName().equals(attributeName))
+                    .map(PropertyDescriptor::getWriteMethod)
+                    .findAny().ifPresentOrElse(
+                            m -> {
+                                try {
+                                    m.invoke(entity, value);
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                } catch (InvocationTargetException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }, () -> {
+                                throw new RawElementFieldOrMethodNotFoundException("No setter for field name " + attributeName + " in class " + entity.getClass().getSimpleName());
+                            }
+                    );
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
