@@ -174,14 +174,12 @@ public class JpaEntityProcessor implements RawElementProcessor {
      */
     @Override
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
-        return getPrimaryKeyFieldName(((JpaMetamodelVertex) metamodelVertex).entityClass()).map(
-                pk -> getRawElementFieldValue(entity, pk)
-        );
+        return getRawId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
     }
 
 
     private Optional<Object> getRawId(Class entityClass, Object entity) {
-        // Cannot use getRawFieldValue due to cycle
+        // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
         return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {
                     try {
