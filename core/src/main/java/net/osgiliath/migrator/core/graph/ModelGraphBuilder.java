@@ -129,7 +129,7 @@ public class ModelGraphBuilder {
         metamodelVertices.stream()
                 .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
                 .flatMap(mvaes -> mvaes.modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mvaes.metamodelVertex(), modelElement)))
-                .flatMap(mvae -> modelElementProcessor.getId(mvae.metamodelVertex(), mvae.modelElement()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid)).stream())
+                .flatMap(mvae -> modelElementProcessor.getId(mvae.modelElement()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid)).stream())
                 .forEach(
                         mvaei -> {
                             GraphTraversal traversal = modelGraph

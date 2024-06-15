@@ -20,13 +20,14 @@ package net.osgiliath.migrator.core.graph;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ModelElementFactory {
 
-    public ModelElement createModelElement(Object entity) {
-        return new ModelElement(entity);
+    public ModelElement createModelElement(MetamodelVertex vertex, Object entity) {
+        return new ModelElement(vertex, entity);
     }
 }

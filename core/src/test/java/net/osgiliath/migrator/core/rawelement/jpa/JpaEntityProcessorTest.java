@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.rawelement.jpa;
  */
 
 import jakarta.persistence.Id;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +46,8 @@ class JpaEntityProcessorTest {
     void testGetEntityId() {
         TestEntity ent = new TestEntity();
 
-        Optional<Object> ret = jpaEntityProcessor.getId(TestEntity.class, ent);
+        JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
+        Optional<Object> ret = jpaEntityProcessor.getId(jpaMetamodelVertex, ent);
         assertThat(ret.get()).isEqualTo(1L);
     }
 

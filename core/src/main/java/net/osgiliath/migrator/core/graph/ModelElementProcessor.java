@@ -62,12 +62,12 @@ public class ModelElementProcessor {
         Optional<Field> inverseFieldOpt = getterMethodOpt.flatMap(getterMethod -> rawElementProcessor.inverseRelationshipField(getterMethod, fieldEdge.getTarget()));
         inverseFieldOpt.ifPresent(
                 inverseField -> {
-                    Object inverseValue = rawElementProcessor.getFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName());
+                    Object inverseValue = rawElementProcessor.getFieldValue(targetModelElement, inverseField.getName());
                     if (inverseValue instanceof Collection inverseValues) {
                         inverseValues.remove(sourceModelElement.rawElement());
-                        rawElementProcessor.setFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName(), inverseValues);
+                        rawElementProcessor.setFieldValue(targetModelElement, inverseField.getName(), inverseValues);
                     } else {
-                        rawElementProcessor.setFieldValue(fieldEdge.getTarget(), targetModelElement.rawElement(), inverseField.getName(), null);
+                        rawElementProcessor.setFieldValue(targetModelElement, inverseField.getName(), null);
                     }
                 }
         );
@@ -130,35 +130,25 @@ public class ModelElementProcessor {
     /**
      * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
      *
-     * @param sourceMetamodelVertex the Metamodel Vertex
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
      */
-    public Object getFieldRawValue(MetamodelVertex sourceMetamodelVertex, String fieldName, ModelElement modelElement) {
-        return rawElementProcessor.getFieldValue(sourceMetamodelVertex, modelElement.rawElement(), fieldName);
+    public Object getFieldRawValue(ModelElement modelElement, String fieldName) {
+        return rawElementProcessor.getFieldValue(modelElement, fieldName);
     }
 
 
     /**
      * Sets a value on the underlying element
      *
-     * @param entityClass The entity class (can be null)
-     * @param fieldName   The field name
-     * @param value       The value to set
+     * @param fieldName The field name
+     * @param value     The value to set
      */
-    public void setFieldRawValue(MetamodelVertex entityClass, String fieldName, ModelElement modelElement, Object value) {
-        if (entityClass != null) {
-            rawElementProcessor.setFieldValue(entityClass, modelElement.rawElement(), fieldName, value);
-        } else {
-            rawElementProcessor.setFieldValue(modelElement, fieldName, value);
-        }
+    public void setFieldRawValue(ModelElement modelElement, String fieldName, Object value) {
+        rawElementProcessor.setFieldValue(modelElement, fieldName, value);
     }
 
     public void setEdgeRawValue(FieldEdge<MetamodelVertex> field, ModelElement modelElement, Object value) {
-        if (field.getSource() != null) {
-            rawElementProcessor.setFieldValue(field.getSource(), modelElement.rawElement(), field.getFieldName(), value);
-        } else {
-            rawElementProcessor.setFieldValue(modelElement, field.getFieldName(), value);
-        }
+        rawElementProcessor.setFieldValue(modelElement, field.getFieldName(), value);
     }
 
     /**
@@ -178,12 +168,8 @@ public class ModelElementProcessor {
         }).orElse(null);
     }
 
-    public Optional<Object> getId(MetamodelVertex metamodelVertex, ModelElement modelElement) {
-        if (metamodelVertex != null) {
-            return rawElementProcessor.getId(metamodelVertex, modelElement.rawElement());
-        } else {
-            return rawElementProcessor.getId(this.getClass(), modelElement.rawElement());
-        }
+    public Optional<Object> getId(ModelElement modelElement) {
+        return rawElementProcessor.getId(modelElement);
     }
 
     public void resetModelElementEdge(FieldEdge<MetamodelVertex> metamodelEdge, ModelElement sourceModelElement) {
