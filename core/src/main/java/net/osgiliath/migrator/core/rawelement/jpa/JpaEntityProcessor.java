@@ -286,12 +286,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
         try {
-            if (null != entityManager) {
-                if (isDetached(entity.getClass(), entity)) {
-                    Session session = entityManager.unwrap(Session.class);
-                    entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
-                    entityManager.refresh(entity);
-                }
+            if (null != entityManager && isDetached(entity.getClass(), entity)) {
+                Session session = entityManager.unwrap(Session.class);
+                entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
+                entityManager.refresh(entity);
             }
             Object entityToUse = entity;
             return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
