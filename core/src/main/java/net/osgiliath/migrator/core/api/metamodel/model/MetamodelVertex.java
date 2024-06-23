@@ -20,10 +20,12 @@ package net.osgiliath.migrator.core.api.metamodel.model;
  * #L%
  */
 
+import java.io.Serializable;
+
 /**
  * A vertex in the metamodel graph.
  */
-public interface MetamodelVertex {
+public interface MetamodelVertex extends Serializable {
 
 
     /**

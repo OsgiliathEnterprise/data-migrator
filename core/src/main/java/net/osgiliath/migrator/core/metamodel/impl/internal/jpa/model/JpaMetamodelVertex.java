@@ -21,6 +21,7 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import org.apache.tinkerpop.shaded.jackson.annotation.JsonIgnore;
 
 /**
  * JPA implementation of a metamodel vertex.
@@ -34,6 +35,7 @@ public record JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) 
     /**
      * {@inheritDoc}
      */
+    @JsonIgnore
     @Override
     public String getTypeName() {
         return entityClass().getSimpleName();

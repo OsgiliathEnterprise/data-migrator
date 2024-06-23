@@ -78,7 +78,7 @@ public class MetamodelRequester {
      */
     public Optional<RelationshipType> getRelationshipType(FieldEdge<MetamodelVertex> fieldEdge) {
         Optional<Method> getterMethodOpt = relationshipGetter(fieldEdge);
-        return getterMethodOpt.map(getterMethod -> rawElementProcessor.relationshipType(getterMethod));
+        return getterMethodOpt.map(rawElementProcessor::relationshipType);
     }
 
     /**

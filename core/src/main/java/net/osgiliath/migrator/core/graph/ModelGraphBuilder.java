@@ -138,7 +138,7 @@ public class ModelGraphBuilder {
                                     .property(MODEL_GRAPH_VERTEX_METAMODEL_VERTEX, mvaei.metamodelVertex())
                                     .property(MODEL_GRAPH_VERTEX_ENTITY, mvaei.modelElement());
                             modelVertexCustomizer.getAdditionalModelVertexProperties(mvaei.metamodelVertex()).forEach(traversal::property);
-                            traversal.next();
+                            traversal.iterate();
                         });
     }
 
