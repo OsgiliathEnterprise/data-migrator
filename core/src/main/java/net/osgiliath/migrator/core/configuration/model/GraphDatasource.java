@@ -30,9 +30,9 @@ public class GraphDatasource {
      */
     private GraphDatasourceType type;
 
-    private int port = 0;
+    private int port = 8182;
 
-    private String host = "";
+    private String host = "127.0.0.1";
 
     /**
      * Constructor.

@@ -1,0 +1,19 @@
+services:
+  oracle:
+    image: "oracle/database:19.3.0-ee"
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PDB=MY_DB # name of the source db
+      - ORACLE_PWD=oracle
+  tinkerpop:
+    image: "tinkerpop/gremlin-server:latest"
+    ports:
+      - "8182:8182"
+  postgres: # Don't forget to create the schema once started
+    image: "postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=MyDatabase

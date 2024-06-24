@@ -27,6 +27,7 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.metamodel.impl.internal.spring.AbstractClassAwareClassPathScanningCandidateComponentProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -63,6 +64,7 @@ public class JpaMetamodelScanner implements MetamodelScanner {
         }
     }
 
+    @Cacheable("metamodelEntitiesClass")
     @Override
     public Collection<Class<?>> scanMetamodelClasses() {
         return this.scanBeandefinition()

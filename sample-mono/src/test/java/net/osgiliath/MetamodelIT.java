@@ -129,7 +129,7 @@ class MetamodelIT {
     void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
-        MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals("Employee")).findFirst().get();
+        MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals(Employee.class.getName())).findFirst().get();
         List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>()).collect(Collectors.toUnmodifiableList());
         assertThat(entities).isNotEmpty();
     }

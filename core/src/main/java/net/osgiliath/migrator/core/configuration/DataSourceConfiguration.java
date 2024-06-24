@@ -22,8 +22,16 @@ package net.osgiliath.migrator.core.configuration;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.configuration.beans.CustomHikariDatasource;
+import net.osgiliath.migrator.core.graph.InGraphVertexResolver;
+import net.osgiliath.migrator.core.graph.ModelElementFactory;
+import net.osgiliath.migrator.core.graph.OffGraphVertexResolver;
+import net.osgiliath.migrator.core.graph.VertexResolver;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.JpaMetamodelVertexFactory;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -84,6 +92,18 @@ public class DataSourceConfiguration {
     @Primary
     public HikariConfig sinkHikariConfigProperties() {
         return new HikariConfig();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "data-migrator.graph-datasource", name = "type", havingValue = "embedded")
+    public VertexResolver vertexResolverInGraph() {
+        return new InGraphVertexResolver();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "data-migrator.graph-datasource", name = "type", havingValue = "remote")
+    public VertexResolver vertexResolverOffGraph(JpaMetamodelVertexFactory jpaMetamodelVertexFactory, MetamodelScanner metamodelScanner, ModelElementFactory modelElementFactory, RawElementProcessor rawElementProcessor) {
+        return new OffGraphVertexResolver(jpaMetamodelVertexFactory, metamodelScanner, modelElementFactory, rawElementProcessor);
     }
 
 
