@@ -80,7 +80,8 @@ class ModelElementTest {
         GraphTraversalSourceProvider provider = new GraphTraversalSourceProvider(null);
         EntityImporter entityImporter = (entityVertex, objectToExclude) -> Stream.empty();
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester);
-        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, provider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer());
+        VertexResolver resolver = new InGraphVertexResolver();
+        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, provider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer(), resolver);
 
     }
 

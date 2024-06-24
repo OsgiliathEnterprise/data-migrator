@@ -32,7 +32,7 @@ import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
 import net.osgiliath.migrator.core.processing.model.SequencersBeansMetamodelVertexAndEntity;
@@ -54,12 +54,14 @@ public class SequenceProcessor {
     private final ApplicationContext context;
     private final SequencerFactory sequencerFactory;
     private final ModelElementProcessor modelElementProcessor;
+    private final VertexResolver vertexResolver;
 
-    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor) {
+    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.context = context;
         this.sequencerFactory = sequencerFactory;
         this.modelElementProcessor = modelElementProcessor;
+        this.vertexResolver = vertexResolver;
     }
 
     @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
@@ -86,8 +88,8 @@ public class SequenceProcessor {
                 .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .map(vertexAndSequencerBean -> {
-                    MetamodelVertex metamodelVertex = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-                    ModelElement entity = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+                    MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(vertexAndSequencerBean.vertex());
+                    ModelElement entity = vertexResolver.getModelElement(vertexAndSequencerBean.vertex());
                     Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
                     return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
                 }).flatMap(sequencersBeansMetamodelVertexAndEntity ->

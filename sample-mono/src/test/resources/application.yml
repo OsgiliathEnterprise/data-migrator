@@ -27,7 +27,7 @@ data-migrator:
     - name: column-anonymize-1
       type: factory
       transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
-      entity-class: Employee
+      entity-class: net.osgiliath.datamigrator.sample.domain.Employee
       column-transformation-definitions:
         - column-name: firstName
           consistent-key: True
@@ -36,7 +36,7 @@ data-migrator:
     - name: anonymizer-custom-1
       type: bean
       transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
-      entity-class: Country
+      entity-class: net.osgiliath.datamigrator.sample.domain.Country
   graph-datasource:
     type: embedded
 spring:

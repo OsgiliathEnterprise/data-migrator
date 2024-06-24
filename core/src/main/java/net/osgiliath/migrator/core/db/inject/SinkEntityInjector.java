@@ -25,15 +25,13 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerVertex;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +53,14 @@ public class SinkEntityInjector {
     private final VertexPersister vertexPersister;
     private final MetamodelRequester metamodelGraphRequester;
     private final ModelElementProcessor modelElementProcessor;
+    private final VertexResolver vertexResolver;
 
-    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelRequester metamodelGraphRequester, ModelElementProcessor modelElementProcessor) {
+    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelRequester metamodelGraphRequester, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver) {
         super();
         this.vertexPersister = vertexPersister;
         this.metamodelGraphRequester = metamodelGraphRequester;
         this.modelElementProcessor = modelElementProcessor;
+        this.vertexResolver = vertexResolver;
     }
 
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
@@ -73,36 +73,36 @@ public class SinkEntityInjector {
         GraphTraversal leafElements = modelGraph.V()
                 .repeat(out())
                 .until(
-                        out().filter(__.not(is(P.within(processedVertices)))).count().is(0)// .or().loops().is(CYCLE_DETECTION_DEPTH)
+                        out().filter(not(is(P.within(processedVertices)))).count().is(0)// .or().loops().is(CYCLE_DETECTION_DEPTH)
                 )
-                .filter(__.not(is(P.within(processedVertices))));
+                .filter(not(is(P.within(processedVertices))));
         if (!leafElements.hasNext()) {
-            vertexPersister.persistVertices(modelGraph.V().filter(__.not(is(P.within(processedVertices)))).toStream()
-                    .map(modelVertex -> modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY)));
+            vertexPersister.persistVertices(modelGraph.V().filter(not(is(P.within(processedVertices)))).toStream()
+                    .map(modelVertex -> vertexResolver.getModelElement(modelVertex)));
             return;
         }
-        Stream<TinkerVertex> res = leafElements.toStream()
+        Stream<Vertex> res = leafElements.toStream()
                 .map(e -> {
-                    TinkerVertex modelVertex = (TinkerVertex) e;
+                    Vertex modelVertex = (Vertex) e;
                     updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph);
                     return modelVertex;
                 })
                 .peek(mv -> {
-                    TinkerVertex tv = (TinkerVertex) mv;
-                    log.info("Persisting vertex of type {} with id {}", tv.label(), tv.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID));
+                    Vertex tv = (Vertex) mv;
+                    log.info("Persisting vertex of type {} with id {}", tv.label(), vertexResolver.getId(tv));
                 });
         vertexPersister.persistVertices(res
                 .map(modelVertex -> {
                     processedVertices.add(modelVertex);
                     return modelVertex;
                 })
-                .map(modelVertex -> modelVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY)));
+                .map(modelVertex -> vertexResolver.getModelElement(modelVertex)));
         processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
     }
 
-    void updateRawElementRelationshipsAccordingToGraphEdges(TinkerVertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        ModelElement sourceModelElement = (ModelElement) sourceVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
-        MetamodelVertex sourceMetamodelVertex = (MetamodelVertex) sourceVertex.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX).next();
+    void updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
+        ModelElement sourceModelElement = vertexResolver.getModelElement(sourceVertex);
+        MetamodelVertex sourceMetamodelVertex = vertexResolver.getMetamodelVertex(sourceVertex);
         metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream()
                 .map(metamodelEdge -> {
                     modelElementProcessor.resetModelElementEdge(metamodelEdge, sourceModelElement);
@@ -112,27 +112,33 @@ public class SinkEntityInjector {
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(sourceVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false)
                                 .map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
-                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), sourceVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID), modelAndMetamodelEdge.modelEdge().inVertex().label(), modelAndMetamodelEdge.modelEdge().inVertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)))
+                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), vertexResolver.getId(sourceVertex), modelAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getId(modelAndMetamodelEdge.modelEdge().inVertex())))
                 .forEach(modelAndMetamodelEdge -> {
-                    ModelElement targetModelElement = (ModelElement) modelAndMetamodelEdge.modelEdge().inVertex().values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY).next();
+                    ModelElement targetModelElement = vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdge().inVertex());
                     modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, targetModelElement, entityMetamodelGraph);
                 });
     }
 
 
     private void removeCyclicElements(GraphTraversalSource modelGraph) {
-        GraphTraversal cyclicElements = modelGraph.V().as("a")
+        modelGraph.V().as("a")
                 .repeat(out())
                 .until(where(eq("a"))
                         .or().loops().is(CYCLE_DETECTION_DEPTH))
-                .filter(__.where(eq("a")));
-        cyclicElements.toStream()
+                .filter(where(eq("a"))).drop().iterate();
+/*        cyclicElements.toStream()
                 .peek(v -> {
-                    TinkerVertex ve = (TinkerVertex) v;
-                    log.warn("Cyclic element of type {} with id {} found in the graph", ve.label(), ve.values(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID).next());
+                    Vertex ve = (Vertex) v;
+                    log.warn("Cyclic element of type {} with id {} found in the graph", ve.label(), vertexResolver.getId(ve));
                 })
-                .forEach(v ->
-                        modelGraph.V(v).drop().iterate()
-                );
+                .forEach(v -> {
+                            Object id = switch (v) {
+                                case DetachedVertex dv -> dv.id();
+                                case TinkerVertex tv -> tv.id();
+                                default -> throw new IllegalStateException("Unexpected value: " + v);
+                            };
+                            modelGraph.V(id).drop().iterate();
+                        }
+                );*/
     }
 }

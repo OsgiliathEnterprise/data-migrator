@@ -23,6 +23,11 @@ package net.osgiliath.migrator.core.db.inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
+import net.osgiliath.migrator.core.configuration.model.GraphDatasourceType;
+import net.osgiliath.migrator.core.graph.VertexResolver;
+import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,17 +39,30 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 @Component
 public class VertexPersister {
 
+    private final boolean reconcile;
+    private final RawElementProcessor rawElementProcessor;
+    private final VertexResolver vertexResolver;
     @PersistenceContext(unitName = SINK_PU)
     private EntityManager entityManager;
 
-    @Transactional(transactionManager = SINK_TRANSACTION_MANAGER)
-    public void persistVertex(ModelElement entity) {
-        entityManager.persist(entity.rawElement());
+    public VertexPersister(DataMigratorConfiguration dmc, RawElementProcessor rawElementProcessor, VertexResolver vertexResolver) {
+        this.rawElementProcessor = rawElementProcessor;
+        this.vertexResolver = vertexResolver;
+        this.reconcile = dmc.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE);
     }
 
     @Transactional(transactionManager = SINK_TRANSACTION_MANAGER)
     public void persistVertices(Stream<ModelElement> entities) {
-        entities.map(ModelElement::rawElement).forEach(entityManager::persist);
+        entities.map(me -> {
+                    if (reconcile) {
+                        Object found = entityManager.find(((JpaMetamodelVertex) me.vertex()).entityClass(), rawElementProcessor.getId(me).get());
+                        if (null != found) {
+                            return found;
+                        }
+                    }
+                    return me.rawElement();
+                })
+                .forEach(entityManager::persist);
     }
 
 }

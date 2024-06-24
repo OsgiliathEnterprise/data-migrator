@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model;
+package net.osgiliath.migrator.core.graph;
 
 /*-
  * #%L
@@ -21,33 +21,25 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-/**
- * JPA implementation of a metamodel vertex.
- *
- * @param metamodelClass The JPA metamodel class.
- * @param entityClass    The entity class.
- */
+public interface VertexResolver {
+    MetamodelVertex getMetamodelVertex(Vertex vertex);
 
-public record JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) implements MetamodelVertex {
+    GraphTraversal setMetamodelVertex(GraphTraversal traversal, MetamodelVertex metamodelVertex);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTypeName() {
-        return entityClass().getName();
-    }
+    ModelElement getModelElement(Vertex vertex);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "ClassVertex{" +
-                "metamodelClass=" + metamodelClass.getName() +
-                ", entityClass=" + entityClass.getName() +
-                '}';
-    }
+    GraphTraversal setModelElement(GraphTraversal traversal, ModelElement modelElement);
 
+    GraphTraversal setId(GraphTraversal traversal, Object id);
+
+    Object getId(Vertex vtx);
+
+    Object getWrappedRawId(Object originalId);
+
+
+    void clear();
 }

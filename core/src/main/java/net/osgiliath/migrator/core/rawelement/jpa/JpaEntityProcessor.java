@@ -145,7 +145,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param entityClass the entity class.
      * @return the primary key getter method.
      */
-    private Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
+    public Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass) {
         log.debug("Finding getId method for class: {}", entityClass.getSimpleName());
         try {
             return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors()).map(
@@ -229,7 +229,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param getterName the getter name.
      * @return the field name.
      */
-    private static String getterToFieldName(String getterName) {
+    public static String getterToFieldName(String getterName) {
         return Character.toLowerCase(getterName.charAt(3)) + getterName.substring(4);
     }
 

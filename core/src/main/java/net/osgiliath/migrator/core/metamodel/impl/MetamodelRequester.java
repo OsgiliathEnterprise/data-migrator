@@ -46,7 +46,6 @@ public class MetamodelRequester {
     private final RawElementProcessor rawElementProcessor;
 
     public MetamodelRequester(RawElementProcessor rawElementProcessor) {
-
         this.rawElementProcessor = rawElementProcessor;
     }
 
@@ -63,11 +62,15 @@ public class MetamodelRequester {
             map.put(LABEL, DefaultAttribute.createAttribute(e.getFieldName().toLowerCase()));
             return map;
         });
-        Writer writer = new StringWriter();
-        exporter.exportGraph(graph, writer);
-        log.warn("*************** Metamodel graph ***************");
-        log.warn("{}", writer);
-        log.warn("*************** End Metamodel graph ***************");
+        try {
+            Writer writer = new StringWriter();
+            exporter.exportGraph(graph, writer);
+            log.warn("*************** Metamodel graph ***************");
+            log.warn("{}", writer);
+            log.warn("*************** End Metamodel graph ***************");
+        } catch (Exception e) {
+            log.warn("Metamodel graph can't be generated");
+        }
     }
 
     /**

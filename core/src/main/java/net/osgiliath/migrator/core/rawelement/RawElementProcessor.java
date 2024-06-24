@@ -42,4 +42,6 @@ public interface RawElementProcessor {
     RelationshipType relationshipType(Method getterMethod);
 
     Optional<Method> getterMethod(MetamodelVertex entityClass, Field attribute);
+
+    Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass);
 }

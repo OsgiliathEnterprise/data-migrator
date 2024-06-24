@@ -76,7 +76,8 @@ class ModelGraphBuilderTest {
         jpaEntityHelper = new JpaEntityProcessor();
         metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper);
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester);
-        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer());
+        VertexResolver resolver = new InGraphVertexResolver();
+        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer(), resolver);
     }
 
     @Test

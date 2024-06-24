@@ -32,6 +32,9 @@ data-migrator:
       entity-class: Country
   graph-datasource:
     type: embedded
+    #type: remote
+#    port: 8182
+#    host: 127.0.0.1
 spring:
   main:
     lazy-initialization: true
