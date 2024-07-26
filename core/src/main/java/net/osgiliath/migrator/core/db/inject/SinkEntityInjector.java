@@ -89,7 +89,7 @@ public class SinkEntityInjector {
                 })
                 .peek(mv -> {
                     Vertex tv = (Vertex) mv;
-                    log.info("Persisting vertex of type {} with id {}", tv.label(), vertexResolver.getId(tv));
+                    log.info("Persisting vertex of type {} with id {}", tv.label(), vertexResolver.getVertexModelElementId(tv));
                 });
         vertexPersister.persistVertices(res
                 .map(modelVertex -> {
@@ -112,7 +112,7 @@ public class SinkEntityInjector {
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(sourceVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false)
                                 .map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
-                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), vertexResolver.getId(sourceVertex), modelAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getId(modelAndMetamodelEdge.modelEdge().inVertex())))
+                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), vertexResolver.getVertexModelElementId(sourceVertex), modelAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getVertexModelElementId(modelAndMetamodelEdge.modelEdge().inVertex())))
                 .forEach(modelAndMetamodelEdge -> {
                     ModelElement targetModelElement = vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdge().inVertex());
                     modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, targetModelElement, entityMetamodelGraph);

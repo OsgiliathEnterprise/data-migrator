@@ -121,7 +121,7 @@ public class ModelGraphBuilder {
     private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         return modelGraph.V().toStream().flatMap(v -> {
                     MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(v);
-                    log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), vertexResolver.getId(v));
+                    log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), vertexResolver.getVertexModelElementId(v));
                     Collection<FieldEdge<MetamodelVertex>> edges = metamodelGraphRequester.getOutboundFieldEdges(metamodelVertex, entityMetamodelGraph);
                     return edges.stream().map(edge ->
                             new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(v, edge, modelGraph))
@@ -133,6 +133,7 @@ public class ModelGraphBuilder {
 
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
+
         metamodelVertices.stream()
                 .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
                 .flatMap(mvaes -> mvaes.modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mvaes.metamodelVertex(), modelElement)))
@@ -141,7 +142,7 @@ public class ModelGraphBuilder {
                         mvaei -> {
                             GraphTraversal traversal = modelGraph
                                     .addV(mvaei.metamodelVertex().getTypeName());
-                            traversal = vertexResolver.setId(traversal, mvaei.id());
+                            traversal = vertexResolver.setVertexModelElementId(traversal, mvaei.id());
                             traversal = vertexResolver.setMetamodelVertex(traversal, mvaei.metamodelVertex());
                             traversal = vertexResolver.setModelElement(traversal, mvaei.modelElement());
                             for (Map.Entry<String, Object> entry : modelVertexCustomizer.getAdditionalModelVertexProperties(mvaei.metamodelVertex()).entrySet()) {

@@ -64,8 +64,8 @@ spring:
         generate_statistics: false
         # modify batch size as necessary
         jdbc:
-          batch_size: 25
-          fetch_size: 150
+          batch_size: 10000
+          fetch_size: 10000
           time_zone: UTC
         order_inserts: true
         order_updates: true
@@ -78,6 +78,8 @@ spring:
           provider_disables_autocommit: true
           autocommit: false
           provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+        hbm2ddl:
+          auto: update
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource

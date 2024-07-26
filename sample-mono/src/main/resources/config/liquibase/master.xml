@@ -25,8 +25,8 @@
     <include file="/config/liquibase/changelog/20231125144122_added_entity_Country.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144222_added_entity_Location.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144322_added_entity_Department.xml" context="test"/>
-    <include file="/config/liquibase/changelog/20231125144422_added_entity_Task.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144522_added_entity_Employee.xml" context="test"/>
+    <include file="/config/liquibase/changelog/20231125144422_added_entity_Task.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144622_added_entity_Job.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144722_added_entity_JobHistory.xml" context="test"/>
     <include file="/config/liquibase/changelog/20231125144122_added_entity_constraints_Country.xml" context="test"/>

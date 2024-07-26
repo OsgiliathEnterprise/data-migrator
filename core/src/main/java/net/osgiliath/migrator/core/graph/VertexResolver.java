@@ -34,9 +34,9 @@ public interface VertexResolver {
 
     GraphTraversal setModelElement(GraphTraversal traversal, ModelElement modelElement);
 
-    GraphTraversal setId(GraphTraversal traversal, Object id);
+    GraphTraversal setVertexModelElementId(GraphTraversal traversal, Object id);
 
-    Object getId(Vertex vtx);
+    Object getVertexModelElementId(Vertex vtx);
 
     Object getWrappedRawId(Object originalId);
 

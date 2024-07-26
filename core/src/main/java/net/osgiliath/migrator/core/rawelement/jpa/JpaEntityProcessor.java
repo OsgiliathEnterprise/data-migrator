@@ -394,7 +394,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         Optional<Object> idValue = getRawId(entityClass, entity);
         return idValue.isPresent()  // must not be transient
                 && !entityManager.contains(entity)  // must not be managed now
-                && entityManager.find(entityClass, idValue.get()) != null;  // must not have been removed
+                && entityManager.find(entityClass, idValue.orElseThrow()) != null;  // must not have been removed
     }
 
     @Override

@@ -55,7 +55,7 @@ public class VertexPersister {
     public void persistVertices(Stream<ModelElement> entities) {
         entities.map(me -> {
                     if (reconcile) {
-                        Object found = entityManager.find(((JpaMetamodelVertex) me.vertex()).entityClass(), rawElementProcessor.getId(me).get());
+                        Object found = entityManager.find(((JpaMetamodelVertex) me.vertex()).entityClass(), rawElementProcessor.getId(me).orElseThrow());
                         if (null != found) {
                             return found;
                         }
