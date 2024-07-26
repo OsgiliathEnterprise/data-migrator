@@ -1,11 +1,16 @@
 <Configuration status="info">
     <Appenders>
-        <File name="FILE" fileName="target/app.log">
+        <RandomAccessFile name="RandomAccessFile" fileName="target/exec.log" immediateFlush="false" append="false">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+        </RandomAccessFile>
+        <!--<File name="FILE" fileName="target/app.log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </File>
         <Console name="CONSOLE">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </Console>
+        </Console>-->
     </Appenders>
     <Loggers>
         <!--<Logger name="org.hibernate.SQL" level="DEBUG">
@@ -14,14 +19,14 @@
         <Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
             <AppenderRef ref="FILE"/>
         </Logger> -->
-        <Logger name="net.osgiliath" level="TRACE">
-            <AppenderRef ref="CONSOLE"/>
-        </Logger>
+        <!--<Logger name="net.osgiliath" level="TRACE">
+            <AppenderRef ref="RandomAccessFile"/>
+        </Logger>-->
         <!--<Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </Logger> -->
         <Root level="info">
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="RandomAccessFile"/>
         </Root>
     </Loggers>
 </Configuration>

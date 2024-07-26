@@ -71,7 +71,7 @@ public class OffGraphVertexResolver implements VertexResolver {
     @Override
     public MetamodelVertex getMetamodelVertex(Vertex vertex) {
         String className = vertex.label() + "_";
-        return jpaMetamodelVertexFactory.createMetamodelVertex(metamodelScanner.scanMetamodelClasses().parallelStream().filter(clazz -> clazz.getName().equals(className)).findAny().get());
+        return jpaMetamodelVertexFactory.createMetamodelVertex(metamodelScanner.scanMetamodelClasses().parallelStream().filter(clazz -> clazz.getName().equals(className)).findAny().orElseThrow());
     }
 
     @Override
@@ -86,11 +86,11 @@ public class OffGraphVertexResolver implements VertexResolver {
         CriteriaQuery<?> query = null;
         MetamodelVertex mvtx = getMetamodelVertex(vertex);
         Class entityClass = ((JpaMetamodelVertex) mvtx).entityClass();
-        String idFieldName = JpaEntityProcessor.getterToFieldName(rawElementProcessor.getPrimaryKeyGetterMethod(entityClass).get().getName());
+        String idFieldName = JpaEntityProcessor.getterToFieldName(rawElementProcessor.getPrimaryKeyGetterMethod(entityClass).orElseThrow().getName());
         query = builder.createQuery(entityClass);// Didn't find any better idea
         Root root = query.from(entityClass);
         CriteriaQuery<?> select = query.select(root);
-        select.where(builder.equal(root.get(idFieldName), getId(vertex)));
+        select.where(builder.equal(root.get(idFieldName), getVertexModelElementId(vertex)));
         Object resultList;
         try {
             resultList = entityManager.createQuery(select).getSingleResult();
@@ -107,7 +107,7 @@ public class OffGraphVertexResolver implements VertexResolver {
     }
 
     @Override
-    public GraphTraversal setId(GraphTraversal traversal, Object id) {
+    public GraphTraversal setVertexModelElementId(GraphTraversal traversal, Object id) {
         Object idToSet = id;
         if (!((idToSet instanceof Long) || (idToSet instanceof String) || (idToSet instanceof UUID))) {
             idToSet = "cachedId-" + UUID.randomUUID();
@@ -117,7 +117,7 @@ public class OffGraphVertexResolver implements VertexResolver {
     }
 
     @Override
-    public Object getId(Vertex vtx) {
+    public Object getVertexModelElementId(Vertex vtx) {
         Object idToGet = vtx.value(MODEL_GRAPH_VERTEX_ENTITY_ID);
         if (idToGet instanceof String s && s.startsWith("cachedId-")) {
             return cachedIds.get(s);

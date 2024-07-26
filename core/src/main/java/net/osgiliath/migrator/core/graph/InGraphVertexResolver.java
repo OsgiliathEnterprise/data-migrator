@@ -49,12 +49,12 @@ public class InGraphVertexResolver implements VertexResolver {
     }
 
     @Override
-    public GraphTraversal setId(GraphTraversal traversal, Object id) {
+    public GraphTraversal setVertexModelElementId(GraphTraversal traversal, Object id) {
         return traversal.property(MODEL_GRAPH_VERTEX_ENTITY_ID, id);
     }
 
     @Override
-    public Object getId(Vertex vtx) {
+    public Object getVertexModelElementId(Vertex vtx) {
         return vtx.value(MODEL_GRAPH_VERTEX_ENTITY_ID);
     }
 

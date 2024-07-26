@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.64-SNAPSHOT</version>
+        <version>1.65-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -367,14 +367,14 @@
                         <artifactId>liquibase-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>generate-entities</id>
+                                <id>update-source-db</id>
                                 <phase>generate-sources</phase>
                                 <goals>
                                     <goal>update</goal>
                                 </goals>
                                 <configuration>
                                     <changeLogFile>/config/liquibase/master.xml</changeLogFile>
-                                    <contexts>test</contexts>
+                                    <contexts>test,faker</contexts>
                                 </configuration>
                             </execution>
                         </executions>
