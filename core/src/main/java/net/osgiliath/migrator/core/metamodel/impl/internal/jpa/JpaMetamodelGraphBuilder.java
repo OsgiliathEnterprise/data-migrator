@@ -58,6 +58,7 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
                         .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
                 .flatMap(t ->
                         graph.vertexSet().stream().filter(candidateVertex -> candidateVertex.entityClass().equals(t.targetType()))
+                                .filter(targetMetamodelVertex -> !rawElementProcessor.isFkIgnored(sourceVertex.entityClass(), t.field().getName()))
                                 .filter(targetMetamodelVertex -> !rawElementProcessor.isDerived(sourceVertex.entityClass(), t.field().getName()))
                                 .map(targetMetamodelVertex ->
                                         metamodelVertexFactory.createOutboundEdge(metamodelVertexFactory.createFieldEdge(t.field()), targetMetamodelVertex)

@@ -71,38 +71,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
     private PlatformTransactionManager sourcePlatformTransactionManager;
 
     /**
-     * Assess if the class relationship is derived (not the owner side).
-     *
-     * @param entityClass   the entity class.
-     * @param attributeName the attribute name.
-     * @return the entity class name.
-     */
-    public boolean isDerived(Class<?> entityClass, String attributeName) {
-        try {
-            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
-                    .filter(pd -> attributeName.equals(pd.getName()))
-                    .map(PropertyDescriptor::getReadMethod)
-                    .anyMatch(
-                            m -> {
-                                for (Annotation a : m.getDeclaredAnnotations()) {
-                                    if (a instanceof OneToMany otm) {
-                                        return !otm.mappedBy().isEmpty();
-                                    } else if (a instanceof ManyToMany mtm) {
-                                        addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(entityClass, m);
-                                        return !mtm.mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
-                                    } else if (a instanceof OneToOne oto) {
-                                        return !oto.mappedBy().isEmpty();
-                                    }
-                                }
-                                return false;
-                            }
-                    );
-        } catch (IntrospectionException e) {
-            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
-        }
-    }
-
-    /**
      * selects the owning side of a many to many relationship.
      *
      * @param entityClass      the entity class.
@@ -424,4 +392,91 @@ public class JpaEntityProcessor implements RawElementProcessor {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Assess if the class relationship is derived (not the owner side).
+     *
+     * @param entityClass   the entity class.
+     * @param attributeName the attribute name.
+     * @return the entity class name.
+     */
+    public boolean isDerived(Class<?> entityClass, String attributeName) {
+        try {
+            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
+                    .filter(pd -> attributeName.equals(pd.getName()))
+                    .map(PropertyDescriptor::getReadMethod)
+                    .anyMatch(
+                            m -> {
+                                for (Annotation a : m.getDeclaredAnnotations()) {
+                                    if (a instanceof OneToMany otm) {
+                                        return !otm.mappedBy().isEmpty();
+                                    } else if (a instanceof ManyToMany mtm) {
+                                        addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(entityClass, m);
+                                        return !mtm.mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
+                                    } else if (a instanceof OneToOne oto) {
+                                        return !oto.mappedBy().isEmpty();
+                                    }
+                                }
+                                return false;
+                            }
+                    );
+        } catch (IntrospectionException e) {
+            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
+        }
+    }
+
+    /**
+     * Assess if the class relationship should ignore foreign key.
+     *
+     * @param entityClass   the entity class.
+     * @param attributeName the attribute name.
+     * @return the entity class name.
+     */
+
+    public boolean isFkIgnored(Class<?> entityClass, String attributeName) {
+        try {
+
+            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
+                    .filter(pd -> attributeName.equals(pd.getName()))
+                    .map(PropertyDescriptor::getReadMethod)
+                    .anyMatch(
+                            m -> {
+                                for (Annotation a : m.getDeclaredAnnotations()) {
+                                    if (a instanceof JoinTable otm) {
+                                        return joinTableIgnoresFk(otm);
+                                    } else if (a instanceof JoinColumns mtm) {
+                                        return joinColumnsIgnoresFk(mtm);
+                                    } else if (a instanceof JoinColumn oto) {
+                                        return joinColumnIgnoresFk(oto);
+                                    }
+                                }
+                                return false;
+                            }
+                    );
+        } catch (IntrospectionException e) {
+            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
+        }
+    }
+
+    public static boolean joinTableIgnoresFk(JoinTable a1) { // TODO refine joincol, is a pretty naive impl
+        boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+        ignores = ignores || a1.inverseForeignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+        for (var joinCol : a1.joinColumns()) {
+            ignores = ignores || joinColumnIgnoresFk(joinCol);
+        }
+        return ignores;
+    }
+
+    public static boolean joinColumnsIgnoresFk(JoinColumns a1) { // TODO refine joincol, is a pretty naive impl
+        boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+        for (var joinCol : a1.value()) {
+            ignores = ignores || joinColumnIgnoresFk(joinCol);
+        }
+        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+    }
+
+    public static boolean joinColumnIgnoresFk(JoinColumn a1) {
+        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+    }
+
 }

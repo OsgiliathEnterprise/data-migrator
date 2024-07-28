@@ -44,4 +44,5 @@ public interface RawElementProcessor {
     Optional<Method> getterMethod(MetamodelVertex entityClass, Field attribute);
 
     Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass);
+    
 }
