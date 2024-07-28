@@ -85,6 +85,7 @@
                 <include>.gitignore</include>
                 <include>mvnw</include>
                 <include>build.xml</include>
+                <include>build-nofk.xml</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -163,6 +163,24 @@ Example:
 
 ```
 
+## Mimicking the behavior of XX2PG
+
+Ora2PG and Mssql2PG are popular tools to migrate data.
+The procedure of these tools is quite simple:
+
+1. It first creates the target db schema without any foreign kye constraints.
+1. It selects data from the source db and injects into the foreignkeyless target db.
+1. Once all tables' content are migrated, the constraints on the target db are set.
+
+The same procedure using datamigrator would be the following:
+
+1. Configure database.properties with source & target information, also configure application.yml without any sequence.
+1. Generate entity from source schema using `./mvnw package -pentities-from-source-schema-nofk`.
+1. Execute the data migration with `java -jar target/<thejar>`
+1. Regenerate the entities with foreign keys this time: Generate entity from source schema
+   using `./mvnw clean package -pentities-from-source-schema`.
+1. Execute the data migration with `java -jar target/<thejar>`, you can stop it just after the hibernate schema update.
+
 # Developing
 
 ## Running the test (see sample-mono)
