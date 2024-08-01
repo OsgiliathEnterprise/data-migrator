@@ -124,15 +124,17 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private Optional<Object> internalGetRawId(Class entityClass, Object entity) {
         // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
-        // log.debug("getting id for entity of class {} and entity {}", entityClass.getSimpleName(), entity);
-        return getPrimaryKeyGetterMethod(entityClass).map(// TODO investigate why entityClass doesn't work as expected
+        log.debug("getting Id of entity with class {}, entity {}", entityClass, entity);
+        return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {
                     try {
-                        return primaryKeyGetterMethod.invoke(entity);
-                    } catch (Exception e) {
-                        log.error("Exception thrown while getting the id of entity {}, with entityclass {}", entity, entityClass.getSimpleName());
+                        if (null != entity) {
+                            return primaryKeyGetterMethod.invoke(entity);
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         throw new ErrorCallingRawElementMethodException(e);
                     }
+                    return Optional.empty();
                 }
         );
     }
