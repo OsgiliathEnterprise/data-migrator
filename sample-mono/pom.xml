@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.66-SNAPSHOT</version>
+        <version>1.67-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -154,7 +154,7 @@
                         </goals>
                         <configuration>
                             <files>
-                                <file>${basedir}/database.properties</file>
+                                <file>${project.basedir}/database.properties</file>
                             </files>
                         </configuration>
                     </execution>
