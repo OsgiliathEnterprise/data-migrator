@@ -31,6 +31,7 @@ import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_PU;
@@ -53,14 +54,13 @@ public class VertexPersister {
 
     @Transactional(transactionManager = SINK_TRANSACTION_MANAGER)
     public void persistVertices(Stream<ModelElement> entities) {
-        entities.map(me -> {
+        entities.flatMap(me -> {
                     if (reconcile) {
-                        Object found = entityManager.find(((JpaMetamodelVertex) me.vertex()).entityClass(), rawElementProcessor.getId(me).orElseThrow());
-                        if (null != found) {
-                            return found;
-                        }
+                        return rawElementProcessor.getId(me).map(
+                                id -> entityManager.find(((JpaMetamodelVertex) me.vertex()).entityClass(), id)
+                        ).stream();
                     }
-                    return me.rawElement();
+                    return Optional.of(me.rawElement()).stream();
                 })
                 .forEach(entityManager::persist);
     }
