@@ -10,14 +10,13 @@
             </fileset>
         </replaceregexp>
         <replaceregexp byline="true">
-            <regexp pattern="@PrimaryKeyJoinColumn\(*\n*\s*((?:(?!forei).)+)"/>
+            <regexp pattern="@PrimaryKeyJoinColumn$"/>
             <substitution
-                    expression="@PrimaryKeyJoinColumn(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), value = \1"/>
+                    expression="@PrimaryKeyJoinColumn(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT))"/>
             <fileset dir="${maven.project.build.directory}">
                 <include name="**/*.java"/>
             </fileset>
         </replaceregexp>
-
         <replaceregexp byline="true">
             <regexp pattern="@JoinColumns\(\n*\s*((?:(?!forei).)+)"/>
             <substitution
