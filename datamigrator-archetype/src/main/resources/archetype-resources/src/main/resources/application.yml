@@ -37,11 +37,44 @@ spring:
       properties:
         hibernate:
           dialect: @source.jdbc.dialect@
+          #        cache:
+          #          use_second_level_cache: true
+          #          use_query_cache: false
+          #          region.factory_class: jcache
+          generate_statistics: false
+          # modify batch size as necessary
+          jdbc:
+            fetch_size: 10000 # should be removed for PG & Mysql, tweak it to improve the perf
+            time_zone: UTC
+          criteria.literal_handling_mode: BIND
+          query:
+            fail_on_pagination_over_collection_fetch: true
+            in_clause_parameter_padding: true
     sink:
       generate-ddl: true
       properties:
         hibernate:
           dialect: @target.jdbc.dialect@
+          id.new_generator_mappings: true
+          #        cache:
+          #          use_second_level_cache: true
+          #          use_query_cache: false
+          #          region.factory_class: jcache
+          generate_statistics: false
+          # modify batch size as necessary
+          jdbc:
+            batch_size: 10000 # tweak it to improve the perf
+            time_zone: UTC
+          order_inserts: true
+          order_updates: true
+          # modify fetch size as necessary
+          criteria.literal_handling_mode: BIND
+          connection:
+            provider_disables_autocommit: true
+            autocommit: false
+            provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+          hbm2ddl:
+            auto: update
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

@@ -448,7 +448,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                         return joinColumnsIgnoresFk(mtm);
                                     } else if (a instanceof JoinColumn oto) {
                                         return joinColumnIgnoresFk(oto);
+                                    } else if (a instanceof PrimaryKeyJoinColumn oto) {
+                                        return joinColumnIgnoresFk(oto);
                                     }
+
                                 }
                                 return false;
                             }
@@ -476,6 +479,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     public static boolean joinColumnIgnoresFk(JoinColumn a1) {
+        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+    }
+
+    public static boolean joinColumnIgnoresFk(PrimaryKeyJoinColumn a1) {
         return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
     }
 

@@ -18,6 +18,15 @@
             </fileset>
         </replaceregexp>
         <replaceregexp byline="true">
+            <regexp pattern="@PrimaryKeyJoinColumn\(\n*\s*((?:(?!forei).)+)"/>
+            <substitution
+                    expression="@PrimaryKeyJoinColumn(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), value = \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp byline="true">
             <regexp pattern="@JoinTable\(\n*\s*((?:(?!forei).)+)"/>
             <substitution
                     expression="@JoinTable(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), inverseForeignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), \1"/>
