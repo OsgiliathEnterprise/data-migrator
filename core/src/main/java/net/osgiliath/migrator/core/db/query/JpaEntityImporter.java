@@ -123,7 +123,7 @@ public class JpaEntityImporter implements EntityImporter {
                 .map(object ->
                         builder.not(
                                 builder.equal(
-                                        root.get(pk), modelElementProcessor.getId(object)))
+                                        root.get(pk), modelElementProcessor.getId(object).orElseThrow()))
                 ).toList()).orElseGet(ArrayList::new);
     }
 
