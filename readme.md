@@ -144,24 +144,8 @@ yet.
 To fix that bad behavior, you have to add a `@MapsId("name of the field in the composite key")"` on your Entity
 relationship.
 
-Example:
-
-```
-    @AttributeOverrides({
-            @AttributeOverride(name = "nodeId", column = @Column(name = "NODE_ID", precision = 19, scale = 0)),
-            @AttributeOverride(name = "origin", column = @Column(name = "ORIGIN", length = 64))})
-    public StatsRemoteId getId() {
-        return this.id;
-    }
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("nodeId")
-    @JoinColumn(name = "NODE_ID")
-    public Nodes getNodes() {
-        return this.nodes;
-    }
-
-```
+The build.xml containing the hack only contains 5 entries rewritten, If you need more you'll have to add
+new `<replaceregexp` entries.
 
 ## Mimicking the behavior of XX2PG
 
