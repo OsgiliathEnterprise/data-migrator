@@ -28,15 +28,12 @@ import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodExcepti
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -251,7 +248,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
     }
 
-    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public Object getFieldValue(ModelElement modelElement, String attributeName) {
         Object entity = modelElement.rawElement();
@@ -260,11 +257,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
         try {
-            if (null != entityManager && isDetached(entity.getClass(), entity)) {
+            /*if (null != entityManager && isDetached(entity.getClass(), entity)) {
                 Session session = entityManager.unwrap(Session.class);
                 entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
                 entityManager.refresh(entity);
-            }
+            }*/
             Object entityToUse = entity;
             return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
                             pd -> pd.getName().equals(attributeName)
@@ -274,10 +271,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             if (null != entityManager && null != result && result instanceof Collection results) {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
-                                if (!unitUtil.isLoaded(entityToUse, attributeName)) {
-                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
+                                    /* TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
                                     transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+                                    transactionTemplate.execute(status -> results.iterator().hasNext()); */
+                                    results.iterator().hasNext(); // eager load
                                 }
                             }
                             return result;
@@ -366,9 +364,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
      */
     private boolean isDetached(Class entityClass, Object entity) {
         Optional<Object> idValue = getRawId(entityClass, entity);
-        return idValue.isPresent()  // must not be transient
-                && !entityManager.contains(entity)  // must not be managed now
-                && entityManager.find(entityClass, idValue.orElseThrow()) != null;  // must not have been removed
+        return idValue.map(id -> {
+            return !entityManager.contains(entity)  // must not be managed now
+                    && entityManager.find(entityClass, id) != null; // must not have been removed
+        }).orElse(false);
     }
 
     @Override
@@ -457,7 +456,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                     } else if (a instanceof PrimaryKeyJoinColumn oto) {
                                         return joinColumnIgnoresFk(oto);
                                     }
-
                                 }
                                 return false;
                             }
