@@ -31,9 +31,6 @@ data-migrator:
 spring:
   main:
     lazy-initialization: true
-  devtools:
-    restart:
-      enabled: false
   jpa:
     source:
       generate-ddl: false
