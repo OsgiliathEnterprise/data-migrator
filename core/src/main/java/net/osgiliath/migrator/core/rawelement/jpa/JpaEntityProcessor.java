@@ -278,7 +278,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                     TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
                                     transactionTemplate.setReadOnly(true);
                                     transactionTemplate.execute(status -> results.iterator().hasNext());
-                                    //results.iterator().hasNext(); // eager load
                                 }
                             }
                             return result;

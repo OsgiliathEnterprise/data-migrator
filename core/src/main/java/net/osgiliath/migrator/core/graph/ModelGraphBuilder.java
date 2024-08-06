@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
@@ -101,7 +102,27 @@ public class ModelGraphBuilder {
 
     private void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph);
-        sourceVertexEdgeAndTargetVertexList.forEach(
+        Collection<SourceVertexFieldEdgeAndTargetVertex> col = sourceVertexEdgeAndTargetVertexList.collect(Collectors.toSet());
+        Iterator<SourceVertexFieldEdgeAndTargetVertex> it = col.iterator();
+        if (it.hasNext()) {
+            GraphTraversal traversal;
+            SourceVertexFieldEdgeAndTargetVertex elt = it.next();
+            traversal = modelGraph.V(elt
+                            .sourceVertex().id())
+                    .addE(elt.edge().getFieldName())
+                    .to(__.V(elt.targetVertex().id()))
+                    .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName());
+            while (it.hasNext()) {
+                SourceVertexFieldEdgeAndTargetVertex elm = it.next();
+                traversal = traversal.V(elm
+                                .sourceVertex().id())
+                        .addE(elm.edge().getFieldName())
+                        .to(__.V(elm.targetVertex().id()))
+                        .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elm.edge().getMetamodelField().getName());
+            }
+            traversal.iterate();
+        }
+        /*sourceVertexEdgeAndTargetVertexList.forEach(
                 sourceVertexEdgeAndTargetVertex ->
                         modelGraph.V(sourceVertexEdgeAndTargetVertex
                                         .sourceVertex().id())
@@ -110,11 +131,11 @@ public class ModelGraphBuilder {
                                 .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.edge().getMetamodelField().getName())
                                 .iterate()
                 // TODO optimize: there should be no need of researching the V() by id: using graph directly would be better
-                        /*sourceVertexEdgeAndTargetVertex
+                        sourceVertexEdgeAndTargetVertex
                                 .sourceVertex()
                                 .addEdge(sourceVertexEdgeAndTargetVertex.edge().getFieldName(), sourceVertexEdgeAndTargetVertex.targetVertex())
-                                .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.edge().getMetamodelField().getName())*/
-        );
+                                .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, sourceVertexEdgeAndTargetVertex.edge().getMetamodelField().getName())
+        );*/
 
     }
 
@@ -134,11 +155,26 @@ public class ModelGraphBuilder {
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
 
-        metamodelVertices.stream()
+        Collection<MetamodelVertexAndModelElementAndModelElementId> metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
                 .map(mv -> new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>())))
                 .flatMap(mvaes -> mvaes.modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mvaes.metamodelVertex(), modelElement)))
-                .flatMap(mvae -> modelElementProcessor.getId(mvae.modelElement()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid)).stream())
-                .forEach(
+                .flatMap(mvae -> modelElementProcessor.getId(mvae.modelElement()).map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid)).stream()).collect(Collectors.toSet());
+        Iterator<MetamodelVertexAndModelElementAndModelElementId> it = metamodelVertexAndModelElementAndModelElementIds.iterator();
+        GraphTraversal traversal;
+        if (it.hasNext()) {
+            MetamodelVertexAndModelElementAndModelElementId elt = it.next();
+            String name = elt.metamodelVertex().getTypeName();
+            traversal = modelGraph
+                    .addV(name);
+            traversal = addVertexProperties(traversal, elt);
+            while (it.hasNext()) {
+                MetamodelVertexAndModelElementAndModelElementId eln = it.next();
+                traversal.addV(eln.metamodelVertex().getTypeName());
+                traversal = addVertexProperties(traversal, eln);
+            }
+            traversal.iterate();
+        }
+                /*.forEach(
                         mvaei -> {
                             GraphTraversal traversal = modelGraph
                                     .addV(mvaei.metamodelVertex().getTypeName());
@@ -149,7 +185,17 @@ public class ModelGraphBuilder {
                                 traversal = traversal.property(entry.getKey(), entry.getValue());
                             }
                             traversal.iterate();
-                        });
+                        });*/
+    }
+
+    private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
+        traversal = vertexResolver.setVertexModelElementId(traversal, eln.id());
+        traversal = vertexResolver.setMetamodelVertex(traversal, eln.metamodelVertex());
+        traversal = vertexResolver.setModelElement(traversal, eln.modelElement());
+        for (Map.Entry<String, Object> entry : modelVertexCustomizer.getAdditionalModelVertexProperties(eln.metamodelVertex()).entrySet()) {
+            traversal = traversal.property(entry.getKey(), entry.getValue());
+        }
+        return traversal;
     }
 
     /**

@@ -25,7 +25,8 @@ import net.osgiliath.migrator.core.api.model.ModelElement;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.*;
+import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
+import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX;
 
 public class InGraphVertexResolver implements VertexResolver {
     @Override
@@ -50,12 +51,12 @@ public class InGraphVertexResolver implements VertexResolver {
 
     @Override
     public GraphTraversal setVertexModelElementId(GraphTraversal traversal, Object id) {
-        return traversal.property(MODEL_GRAPH_VERTEX_ENTITY_ID, id);
+        return traversal.property(GraphTraversal.Symbols.id, id);
     }
 
     @Override
     public Object getVertexModelElementId(Vertex vtx) {
-        return vtx.value(MODEL_GRAPH_VERTEX_ENTITY_ID);
+        return vtx.value(GraphTraversal.Symbols.id);
     }
 
     @Override
