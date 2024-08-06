@@ -274,7 +274,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             if (null != entityManager && null != result && result instanceof Collection results) {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
-                                if (!unitUtil.isLoaded(entityToUse, attributeName)) {
+                                if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
                                     TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
                                     transactionTemplate.setReadOnly(true);
                                     transactionTemplate.execute(status -> results.iterator().hasNext());
@@ -366,9 +366,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
      */
     private boolean isDetached(Class entityClass, Object entity) {
         Optional<Object> idValue = getRawId(entityClass, entity);
-        return idValue.isPresent()  // must not be transient
-                && !entityManager.contains(entity)  // must not be managed now
-                && entityManager.find(entityClass, idValue.orElseThrow()) != null;  // must not have been removed
+        return idValue.map(id -> {
+            return !entityManager.contains(entity)  // must not be managed now
+                    && entityManager.find(entityClass, id) != null; // must not have been removed
+        }).orElse(false);
     }
 
     @Override
@@ -457,7 +458,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                     } else if (a instanceof PrimaryKeyJoinColumn oto) {
                                         return joinColumnIgnoresFk(oto);
                                     }
-
                                 }
                                 return false;
                             }
