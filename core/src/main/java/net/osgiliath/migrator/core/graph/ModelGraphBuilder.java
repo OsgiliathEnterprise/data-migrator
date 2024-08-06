@@ -30,7 +30,6 @@ import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
@@ -108,16 +107,16 @@ public class ModelGraphBuilder {
             GraphTraversal traversal;
             SourceVertexFieldEdgeAndTargetVertex elt = it.next();
             traversal = modelGraph.V(elt
-                            .sourceVertex().id())
+                            .sourceVertex())
                     .addE(elt.edge().getFieldName())
-                    .to(__.V(elt.targetVertex().id()))
+                    .to(elt.targetVertex())
                     .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName());
             while (it.hasNext()) {
                 SourceVertexFieldEdgeAndTargetVertex elm = it.next();
                 traversal = traversal.V(elm
-                                .sourceVertex().id())
+                                .sourceVertex())
                         .addE(elm.edge().getFieldName())
-                        .to(__.V(elm.targetVertex().id()))
+                        .to(elm.targetVertex())
                         .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elm.edge().getMetamodelField().getName());
             }
             traversal.iterate();
