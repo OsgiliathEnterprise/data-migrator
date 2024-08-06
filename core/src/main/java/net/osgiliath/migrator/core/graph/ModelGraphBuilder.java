@@ -47,7 +47,7 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 public class ModelGraphBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ModelGraphBuilder.class);
-    public static final String MODEL_GRAPH_VERTEX_ENTITY_ID = "id";
+    public static final String MODEL_GRAPH_VERTEX_ENTITY_ID = "rawid";
     public static final String MODEL_GRAPH_VERTEX_METAMODEL_VERTEX = "metamodelVertex";
     public static final String MODEL_GRAPH_VERTEX_ENTITY = "entity";
     public static final String MODEL_GRAPH_EDGE_METAMODEL_FIELD = "field";
