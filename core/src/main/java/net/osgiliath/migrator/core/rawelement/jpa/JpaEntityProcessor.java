@@ -28,12 +28,14 @@ import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodExcepti
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -257,11 +259,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
         try {
-            /*if (null != entityManager && isDetached(entity.getClass(), entity)) {
+            if (null != entityManager && isDetached(entity.getClass(), entity)) {
                 Session session = entityManager.unwrap(Session.class);
                 entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
                 entityManager.refresh(entity);
-            }*/
+            }
             Object entityToUse = entity;
             return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
                             pd -> pd.getName().equals(attributeName)
@@ -272,10 +274,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-                                    /* TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
                                     transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext()); */
-                                    results.iterator().hasNext(); // eager load
+                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+                                    //results.iterator().hasNext(); // eager load
                                 }
                             }
                             return result;

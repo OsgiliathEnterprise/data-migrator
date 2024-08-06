@@ -24,7 +24,6 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.transformers.GraphTransformer;
-import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
@@ -38,7 +37,6 @@ import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -62,7 +60,6 @@ public class RowLimiter implements GraphTransformer {
     }
 
     @Override
-    @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void evaluate(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Map<String, String> sequencerOptions) {
         Integer limit = Integer.valueOf(sequencerOptions.get(LIMIT));
         Comparator<MetamodelVertex> asc = Comparator.comparingInt(entityMetamodelGraph::inDegreeOf);
