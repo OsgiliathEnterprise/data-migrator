@@ -72,11 +72,18 @@ public class TransformationSequencer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.warn("Starting the anonymization sequence");
         Collection<Class<?>> metamodelClasses = metamodelScanner.scanMetamodelClasses();
-        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = graphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
-        graphRequester.displayGraphWithGraphiz(entityMetamodelGraph);
-        try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
-            sequenceProcessor.process(modelGraph, entityMetamodelGraph);
-            sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
-        }
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph = graphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
+        graphRequester.displayGraphWithGraphiz(fullEntityMetamodelGraph);
+        Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusteredEntityMetamodelGraph = graphBuilder.clusterGraphs(fullEntityMetamodelGraph);
+        clusteredEntityMetamodelGraph.stream().forEach(
+                metamodelGraph -> {
+                    try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(metamodelGraph)) {
+                        sequenceProcessor.process(modelGraph, fullEntityMetamodelGraph);
+                        sinkEntityInjector.persist(modelGraph, fullEntityMetamodelGraph);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
     }
 }

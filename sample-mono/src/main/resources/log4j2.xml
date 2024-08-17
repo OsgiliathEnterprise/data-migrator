@@ -5,6 +5,9 @@
                 <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
             </PatternLayout>
         </RandomAccessFile>
+        <Async name="Async">
+            <AppenderRef ref="RandomAccessFile"/>
+        </Async>
         <!--<File name="FILE" fileName="target/app.log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </File>
@@ -26,7 +29,7 @@
             <AppenderRef ref="CONSOLE"/>
         </Logger> -->
         <Root level="info">
-            <AppenderRef ref="RandomAccessFile"/>
+            <AppenderRef ref="Async"/>
         </Root>
     </Loggers>
 </Configuration>

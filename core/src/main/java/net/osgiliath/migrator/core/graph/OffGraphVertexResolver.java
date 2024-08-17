@@ -36,14 +36,12 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID;
 
 public class OffGraphVertexResolver implements VertexResolver {
@@ -79,7 +77,7 @@ public class OffGraphVertexResolver implements VertexResolver {
         return traversal;
     }
 
-    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public ModelElement getModelElement(Vertex vertex) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

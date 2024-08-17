@@ -31,12 +31,7 @@ import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -49,7 +44,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 /**
  * JPA entity helper containing JPA reflection queries.
@@ -65,10 +59,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     @PersistenceContext(unitName = SOURCE_PU)
     private EntityManager entityManager;
-
-    @Autowired
-    @Qualifier(SOURCE_TRANSACTION_MANAGER)
-    private PlatformTransactionManager sourcePlatformTransactionManager;
 
     /**
      * selects the owning side of a many to many relationship.
@@ -139,6 +129,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the primary key value.
      */
     @Override
+    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
         return getRawId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
     }
@@ -146,7 +137,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     private Optional<Object> getRawId(Class entityClass, Object entity) {
         // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
-        log.debug("getting id for entity of class {} and entity {}", entityClass.getSimpleName(), entity);
+        // log.debug("getting id for entity of class {} and entity {}", entityClass.getSimpleName(), entity);
         return getPrimaryKeyGetterMethod(entityClass).map(
                 primaryKeyGetterMethod -> {
                     try {
@@ -251,7 +242,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
     }
 
-    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public Object getFieldValue(ModelElement modelElement, String attributeName) {
         Object entity = modelElement.rawElement();
@@ -275,9 +266,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                    results.iterator().hasNext();
+                                    /*TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
                                     transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+                                    transactionTemplate.execute(status -> results.iterator().hasNext());*/
                                 }
                             }
                             return result;
@@ -491,5 +483,4 @@ public class JpaEntityProcessor implements RawElementProcessor {
     public static boolean joinColumnIgnoresFk(PrimaryKeyJoinColumn a1) {
         return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
     }
-
 }

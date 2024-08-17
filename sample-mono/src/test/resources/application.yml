@@ -84,7 +84,6 @@ spring:
         connection:
           provider_disables_autocommit: true
           autocommit: false
-          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
         hbm2ddl:
           auto: update
   datasource:

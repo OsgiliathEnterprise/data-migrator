@@ -130,7 +130,7 @@
                             <version>${spring-boot.version}</version>
                         </annotationProcessorPath>
                         <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
+                            <groupId>org.hibernate.orm</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
                             <version>${hibernate.version}</version>
                         </annotationProcessorPath>
@@ -258,7 +258,7 @@
                                     <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>org.hibernate.orm</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
@@ -434,7 +434,7 @@
                                     <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>org.hibernate.orm</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
@@ -861,7 +861,7 @@
                                     <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>org.hibernate.orm</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
@@ -971,7 +971,7 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -1014,7 +1014,7 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jcache</artifactId>
         </dependency>
         <dependency>
