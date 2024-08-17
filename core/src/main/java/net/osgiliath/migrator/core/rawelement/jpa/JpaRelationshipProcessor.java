@@ -46,7 +46,7 @@ public class JpaRelationshipProcessor {
      * @param fieldEdge the edge to get the target vertices from
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
      */
-    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Object getEdgeRawValue(FieldEdge<MetamodelVertex> fieldEdge, ModelElement modelElement) {
         Optional<Method> getterMethodOpt = metamodelRequester.relationshipGetter(fieldEdge);
         return getterMethodOpt.map(getterMethod -> {

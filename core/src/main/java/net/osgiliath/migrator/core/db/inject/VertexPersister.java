@@ -25,7 +25,6 @@ import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.configuration.model.GraphDatasourceType;
-import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.springframework.stereotype.Component;
@@ -42,13 +41,11 @@ public class VertexPersister {
 
     private final boolean reconcile;
     private final RawElementProcessor rawElementProcessor;
-    private final VertexResolver vertexResolver;
     @PersistenceContext(unitName = SINK_PU)
     private EntityManager entityManager;
 
-    public VertexPersister(DataMigratorConfiguration dmc, RawElementProcessor rawElementProcessor, VertexResolver vertexResolver) {
+    public VertexPersister(DataMigratorConfiguration dmc, RawElementProcessor rawElementProcessor) {
         this.rawElementProcessor = rawElementProcessor;
-        this.vertexResolver = vertexResolver;
         this.reconcile = dmc.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE);
     }
 
@@ -64,5 +61,4 @@ public class VertexPersister {
                 })
                 .forEach(entityManager::persist);
     }
-
 }

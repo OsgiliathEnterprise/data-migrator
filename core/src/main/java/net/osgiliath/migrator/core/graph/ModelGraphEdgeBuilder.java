@@ -68,7 +68,7 @@ public class ModelGraphEdgeBuilder {
         ).orElseGet(Stream::empty);
     }
 
-    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph);
         Collection<SourceVertexFieldEdgeAndTargetVertex> col = sourceVertexEdgeAndTargetVertexList.collect(Collectors.toSet());

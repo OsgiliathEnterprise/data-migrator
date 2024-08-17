@@ -28,7 +28,6 @@ import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransform
 import net.osgiliath.migrator.core.api.transformers.ModelElementColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
-import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
@@ -46,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static net.osgiliath.migrator.core.configuration.SequencerDefinition.WILDCARD;
 
 @Component
@@ -64,7 +64,7 @@ public class SequenceProcessor {
         this.vertexResolver = vertexResolver;
     }
 
-    @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph) {
         dataMigratorConfiguration.getSequence().stream()
                 .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))

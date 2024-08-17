@@ -62,7 +62,7 @@ public class ModelGraphBuilder {
         this.modelGraphEdgeBuilder = modelGraphEdgeBuilder;
     }
 
-    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true) // TOSO remove
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true) // TODO refine
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Creating model vertex");
         GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
@@ -81,9 +81,7 @@ public class ModelGraphBuilder {
         modelGraphEdgeBuilder.createEdges(graphTraversalSource, entityMetamodelGraph);
     }
 
-
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-
         Collection<MetamodelVertexAndModelElementAndModelElementId> metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
                 .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv).stream()).collect(Collectors.toSet());
         Iterator<MetamodelVertexAndModelElementAndModelElementId> it = metamodelVertexAndModelElementAndModelElementIds.iterator();
