@@ -40,6 +40,5 @@ public interface VertexResolver {
 
     Object getWrappedRawId(Object originalId);
 
-
     void clear();
 }

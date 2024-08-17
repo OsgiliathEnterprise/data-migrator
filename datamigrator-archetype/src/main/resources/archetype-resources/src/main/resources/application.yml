@@ -44,7 +44,7 @@ spring:
           generate_statistics: false
           # modify batch size as necessary
           jdbc:
-            fetch_size: 10000 # should be removed for PG & Mysql, tweak it to improve the perf
+            fetch_size: 100 # recommended value for Oracle
             time_zone: UTC
           criteria.literal_handling_mode: BIND
           query:
@@ -63,7 +63,7 @@ spring:
           generate_statistics: false
           # modify batch size as necessary
           jdbc:
-            batch_size: 10000 # tweak it to improve the perf
+            batch_size: 100 # tweak it to improve the perf
             time_zone: UTC
           order_inserts: true
           order_updates: true
@@ -72,7 +72,6 @@ spring:
           connection:
             provider_disables_autocommit: true
             autocommit: false
-            provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
           hbm2ddl:
             auto: update
     hibernate:
@@ -90,8 +89,8 @@ spring:
         generate_statistics: false
         # modify batch size as necessary
         jdbc:
-          batch_size: 10000 # tweak it to improve the perf
-          fetch_size: 10000 # should be removed for PG & Mysql, tweak it to improve the perf
+          batch_size: 100 # tweak it to improve the perf
+          fetch_size: 100 # should be removed for PG & Mysql, tweak it to improve the perf
           time_zone: UTC
         order_inserts: true
         order_updates: true
@@ -103,7 +102,7 @@ spring:
         connection:
           provider_disables_autocommit: true
           autocommit: false
-          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+          # provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
         hbm2ddl:
           auto: update
   datasource:

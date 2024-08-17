@@ -21,7 +21,6 @@ package net.osgiliath.migrator.core.configuration;
  */
 
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.configuration.beans.CustomHikariDatasource;
 import net.osgiliath.migrator.core.graph.InGraphVertexResolver;
@@ -115,8 +114,9 @@ public class DataSourceConfiguration {
         return createHikariDatasource(sourceDataSourceProperties, hikariConfigProperties);
     }
 
-    private static HikariDataSource createHikariDatasource(DataSourceProperties dataSourceProperties, HikariConfig hikariConfigProperties) {
-        HikariDataSource ds = dataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class).build();
+    private static DataSource createHikariDatasource(DataSourceProperties dataSourceProperties, HikariConfig hikariConfigProperties) {
+        CustomHikariDatasource ds = dataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class)
+                .build();
         if (null != hikariConfigProperties.getDataSourceClassName()) {
             ds.setDataSourceClassName(hikariConfigProperties.getDataSourceClassName());
         }

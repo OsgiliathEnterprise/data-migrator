@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
@@ -74,4 +75,24 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
     protected abstract Stream<OutboundEdge<M>> computeOutboundEdges(M sourceVertex, Graph<M, FieldEdge<M>> graph);
 
     protected abstract boolean isEntity(M metamodelVertex);
+
+    public Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusterGraphs(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph) {
+        // TODO improve this method to cluster graph that are disjoints, not only isolated vertex
+        Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> ret = new HashSet<>();
+        Collection<MetamodelVertex> isolatedVertices = new HashSet<>();
+        for (MetamodelVertex vtx : fullEntityMetamodelGraph.vertexSet()) {
+            if (fullEntityMetamodelGraph.degreeOf(vtx) == 0) {
+                isolatedVertices.add(vtx);
+            }
+        }
+        fullEntityMetamodelGraph.removeAllVertices(isolatedVertices);
+        ret.add(fullEntityMetamodelGraph);
+        for (MetamodelVertex vtx : isolatedVertices) {
+            Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
+                    .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
+            graph.addVertex(vtx);
+            ret.add(graph);
+        }
+        return ret;
+    }
 }
