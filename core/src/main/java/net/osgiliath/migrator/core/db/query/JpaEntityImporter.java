@@ -35,7 +35,6 @@ import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamode
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 /**
  * Imports entities from the database.
@@ -86,7 +84,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
-    @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
+    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
     public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

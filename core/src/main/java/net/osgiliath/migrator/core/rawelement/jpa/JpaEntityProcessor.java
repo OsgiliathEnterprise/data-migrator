@@ -117,7 +117,9 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     @Override
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(ModelElement element) {
+        // return getRawId(((JpaMetamodelVertex) element.vertex()).entityClass(), element.rawElement()); // Not calling getId(MV, E) to avoid nested transaction proxy
         return getId(element.vertex(), element.rawElement());
     }
 
@@ -129,7 +131,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the primary key value.
      */
     @Override
-    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
         return getRawId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
     }
@@ -242,7 +244,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
     }
 
-    //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public Object getFieldValue(ModelElement modelElement, String attributeName) {
         Object entity = modelElement.rawElement();
