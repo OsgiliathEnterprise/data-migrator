@@ -78,8 +78,8 @@ public class TransformationSequencer implements CommandLineRunner {
         clusteredEntityMetamodelGraph.stream().forEach(
                 metamodelGraph -> {
                     try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(metamodelGraph)) {
-                        sequenceProcessor.process(modelGraph, fullEntityMetamodelGraph);
-                        sinkEntityInjector.persist(modelGraph, fullEntityMetamodelGraph);
+                        sequenceProcessor.process(modelGraph, metamodelGraph);
+                        sinkEntityInjector.persist(modelGraph, metamodelGraph);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

@@ -18,7 +18,8 @@ and even ai-driven.
 
 1. Configure your machine prerequisites: java 21, docker and maven.
 1. Create a new anonymization project for your context from the maven data-migrator maven
-   archetype (`mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=datamigrator-archetype -DarchetypeVersion=<current version of the archetype>`),
+   archetype (
+   `mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=datamigrator-archetype -DarchetypeVersion=<current version of the archetype>`),
    ensure to choose a name without special characters (i.e. myanonymizationproject, without '-', '_', ...).
 1. Start a container of your using your source database technology (optional if you have access to the remote database).
    You can tweak the `compose.yml` file at the root of the generated project.
@@ -133,7 +134,8 @@ manually. The most common issues are:
 This framework heavily relies on Hibernate tools for entity retro-engineering. This tool has some weird behavior when
 It sometimes generate `Clob` type instead of a standard String: prefer replacing the generated entity's field and
 methods with the
-proper [`@JdbcTypeCode`](https://docs.jboss.org/hibernate/stable/orm/userguide/html_single/Hibernate_User_Guide.html#basic-String)
+proper [
+`@JdbcTypeCode`](https://docs.jboss.org/hibernate/stable/orm/userguide/html_single/Hibernate_User_Guide.html#basic-String)
 
 ### Composites Ids with including foreign key
 
@@ -171,6 +173,11 @@ The same procedure using datamigrator would be the following:
 
 The source and target database are started using test-containers when executing the integration
 tests from the sample-mono project (`./mvnw clean verify -Pentities-from-changelog`).
+
+## Starting sample mono locally (within an IDE)
+
+1. Start the services in the docker compose file of sample mono
+2. Populate the source database ` ./mvnw process-classes -Pdata-changelog-from-source-db`
 
 ## Releasing
 
