@@ -24,9 +24,8 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.transformers.GraphTransformer;
-import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import org.apache.tinkerpop.gremlin.process.traversal.Order;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -38,7 +37,6 @@ import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -52,15 +50,16 @@ public class RowLimiter implements GraphTransformer {
     private static final Logger log = LoggerFactory.getLogger(RowLimiter.class);
     private final ModelElementProcessor modelElementProcessor;
     private final MetamodelRequester metamodelGraphRequester;
+    private final VertexResolver vertexResolver;
 
-    public RowLimiter(ModelElementProcessor modelElementProcessor, MetamodelRequester metamodelGraphRequester) {
+    public RowLimiter(ModelElementProcessor modelElementProcessor, MetamodelRequester metamodelGraphRequester, VertexResolver vertexResolver) {
 
         this.modelElementProcessor = modelElementProcessor;
         this.metamodelGraphRequester = metamodelGraphRequester;
+        this.vertexResolver = vertexResolver;
     }
 
     @Override
-    @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void evaluate(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Map<String, String> sequencerOptions) {
         Integer limit = Integer.valueOf(sequencerOptions.get(LIMIT));
         Comparator<MetamodelVertex> asc = Comparator.comparingInt(entityMetamodelGraph::inDegreeOf);
@@ -107,10 +106,10 @@ public class RowLimiter implements GraphTransformer {
     }
 
     private void removeRelationshipsFromSourceToTarget(Vertex sourceVertex, Vertex targetVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        MetamodelVertex sourceMetamodelVertex = sourceVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-        ModelElement sourceModelElement = sourceVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
-        MetamodelVertex targetMetamodelVertex = targetVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-        ModelElement targetModelElement = targetVertex.value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+        MetamodelVertex sourceMetamodelVertex = vertexResolver.getMetamodelVertex(sourceVertex);
+        ModelElement sourceModelElement = vertexResolver.getModelElement(sourceVertex);
+        MetamodelVertex targetMetamodelVertex = vertexResolver.getMetamodelVertex(targetVertex);
+        ModelElement targetModelElement = vertexResolver.getModelElement(targetVertex);
         metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream()
                 .filter(fieldEdge -> fieldEdge.getTarget().equals(targetMetamodelVertex))
                 .forEach(fieldEdge -> {

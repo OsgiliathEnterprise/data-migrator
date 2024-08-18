@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: "mysql:latest"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=test # name of the source db
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+
+  tinkerpop:
+    image: "tinkerpop/gremlin-server:latest"
+    ports:
+      - "8182:8182"
+  postgres: # Don't forget to create the schema once started
+    image: "postgres"
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test

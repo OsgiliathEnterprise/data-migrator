@@ -8,10 +8,10 @@
     -->
     <changeSet id="20231125144422-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="assignee_id"
+        <addForeignKeyConstraint baseColumnNames="assignee_email,assignee_hire_date"
                                  baseTableName="task"
                                  constraintName="fk_task__assignee_id"
-                                 referencedColumnNames="id"
+                                 referencedColumnNames="email,hire_date"
                                  referencedTableName="employee"
         />
 

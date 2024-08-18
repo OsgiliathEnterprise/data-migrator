@@ -11,6 +11,7 @@ import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
@@ -27,6 +29,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
@@ -35,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest(classes = {DataMigratorApplication.class})
+@DirtiesContext
 class ModelIT {
     static {
         System.setProperty("liquibase.duplicateFileMode", "WARN");
@@ -100,16 +104,16 @@ class ModelIT {
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
-            assertThat(modelGraph.V().hasLabel(Country.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Department.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Job.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(JobHistory.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Location.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Region.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Task.class.getSimpleName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(JhiUser.class.getSimpleName()).toList()).hasSize(2);
-            assertThat(modelGraph.V().hasLabel(JhiAuthority.class.getSimpleName()).toList()).hasSize(2);
+            assertThat(modelGraph.V().hasLabel(Country.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Department.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Job.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(JobHistory.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Location.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Region.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Task.class.getName()).toList()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(JhiUser.class.getName()).toList()).hasSize(2);
+            assertThat(modelGraph.V().hasLabel(JhiAuthority.class.getName()).toList()).hasSize(2);
         }
     }
 
@@ -119,10 +123,13 @@ class ModelIT {
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
-            assertThat(modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).toList()).hasSize(1);
-            assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).rawElement()).getFirstName()).isEqualTo("Horace");
-            assertThat(modelGraph.V().hasLabel(Job.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).toList()).hasSize(3);
-            assertThat(modelGraph.V().hasLabel(Job.class.getSimpleName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(me -> ((ModelElement) me).rawElement()).map(a -> ((Employee) a).getLastName()).collect(Collectors.toSet())).containsExactlyInAnyOrder("Nolan", "Volkman", "Jones");
+            Collection<Vertex> employees = modelGraph.V().hasLabel(Employee.class.getName()).toList();
+            Optional<Vertex> anibalVertex = employees.parallelStream().filter(v -> ((EmployeeId) v.property(MODEL_GRAPH_VERTEX_ENTITY_ID).value()).getEmail().equals("Herminia.Beahan77@hotmail.com")).findAny();
+            EmployeeId id = (EmployeeId) (anibalVertex.get()).property(MODEL_GRAPH_VERTEX_ENTITY_ID).value();
+            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, id).out(Employee_.EMPLOYEE).toList()).hasSize(1);
+            assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, id).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).rawElement()).getFirstName()).isEqualTo("Horace");
+            assertThat(modelGraph.V().hasLabel(Job.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).toList()).hasSize(3);
+            assertThat(modelGraph.V().hasLabel(Job.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, 1).in(Employee_.JOB).values(MODEL_GRAPH_VERTEX_ENTITY).toList().stream().map(me -> ((ModelElement) me).rawElement()).map(a -> ((Employee) a).getLastName()).collect(Collectors.toSet())).containsExactlyInAnyOrder("Nolan", "Volkman", "Jones");
         }
     }
 

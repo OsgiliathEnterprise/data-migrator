@@ -9,9 +9,6 @@
     -->
     <changeSet id="20231125144522-1" author="jhipster">
         <createTable tableName="employee" remarks="The Employee entity.">
-            <column name="id" type="bigint">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
             <column name="first_name" type="varchar(255)" remarks="The firstname attribute.">
                 <constraints nullable="true"/>
             </column>
@@ -19,13 +16,13 @@
                 <constraints nullable="true"/>
             </column>
             <column name="email" type="varchar(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="phone_number" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="hire_date" type="${datetimeType}">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="salary" type="bigint">
                 <constraints nullable="true"/>
@@ -33,7 +30,10 @@
             <column name="commission_pct" type="bigint">
                 <constraints nullable="true"/>
             </column>
-            <column name="manager_id" type="bigint">
+            <column name="manager_email" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="manager_hire_date" type="${datetimeType}">
                 <constraints nullable="true"/>
             </column>
             <column name="department_id" type="bigint">
@@ -45,6 +45,16 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
         <dropDefaultValue tableName="employee" columnName="hire_date" columnDataType="${datetimeType}"/>
+        <createIndex indexName="index_employee_manager_pk" tableName="employee">
+            <column name="manager_email"/>
+            <column name="manager_hire_date"/>
+        </createIndex>
+        <!--<createIndex indexName="index_employee_pk" tableName="employee" unique="true">
+            <column name="hire_date"/>
+            <column name="email"/>
+        </createIndex>-->
+        <addPrimaryKey tableName="employee" columnNames="email,hire_date"
+                       constraintName="employee_primary_key_constraint"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -63,7 +73,6 @@
                 separator=";"
                 tableName="employee"
                 usePreparedStatements="true">
-            <column name="id" type="numeric"/>
             <column name="first_name" type="string"/>
             <column name="last_name" type="string"/>
             <column name="email" type="string"/>
@@ -71,7 +80,8 @@
             <column name="hire_date" type="date"/>
             <column name="salary" type="numeric"/>
             <column name="commission_pct" type="numeric"/>
-            <column name="manager_id" type="numeric"/>
+            <column name="manager_email" type="string"/>
+            <column name="manager_hire_date" type="date"/>
             <column name="department_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

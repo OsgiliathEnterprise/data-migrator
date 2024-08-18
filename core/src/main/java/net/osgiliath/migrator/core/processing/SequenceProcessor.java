@@ -28,11 +28,10 @@ import net.osgiliath.migrator.core.api.transformers.MetamodelColumnCellTransform
 import net.osgiliath.migrator.core.api.transformers.ModelElementColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
-import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.TRANSFORMER_TYPE;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.processing.model.SequencerBeanMetamodelVertexAndEntity;
 import net.osgiliath.migrator.core.processing.model.SequencerDefinitionAndBean;
 import net.osgiliath.migrator.core.processing.model.SequencersBeansMetamodelVertexAndEntity;
@@ -46,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static net.osgiliath.migrator.core.configuration.SequencerDefinition.WILDCARD;
 
 @Component
@@ -54,15 +54,17 @@ public class SequenceProcessor {
     private final ApplicationContext context;
     private final SequencerFactory sequencerFactory;
     private final ModelElementProcessor modelElementProcessor;
+    private final VertexResolver vertexResolver;
 
-    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor) {
+    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.context = context;
         this.sequencerFactory = sequencerFactory;
         this.modelElementProcessor = modelElementProcessor;
+        this.vertexResolver = vertexResolver;
     }
 
-    @Transactional(transactionManager = DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph) {
         dataMigratorConfiguration.getSequence().stream()
                 .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
@@ -86,8 +88,8 @@ public class SequenceProcessor {
                 .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
                         .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
                 .map(vertexAndSequencerBean -> {
-                    MetamodelVertex metamodelVertex = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_METAMODEL_VERTEX);
-                    ModelElement entity = vertexAndSequencerBean.vertex().value(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY);
+                    MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(vertexAndSequencerBean.vertex());
+                    ModelElement entity = vertexResolver.getModelElement(vertexAndSequencerBean.vertex());
                     Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
                     return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
                 }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
@@ -96,7 +98,7 @@ public class SequenceProcessor {
                 .forEach(sbmvae -> {
                     SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
                     if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof MetamodelColumnCellTransformer) {
-                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity(), sequencerBeanMetamodelVertexAndEntity.metamodelVertex());
+                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity());
                     } else if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof ModelElementColumnTransformer ject) {
                         processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.entity());
                     }
@@ -123,9 +125,9 @@ public class SequenceProcessor {
         bean.evaluate(entity);
     }
 
-    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity, MetamodelVertex metamodelVertex) {
-        Object value = modelElementProcessor.getFieldRawValue(metamodelVertex, transformerBean.columnName(), entity);
+    private void processMetamodelCellTransformer(MetamodelColumnCellTransformer transformerBean, ModelElement entity) {
+        Object value = modelElementProcessor.getFieldRawValue(entity, transformerBean.columnName());
         Object transformedValue = transformerBean.evaluate(value);
-        modelElementProcessor.setFieldRawValue(metamodelVertex, transformerBean.columnName(), entity, transformedValue);
+        modelElementProcessor.setFieldRawValue(entity, transformerBean.columnName(), transformedValue);
     }
 }

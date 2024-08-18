@@ -33,5 +33,99 @@
                  dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>
+        <replaceregexp byline="true">
+            <regexp pattern="@GenericGenerator\([^)]*\)"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@GeneratedValue\(.*\)"/>
+            <substitution expression="@GeneratedValue"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <!-- @Entity -->
+        <replace token='@Entity' value='import org.apache.tinkerpop.shaded.jackson.annotation.JsonIgnore;@Entity'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+
+        <replaceregexp byline="true">
+            <regexp pattern="^\s*@OneToOne"/>
+            <substitution expression="@JsonIgnore @OneToOne"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="^\s*@OneToMany"/>
+            <substitution expression="@JsonIgnore @OneToMany"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="^\s*@ManyToOne"/>
+            <substitution expression="@JsonIgnore @ManyToOne"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="^\s*@ManyToMany"/>
+            <substitution expression="@JsonIgnore @ManyToMany"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+
+
+        <!-- I hope noone will have a composite key containing 5 foreign keys -->
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="(@AttributeOverride\(name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;, .*name\s*=\s*&quot;((?:(?!&quot;).)+)&quot;(?:(?!^\s+@JoinColumn)[^£])*)(^\s*\@JoinColumn\(name\s*=\s*&quot;\3)"/>
+            <substitution expression="\1@jakarta.persistence.MapsId(&quot;\2&quot;) \4"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+
     </target>
 </project>

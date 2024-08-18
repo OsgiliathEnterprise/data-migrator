@@ -27,7 +27,7 @@ data-migrator:
     - name: column-anonymize-1
       type: factory
       transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
-      entity-class: Employee
+      entity-class: net.osgiliath.datamigrator.sample.domain.Employee
       column-transformation-definitions:
         - column-name: firstName
           consistent-key: True
@@ -36,7 +36,7 @@ data-migrator:
     - name: anonymizer-custom-1
       type: bean
       transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
-      entity-class: Country
+      entity-class: net.osgiliath.datamigrator.sample.domain.Country
   graph-datasource:
     type: embedded
 spring:
@@ -71,8 +71,8 @@ spring:
         generate_statistics: false
         # modify batch size as necessary
         jdbc:
-          batch_size: 25
-          fetch_size: 150
+          batch_size: 10000
+          fetch_size: 10000
           time_zone: UTC
         order_inserts: true
         order_updates: true
@@ -84,7 +84,8 @@ spring:
         connection:
           provider_disables_autocommit: true
           autocommit: false
-          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+        hbm2ddl:
+          auto: update
   datasource:
     hikari:
       auto-commit: false

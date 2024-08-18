@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!--
         Added the entity JobHistory.
@@ -15,22 +13,25 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="start_date" type="${datetimeType}">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="end_date" type="${datetimeType}">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="language" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="job_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__job_id" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__job_id"/>
             </column>
             <column name="department_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__department_id" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__department_id"/>
             </column>
-            <column name="employee_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__employee_id" />
+            <column name="employee_email" type="varchar(255)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__employee_id"/>
+            </column>
+            <column name="employee_hire_date" type="${datetimeType}">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_job_history__employee_id"/>
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
@@ -50,10 +51,10 @@
     -->
     <changeSet id="20231125144722-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/job_history.csv"
-                  separator=";"
-                  tableName="job_history"
-                  usePreparedStatements="true">
+                file="config/liquibase/fake-data/job_history.csv"
+                separator=";"
+                tableName="job_history"
+                usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="start_date" type="date"/>
             <column name="end_date" type="date"/>

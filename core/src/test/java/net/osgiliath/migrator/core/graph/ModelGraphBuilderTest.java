@@ -30,6 +30,7 @@ import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvi
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaRelationshipProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -69,14 +70,19 @@ class ModelGraphBuilderTest {
     private Vertex vertex;
     private JpaEntityProcessor jpaEntityHelper;
     private MetamodelRequester metamodelGraphRequester;
+    private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         jpaEntityHelper = new JpaEntityProcessor();
         metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper);
-        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester);
-        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, graphTraversalSourceProvider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer());
+        JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
+        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
+        VertexResolver resolver = new InGraphVertexResolver();
+        ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
+        modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
+        modelGraphBuilder = new ModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
     }
 
     @Test

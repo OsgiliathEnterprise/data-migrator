@@ -1,0 +1,97 @@
+<project name="EntityPostProcessor" default="dist" basedir=".">
+    <description>Post process the entities</description>
+    <target name="removeEntitiesFKs">
+        <replaceregexp byline="true">
+            <regexp pattern="@JoinColumn\(\n*\s*((?:(?!forei).)+)"/>
+            <substitution
+                    expression="@JoinColumn(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@PrimaryKeyJoinColumn$"/>
+            <substitution
+                    expression="@PrimaryKeyJoinColumn(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT))"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@JoinColumns\(\n*\s*((?:(?!forei).)+)"/>
+            <substitution
+                    expression="@JoinColumns(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), value = \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@JoinTable\(\n*\s*((?:(?!forei).)+)"/>
+            <substitution
+                    expression="@JoinTable(foreignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), inverseForeignKey = @jakarta.persistence.ForeignKey(jakarta.persistence.ConstraintMode.NO_CONSTRAINT), \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@OneToMany\(\n*\s*((?:(?!cascade).)+)"/>
+            <substitution
+                    expression="@OneToMany(cascade = jakarta.persistence.CascadeType.PERSIST, \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@ManyToOne\(\n*\s*((?:(?!cascade).)+)"/>
+            <substitution
+                    expression="@ManyToOne(cascade = jakarta.persistence.CascadeType.PERSIST, \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@ManyToMany\(\n*\s*((?:(?!cascade).)+)"/>
+            <substitution
+                    expression="@ManyToMany(cascade = jakarta.persistence.CascadeType.PERSIST, \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@OneToOne\(\n*\s*((?:(?!cascade).)+)"/>
+            <substitution
+                    expression="@OneToOne(cascade = jakarta.persistence.CascadeType.PERSIST, \1"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <!--<replaceregexp flags="gm">
+            <regexp pattern="^.*@OneToOne[^;]*;[^\}]*}[^;]*;[^\}]*}$"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="^.*@OneToMany[^;]*;[^\}]*}[^;]*;[^\}]*}$"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="^.*@ManyToOne[^;]*;[^\}]*}[^;]*;[^\}]*}$"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp flags="gm">
+            <regexp pattern="^.*@ManyToMany[^;]*;[^\}]*}[^;]*;[^\}]*}$"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>-->
+    </target>
+</project>

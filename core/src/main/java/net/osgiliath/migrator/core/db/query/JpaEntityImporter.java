@@ -84,7 +84,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
-    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER, propagation = Propagation.REQUIRES_NEW)
+    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
     public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -101,7 +101,7 @@ public class JpaEntityImporter implements EntityImporter {
         Stream<?> resultList;
         try {
             resultList = entityManager.createQuery(select).getResultStream();
-            return resultList.map(modelElementFactory::createModelElement);
+            return resultList.map(m -> modelElementFactory.createModelElement(entityVertex, m));
         } catch (Exception e) {
             log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
         }
@@ -123,7 +123,7 @@ public class JpaEntityImporter implements EntityImporter {
                 .map(object ->
                         builder.not(
                                 builder.equal(
-                                        root.get(pk), modelElementProcessor.getId(entityVertex, object)))
+                                        root.get(pk), modelElementProcessor.getId(object).orElseThrow()))
                 ).toList()).orElseGet(ArrayList::new);
     }
 

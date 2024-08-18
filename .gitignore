@@ -4,3 +4,4 @@ target
 src/main/java
 docs
 site
+tmp/

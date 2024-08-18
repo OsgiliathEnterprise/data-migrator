@@ -80,15 +80,12 @@
             <directory></directory>
             <includes>
                 <include>database.properties</include>
-            </includes>
-        </fileSet>
-        <fileSet encoding="UTF-8" filtered="false">
-            <directory></directory>
-            <includes>
+                <include>compose.yml</include>
                 <include>mvnw.cmd</include>
                 <include>.gitignore</include>
                 <include>mvnw</include>
                 <include>build.xml</include>
+                <include>build-nofk.xml</include>
             </includes>
         </fileSet>
     </fileSets>

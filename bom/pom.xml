@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.59-SNAPSHOT</version>
+        <version>1.75-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <camel.version>4.5.0</camel.version>
+        <camel.version>4.6.0</camel.version>
         <log4j.version>2.22.0</log4j.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <jgrapht.version>1.5.2</jgrapht.version>
@@ -44,7 +44,7 @@
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${jdbc.mysql.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${jdbc.postgresql.version}</version>
@@ -55,16 +55,16 @@
                 <version>${jdbc.oracle.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jpamodelgen</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
-                 <scope>import</scope>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel.springboot</groupId>
@@ -94,7 +94,7 @@
                 <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-jcache</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
@@ -120,14 +120,14 @@
                 <version>${liquibase.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.tinkerpop</groupId>
-               <artifactId>gremlin-driver</artifactId>
-               <version>${tinkerpop.version}</version>
+                <groupId>org.apache.tinkerpop</groupId>
+                <artifactId>gremlin-driver</artifactId>
+                <version>${tinkerpop.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.tinkerpop</groupId>
-               <artifactId>tinkergraph-gremlin</artifactId>
-               <version>${tinkerpop.version}</version>
+                <groupId>org.apache.tinkerpop</groupId>
+                <artifactId>tinkergraph-gremlin</artifactId>
+                <version>${tinkerpop.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.querydsl</groupId>
@@ -148,9 +148,9 @@
                 <version>${hibernate.version}</version>
             </dependency>
             <dependency>
-               <groupId>javax.transaction</groupId>
-               <artifactId>jta</artifactId>
-               <version>1.1</version>
+                <groupId>javax.transaction</groupId>
+                <artifactId>jta</artifactId>
+                <version>1.1</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.persistence</groupId>
@@ -166,9 +166,9 @@
     </dependencyManagement>
     <profiles>
         <profile>
-			<id>release</id>
-			<build>
-				<plugins>
+            <id>release</id>
+            <build>
+                <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -177,12 +177,12 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                     </plugin>
-					<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

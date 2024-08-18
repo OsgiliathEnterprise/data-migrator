@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.configuration;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,20 +26,20 @@ import java.util.Map;
 public class PerDSJpaProperties {
 
 
-	/**
-	 * Additional native properties to set on the JPA provider.
-	 */
-	private Map<String, String> properties = new HashMap<>();
+    /**
+     * Additional native properties to set on the JPA provider.
+     */
+    private Map<String, String> properties = new HashMap<>();
 
-    	/**
-	 * Name of the target database to operate on, auto-detected by default. Can be
-	 * alternatively set using the "Database" enum.
-	 */
-	private String databasePlatform;
-    	/**
-	 * Whether to initialize the schema on startup.
-	 */
-	private boolean generateDdl = false;
+    /**
+     * Name of the target database to operate on, auto-detected by default. Can be
+     * alternatively set using the "Database" enum.
+     */
+    private String databasePlatform;
+    /**
+     * Whether to initialize the schema on startup.
+     */
+    private boolean generateDdl = false;
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
@@ -66,9 +66,11 @@ public class PerDSJpaProperties {
         Map<String, String> ret = this.properties;
         if (this.generateDdl) {
             ret.put("hibernate.hbm2ddl.auto", "create");
+        } else {
+            ret.put("hibernate.hbm2ddl.auto", "update");
         }
         return this.properties;
-	}
+    }
 
 
 }

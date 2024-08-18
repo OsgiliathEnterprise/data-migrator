@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.58-SNAPSHOT</version>
+        <version>1.75-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -130,7 +130,7 @@
                             <version>${spring-boot.version}</version>
                         </annotationProcessorPath>
                         <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
+                            <groupId>org.hibernate.orm</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
                             <version>${hibernate.version}</version>
                         </annotationProcessorPath>
@@ -154,7 +154,7 @@
                         </goals>
                         <configuration>
                             <files>
-                                <file>${basedir}/database.properties</file>
+                                <file>${project.basedir}/database.properties</file>
                             </files>
                         </configuration>
                     </execution>
@@ -258,7 +258,7 @@
                                     <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>org.hibernate.orm</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
@@ -359,6 +359,57 @@
             </build>
         </profile>
         <profile>
+            <id>populate-sourcedb-from-changelog</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>update-source-db</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                                <configuration>
+                                    <changeLogFile>/config/liquibase/master.xml</changeLogFile>
+                                    <contexts>test,faker</contexts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.mariadb.jdbc</groupId>
+                                <artifactId>mariadb-java-client</artifactId>
+                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.mysql</groupId>
+                                <artifactId>mysql-connector-j</artifactId>
+                                <version>${mysql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>${postgresql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc11</artifactId>
+                                <version>${jdbc.oracle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.microsoft.sqlserver</groupId>
+                                <artifactId>mssql-jdbc</artifactId>
+                                <version>${jdbc.mssql.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>entities-from-changelog</id>
             <properties>
                 <source.database.docker.image>mysql:8.2</source.database.docker.image>
@@ -383,7 +434,7 @@
                                     <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>org.hibernate.orm</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
@@ -746,6 +797,148 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>entities-from-source-schema-nofk</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.hibernate.tool</groupId>
+                        <artifactId>hibernate-tools-maven</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-entities</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>hbm2java</goal>
+                                </goals>
+                                <configuration>
+                                    <propertyFile>${project.build.directory}/classes/hibernate.properties</propertyFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.mariadb.jdbc</groupId>
+                                <artifactId>mariadb-java-client</artifactId>
+                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.mysql</groupId>
+                                <artifactId>mysql-connector-j</artifactId>
+                                <version>${jdbc.mysql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>${jdbc.postgresql.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.oracle.database.jdbc</groupId>
+                                <artifactId>ojdbc11</artifactId>
+                                <version>${jdbc.oracle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.microsoft.sqlserver</groupId>
+                                <artifactId>mssql-jdbc</artifactId>
+                                <version>${jdbc.mssql.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <compilerArgs>
+                                <arg>-Aquerydsl.entityAccessors=true</arg>
+                                <arg>-Aquerydsl.useFields=false</arg>
+                            </compilerArgs>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-configuration-processor</artifactId>
+                                    <version>${spring-boot.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>org.hibernate.orm</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <version>${hibernate.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>com.querydsl</groupId>
+                                    <artifactId>querydsl-apt</artifactId>
+                                    <version>${querydsl.version}</version>
+                                    <classifier>jakarta</classifier>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.hibernate.orm.tooling</groupId>
+                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.cmeza</groupId>
+                        <artifactId>spring-data-generator</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-entities</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>repositories</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
+                                        <move todir="${project.build.directory}/generated-sources/repositories">
+                                            <fileset dir="${project.basedir}/src/main/java"
+                                                     includes="**/repository/*.java"/>
+                                        </move>
+                                        <property name="maven.project.build.directory"
+                                                  value="${project.build.directory}"/>
+                                        <property name="maven.project.basedir" value="${project.basedir}"/>
+                                        <ant antfile="build-nofk.xml" target="removeEntitiesFKs"/>
+                                        <ant antfile="build.xml" target="amendEntities"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.build.directory}/generated-sources/annotations</source>
+                                        <source>${project.build.directory}/generated-sources/entities</source>
+                                        <source>${project.build.directory}/generated-sources/repositories</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     <dependencies>
         <dependency>
@@ -778,7 +971,7 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -821,7 +1014,7 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jcache</artifactId>
         </dependency>
         <dependency>

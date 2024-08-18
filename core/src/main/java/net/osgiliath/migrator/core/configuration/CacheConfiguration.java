@@ -1,4 +1,4 @@
-package net.osgiliath.migrator.core.api.model;
+package net.osgiliath.migrator.core.configuration;
 
 /*-
  * #%L
@@ -9,9 +9,9 @@ package net.osgiliath.migrator.core.api.model;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,13 +20,20 @@ package net.osgiliath.migrator.core.api.model;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * A vertex in the model graph.
- *
- * @param vertex     the metamodel element.
- * @param rawElement the underlying element.
- */
-public record ModelElement(MetamodelVertex vertex, Object rawElement) {
+@Configuration
+@EnableCaching
+public class CacheConfiguration {
+
+
+    @Bean
+    public CacheManager cacheManager() {
+
+        return new ConcurrentMapCacheManager("metamodelEntitiesClass");
+    }
 }

@@ -35,6 +35,7 @@ import net.osgiliath.migrator.core.graph.model.UnitaryEdgeTarget;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
+import net.osgiliath.migrator.core.rawelement.jpa.JpaRelationshipProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.Assertions;
@@ -73,15 +74,20 @@ class ModelElementTest {
     @Mock
     private MetamodelRequester metamodelGraphRequester;
 
+    private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
+
     @BeforeEach
     public void setup() {
         jpaEntityHelper = new JpaEntityProcessor();
         traversal = new MockTraversalVertex(jpaEntityHelper);
         GraphTraversalSourceProvider provider = new GraphTraversalSourceProvider(null);
+        JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
         EntityImporter entityImporter = (entityVertex, objectToExclude) -> Stream.empty();
-        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester);
-        modelGraphBuilder = new ModelGraphBuilder(jpaEntityHelper, entityImporter, provider, metamodelGraphRequester, modelElementProcessor, new ModelVertexCustomizer());
-
+        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
+        VertexResolver resolver = new InGraphVertexResolver();
+        ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
+        modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
+        modelGraphBuilder = new ModelGraphBuilder(provider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
     }
 
     @Test
@@ -89,11 +95,11 @@ class ModelElementTest {
         // Arrange
         Vertex modelElement = traversal.getVertex(MockTraversalVertex.ENTITY_ID_1);
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
-        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(fe.getClass().getMethod("getOne"));
+        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(Optional.of(fe.getClass().getMethod("getOne")));
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
-        Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
+        Optional<EdgeTargetVertexOrVertices> result = modelGraphEdgeBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
         Assertions.assertEquals(((UnitaryEdgeTarget) result.get()).target().id(), MockTraversalVertex.ENTITY_ID_1);
@@ -106,11 +112,11 @@ class ModelElementTest {
         FakeEntity fe = (FakeEntity) ((MockVertex) modelElement).getMe().rawElement();
 
         // Arrange
-        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(fe.getClass().getMethod("getMany"));
+        when(metamodelGraphRequester.relationshipGetter(any())).thenReturn(Optional.of(fe.getClass().getMethod("getMany")));
         when(fieldEdge.getTarget()).thenReturn(new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class));
         when(graphTraversalSource.V()).thenReturn(traversal);
         // Act
-        Optional<EdgeTargetVertexOrVertices> result = modelGraphBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
+        Optional<EdgeTargetVertexOrVertices> result = modelGraphEdgeBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
         Collection<Vertex> target = ((ManyEdgeTarget) result.get()).target().collect(Collectors.toSet());

@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.common;
  * #L%
  */
 
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
@@ -42,11 +43,17 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
 
     public MockTraversalVertex(JpaEntityProcessor jpaEntityHelper) {
         FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
-        ModelElement me1 = new ModelElement(fe1);
+        MetamodelVertex mmv1 = new MetamodelVertex() {
+            @Override
+            public String getTypeName() {
+                return "VTX";
+            }
+        };
+        ModelElement me1 = new ModelElement(mmv1, fe1);
         MockVertex mv1 = new MockVertex(me1);
         vertices.add(mv1);
         FakeEntity fe2 = new FakeEntity(ENTITY_ID_2, this);
-        ModelElement me2 = new ModelElement(fe2);
+        ModelElement me2 = new ModelElement(mmv1, fe2);
         MockVertex mv2 = new MockVertex(me2);
         vertices.add(mv2);
         vertexIterator = vertices.iterator();
@@ -55,8 +62,14 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
 
     public MockTraversalVertex(int id, JpaEntityProcessor jpaEntityHelper) {
         if (id == ENTITY_ID_1) {
+            MetamodelVertex mmv1 = new MetamodelVertex() {
+                @Override
+                public String getTypeName() {
+                    return "VTX";
+                }
+            };
             FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);
-            ModelElement me1 = new ModelElement(fe1);
+            ModelElement me1 = new ModelElement(mmv1, fe1);
             MockVertex mv1 = new MockVertex(me1);
             vertices.add(mv1);
             vertexIterator = vertices.iterator();

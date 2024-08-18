@@ -22,12 +22,23 @@ package net.osgiliath.migrator.core.graph;
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import org.springframework.stereotype.Component;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-@Component
-public class ModelElementFactory {
+public interface VertexResolver {
+    MetamodelVertex getMetamodelVertex(Vertex vertex);
 
-    public ModelElement createModelElement(MetamodelVertex vertex, Object entity) {
-        return new ModelElement(vertex, entity);
-    }
+    GraphTraversal setMetamodelVertex(GraphTraversal traversal, MetamodelVertex metamodelVertex);
+
+    ModelElement getModelElement(Vertex vertex);
+
+    GraphTraversal setModelElement(GraphTraversal traversal, ModelElement modelElement);
+
+    GraphTraversal setVertexModelElementId(GraphTraversal traversal, Object id);
+
+    Object getVertexModelElementId(Vertex vtx);
+
+    Object getWrappedRawId(Object originalId);
+
+    void clear();
 }

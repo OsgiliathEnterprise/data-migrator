@@ -6,25 +6,25 @@ data-migrator:
     - column-anonymize-2
     - anonymizer-custom-1
   sequencers:
-#    - name: rows-minimize-1
-#      type: rows-minimize
-#      rows-to-keep: 10
-#    - name: column-anonymize-1
-#      type: column-anonymizers
-#      table: virtuals
-#      column: password
-#      faker: RockBand
-#    - name: column-anonymize-2
-#      type: column-anonymizers
-#      table: virtuals
-#      column: biosspass
-#      faker: Disease
-#    - name: column-anonymize-1
-#      type: factory
-#      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
-#      entity-class: Employee
-#      columns:
-#       - firstName
+  #    - name: rows-minimize-1
+  #      type: rows-minimize
+  #      rows-to-keep: 10
+  #    - name: column-anonymize-1
+  #      type: column-anonymizers
+  #      table: virtuals
+  #      column: password
+  #      faker: RockBand
+  #    - name: column-anonymize-2
+  #      type: column-anonymizers
+  #      table: virtuals
+  #      column: biosspass
+  #      faker: Disease
+  #    - name: column-anonymize-1
+  #      type: factory
+  #      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
+  #      entity-class: Employee
+  #      columns:
+  #       - firstName
 
   graph-datasource:
     type: embedded
@@ -54,9 +54,9 @@ spring:
       hibernate:
         id.new_generator_mappings: true
         #        cache:
-#          use_second_level_cache: true
-#          use_query_cache: false
-#          region.factory_class: jcache
+        #          use_second_level_cache: true
+        #          use_query_cache: false
+        #          region.factory_class: jcache
         generate_statistics: false
         # modify batch size as necessary
         jdbc:
@@ -73,7 +73,6 @@ spring:
         connection:
           provider_disables_autocommit: true
           autocommit: false
-          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
   datasource:
     hikari:
       auto-commit: false

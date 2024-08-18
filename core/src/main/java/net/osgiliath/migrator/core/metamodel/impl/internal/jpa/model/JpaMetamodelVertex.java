@@ -36,7 +36,7 @@ public record JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) 
      */
     @Override
     public String getTypeName() {
-        return entityClass().getSimpleName();
+        return entityClass().getName();
     }
 
     /**

@@ -18,7 +18,10 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="assignee_id" type="bigint">
+            <column name="assignee_email" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="assignee_hire_date" type="${datetimeType}">
                 <constraints nullable="true"/>
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
@@ -45,6 +48,8 @@
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
             <column name="description" type="string"/>
+            <column name="assignee_email" type="string"/>
+            <column name="assignee_hire_date" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

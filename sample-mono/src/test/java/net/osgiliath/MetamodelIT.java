@@ -1,6 +1,5 @@
 package net.osgiliath;
 
-import jakarta.transaction.Transactional;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.*;
@@ -19,8 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,10 +33,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest(classes = {DataMigratorApplication.class})
+@DirtiesContext
 class MetamodelIT {
     static {
         System.setProperty("liquibase.duplicateFileMode", "WARN");
@@ -122,12 +125,12 @@ class MetamodelIT {
         assertThat(graph.edgeSet()).hasSize(12);
     }
 
-    @Transactional
+    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Test
-    void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
+    public void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
-        MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals("Employee")).findFirst().get();
+        MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals(Employee.class.getName())).findFirst().get();
         List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>()).collect(Collectors.toUnmodifiableList());
         assertThat(entities).isNotEmpty();
     }
