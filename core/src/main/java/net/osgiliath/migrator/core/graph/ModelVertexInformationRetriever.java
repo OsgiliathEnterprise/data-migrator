@@ -28,8 +28,6 @@ import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElements;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -44,9 +42,8 @@ public class ModelVertexInformationRetriever {
     }
 
     // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
-    public Collection<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
-        return getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(mv)
-                .collect(Collectors.toSet());
+    public Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
+        return getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(mv);
     }
 
     private Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(MetamodelVertex mv) {

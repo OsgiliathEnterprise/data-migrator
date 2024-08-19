@@ -27,7 +27,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-import net.osgiliath.migrator.core.rawelement.jpa.JpaRelationshipProcessor;
+import net.osgiliath.migrator.core.rawelement.jpa.RelationshipProcessor;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Service;
 
@@ -42,17 +42,17 @@ public class ModelElementProcessor {
 
     private final RawElementProcessor rawElementProcessor;
     private final MetamodelRequester metamodelRequester;
-    private final JpaRelationshipProcessor jpaRelationshipProcessor;
+    private final RelationshipProcessor relationshipProcessor;
 
-    public ModelElementProcessor(RawElementProcessor rawElementProcessor, MetamodelRequester metamodelRequester, JpaRelationshipProcessor jpaRelationshipProcessor) {
+    public ModelElementProcessor(RawElementProcessor rawElementProcessor, MetamodelRequester metamodelRequester, RelationshipProcessor relationshipProcessor) {
 
         this.rawElementProcessor = rawElementProcessor;
         this.metamodelRequester = metamodelRequester;
-        this.jpaRelationshipProcessor = jpaRelationshipProcessor;
+        this.relationshipProcessor = relationshipProcessor;
     }
 
     public void removeEdgeValueFromModelElementRelationShip(ModelElement sourceModelElement, FieldEdge<MetamodelVertex> fieldEdge, ModelElement targetModelElement) {
-        Object targetValue = jpaRelationshipProcessor.getEdgeRawValue(fieldEdge, sourceModelElement);
+        Object targetValue = relationshipProcessor.getEdgeRawValue(fieldEdge, sourceModelElement);
         if (targetValue instanceof Collection targetValues) {
             targetValues.remove(targetModelElement.rawElement());
             setEdgeRawValue(fieldEdge, sourceModelElement, targetValue);
@@ -95,7 +95,7 @@ public class ModelElementProcessor {
                             );
                         }
                         case ONE_TO_MANY -> {
-                            Collection set = (Collection) jpaRelationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
+                            Collection set = (Collection) relationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
                             set.add(targetEntity.rawElement());
                             setEdgeRawValue(fieldEdge, sourceEntity, set);
                             metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge ->
@@ -107,7 +107,7 @@ public class ModelElementProcessor {
                             addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
                         }
                         case MANY_TO_MANY -> {
-                            Collection set = (Collection) jpaRelationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
+                            Collection set = (Collection) relationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
                             set.add(targetEntity.rawElement());
                             setEdgeRawValue(fieldEdge, sourceEntity, set);
                             addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
@@ -119,7 +119,7 @@ public class ModelElementProcessor {
 
     private void addEntityToInverseToManyTargetEntity(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex targetVertex) {
         metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
-            Collection inverseCollection = (Collection) jpaRelationshipProcessor.getEdgeRawValue(inverseFieldEdge, targetEntity);
+            Collection inverseCollection = (Collection) relationshipProcessor.getEdgeRawValue(inverseFieldEdge, targetEntity);
             if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
                 inverseCollection = HashSet.newHashSet(0);
             }

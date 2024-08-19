@@ -40,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,12 +64,13 @@ class ModelGraphBuilderTest {
     @Mock
     private GraphTraversalSource graphTraversalSource;
 
-    private ModelGraphBuilder modelGraphBuilder;
+    private TinkerpopModelGraphBuilder modelGraphBuilder;
 
-
+    @Mock
+    private PlatformTransactionManager txMgr;
     private JpaEntityProcessor jpaEntityHelper;
     private MetamodelRequester metamodelGraphRequester;
-    private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
+    private TinkerpopModelGraphEdgeBuilder modelGraphEdgeBuilder;
 
     @BeforeEach
     public void setUp() {
@@ -79,8 +81,8 @@ class ModelGraphBuilderTest {
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
-        modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
-        modelGraphBuilder = new ModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, txMgr);
+        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder, txMgr);
     }
 
     @Test

@@ -84,7 +84,6 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
-    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
     public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
         log.info("Importing entity {}", entityVertex.getTypeName());
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
