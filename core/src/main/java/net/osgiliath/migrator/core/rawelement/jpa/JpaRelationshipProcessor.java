@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 @Component
-public class JpaRelationshipProcessor {
+public class JpaRelationshipProcessor implements RelationshipProcessor {
 
     private final MetamodelRequester metamodelRequester;
 
@@ -47,6 +47,7 @@ public class JpaRelationshipProcessor {
      * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
      */
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    @Override
     public Object getEdgeRawValue(FieldEdge<MetamodelVertex> fieldEdge, ModelElement modelElement) {
         Optional<Method> getterMethodOpt = metamodelRequester.relationshipGetter(fieldEdge);
         return getterMethodOpt.map(getterMethod -> {

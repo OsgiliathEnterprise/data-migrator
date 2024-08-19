@@ -22,7 +22,7 @@ package net.osgiliath.migrator.core.common;
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -102,7 +102,7 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
 
     @Override
     public GraphTraversal<Vertex, Vertex> has(String propertyKey, Object value) {
-        if (propertyKey.equals(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)) {
+        if (propertyKey.equals(TinkerpopModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID)) {
             return new MockTraversalVertex((Integer) value, jpaEntityHelper);
         }
         return super.has(propertyKey, value);

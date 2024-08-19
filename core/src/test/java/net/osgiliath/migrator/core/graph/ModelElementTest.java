@@ -22,13 +22,10 @@ package net.osgiliath.migrator.core.graph;
 
 import jakarta.transaction.Transactional;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
-import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.common.MockTraversalVertex;
 import net.osgiliath.migrator.core.common.MockVertex;
-import net.osgiliath.migrator.core.configuration.ModelVertexCustomizer;
-import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.graph.model.EdgeTargetVertexOrVertices;
 import net.osgiliath.migrator.core.graph.model.ManyEdgeTarget;
 import net.osgiliath.migrator.core.graph.model.UnitaryEdgeTarget;
@@ -44,11 +41,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,25 +66,20 @@ class ModelElementTest {
 
     private MockTraversalVertex traversal;
 
-    private ModelGraphBuilder modelGraphBuilder;
-
     @Mock
     private MetamodelRequester metamodelGraphRequester;
 
-    private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
+    private TinkerpopModelGraphEdgeBuilder modelGraphEdgeBuilder;
+    @Mock
+    private PlatformTransactionManager txMgr;
 
     @BeforeEach
     public void setup() {
         jpaEntityHelper = new JpaEntityProcessor();
         traversal = new MockTraversalVertex(jpaEntityHelper);
-        GraphTraversalSourceProvider provider = new GraphTraversalSourceProvider(null);
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
-        EntityImporter entityImporter = (entityVertex, objectToExclude) -> Stream.empty();
-        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
-        ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
-        modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
-        modelGraphBuilder = new ModelGraphBuilder(provider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, txMgr);
     }
 
     @Test

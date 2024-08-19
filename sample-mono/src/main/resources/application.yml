@@ -52,11 +52,8 @@ spring:
           generate_statistics: false
           # modify batch size as necessary
           jdbc:
-            batch_size: 10000
             fetch_size: 10000
             time_zone: UTC
-          order_inserts: true
-          order_updates: true
           # modify fetch size as necessary
           criteria.literal_handling_mode: BIND
           query:
@@ -79,15 +76,11 @@ spring:
           # modify batch size as necessary
           jdbc:
             batch_size: 10000
-            fetch_size: 10000
             time_zone: UTC
           order_inserts: true
           order_updates: true
           # modify fetch size as necessary
           criteria.literal_handling_mode: BIND
-          query:
-            fail_on_pagination_over_collection_fetch: true
-            in_clause_parameter_padding: true
           connection:
             provider_disables_autocommit: true
             autocommit: false
@@ -98,31 +91,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     show-sql: true
-    properties:
-      hibernate:
-        id.new_generator_mappings: true
-        #        cache:
-        #          use_second_level_cache: true
-        #          use_query_cache: false
-        #          region.factory_class: jcache
-        generate_statistics: false
-        # modify batch size as necessary
-        jdbc:
-          batch_size: 10000
-          fetch_size: 10000
-          time_zone: UTC
-        order_inserts: true
-        order_updates: true
-        # modify fetch size as necessary
-        criteria.literal_handling_mode: BIND
-        query:
-          fail_on_pagination_over_collection_fetch: true
-          in_clause_parameter_padding: true
-        connection:
-          provider_disables_autocommit: true
-          autocommit: false
-        hbm2ddl:
-          auto: update
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource

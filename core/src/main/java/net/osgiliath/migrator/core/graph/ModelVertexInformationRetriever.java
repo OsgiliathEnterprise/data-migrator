@@ -28,8 +28,7 @@ import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElements;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ModelVertexInformationRetriever {
@@ -43,11 +42,14 @@ public class ModelVertexInformationRetriever {
     }
 
     // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
-    public Collection<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
+    public Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
+        return getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(mv);
+    }
+
+    private Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(MetamodelVertex mv) {
         return new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>()))
                 .modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mv, modelElement))
                 .flatMap(mvae -> modelElementProcessor.getId(mvae.modelElement()).stream().map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid))
-                )
-                .collect(Collectors.toSet());
+                );
     }
 }

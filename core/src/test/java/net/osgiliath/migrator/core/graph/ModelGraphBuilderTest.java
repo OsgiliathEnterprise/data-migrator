@@ -40,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,14 +64,13 @@ class ModelGraphBuilderTest {
     @Mock
     private GraphTraversalSource graphTraversalSource;
 
-    private ModelGraphBuilder modelGraphBuilder;
-
+    private TinkerpopModelGraphBuilder modelGraphBuilder;
 
     @Mock
-    private Vertex vertex;
+    private PlatformTransactionManager txMgr;
     private JpaEntityProcessor jpaEntityHelper;
     private MetamodelRequester metamodelGraphRequester;
-    private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
+    private TinkerpopModelGraphEdgeBuilder modelGraphEdgeBuilder;
 
     @BeforeEach
     public void setUp() {
@@ -81,13 +81,14 @@ class ModelGraphBuilderTest {
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
-        modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
-        modelGraphBuilder = new ModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, txMgr);
+        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder, txMgr);
     }
 
     @Test
     void testModelGraphFromMetamodelGraph() {
         GraphTraversal<Vertex, Vertex> traversal = mock(GraphTraversal.class);
+        when(graphTraversalSource.inject(0)).thenReturn((GraphTraversal) traversal);
         when(graphTraversalSource.V()).thenReturn(traversal);
         when(graphTraversalSourceProvider.getGraph()).thenReturn(graphTraversalSource);
         modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph);
@@ -104,7 +105,9 @@ class ModelGraphBuilderTest {
         Collection<FieldEdge<MetamodelVertex>> edges = Arrays.asList(fieldEdge);
         Set<MetamodelVertex> metaVertex = new HashSet<>();
         metaVertex.add(metamodelVertex);
-        when(graphTraversalSource.V()).thenReturn(new DefaultGraphTraversal());
+        GraphTraversal g = new DefaultGraphTraversal();
+        when(graphTraversalSource.inject(0)).thenReturn(g);
+        when(graphTraversalSource.V()).thenReturn(g);
         when(entityMetamodelGraph.vertexSet()).thenReturn(metaVertex);
         // Act
         modelGraphBuilder.createEdges(entityMetamodelGraph, graphTraversalSource);

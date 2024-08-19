@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.common;
  */
 
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder;
 import org.apache.tinkerpop.gremlin.structure.*;
 
 import java.util.Iterator;
@@ -90,7 +90,7 @@ public class MockVertex implements Vertex {
 
     @Override
     public <V> V value(final String key) throws NoSuchElementException {
-        if (key.equals(ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY))
+        if (key.equals(TinkerpopModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY))
             return (V) me;
         return null;
     }

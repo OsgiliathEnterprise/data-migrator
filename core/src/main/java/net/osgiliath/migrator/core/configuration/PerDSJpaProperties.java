@@ -29,7 +29,7 @@ public class PerDSJpaProperties {
     /**
      * Additional native properties to set on the JPA provider.
      */
-    private Map<String, String> properties = new HashMap<>();
+    private Map<String, Object> properties = new HashMap<>();
 
     /**
      * Name of the target database to operate on, auto-detected by default. Can be
@@ -41,7 +41,7 @@ public class PerDSJpaProperties {
      */
     private boolean generateDdl = false;
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 
@@ -61,9 +61,8 @@ public class PerDSJpaProperties {
         this.generateDdl = generateDdl;
     }
 
-    public Map<String, String> getProperties() {
-
-        Map<String, String> ret = this.properties;
+    public Map<String, Object> getProperties() {
+        Map<String, Object> ret = this.properties;
         if (this.generateDdl) {
             ret.put("hibernate.hbm2ddl.auto", "create");
         } else {

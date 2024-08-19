@@ -8,7 +8,7 @@ import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
-import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
+import net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
@@ -94,7 +94,7 @@ class CustomProcessingIT {
     private MetamodelGraphBuilder metamodelGraphBuilder;
 
     @Autowired
-    private ModelGraphBuilder modelGraphBuilder;
+    private TinkerpopModelGraphBuilder modelGraphBuilder;
 
     @Autowired
     private MetamodelScanner scanner;
