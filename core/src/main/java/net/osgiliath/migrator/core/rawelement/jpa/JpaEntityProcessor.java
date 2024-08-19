@@ -257,6 +257,12 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+        transactionTemplate.setReadOnly(true);
+        return transactionTemplate.execute(status -> internalGetRawElementValue(entity, attributeName));
+    }
+
+    private Object internalGetRawElementValue(Object entity, String attributeName) {
         try {
             if (null != entityManager && isDetached(entity.getClass(), entity)) {
                 // Session session = entityManager.unwrap(Session.class);
@@ -276,10 +282,8 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-                                    // results.iterator().hasNext();
-                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
-                                    transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+
+                                    results.iterator().hasNext();
                                 }
                             }
                             return result;
@@ -444,7 +448,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     public boolean isFkIgnored(Class<?> entityClass, String attributeName) {
         try {
-
             return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
                     .filter(pd -> attributeName.equals(pd.getName()))
                     .map(PropertyDescriptor::getReadMethod)
