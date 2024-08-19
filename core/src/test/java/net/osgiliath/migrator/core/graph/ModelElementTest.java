@@ -27,7 +27,6 @@ import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
 import net.osgiliath.migrator.core.common.MockTraversalVertex;
 import net.osgiliath.migrator.core.common.MockVertex;
-import net.osgiliath.migrator.core.configuration.ModelVertexCustomizer;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.graph.model.EdgeTargetVertexOrVertices;
 import net.osgiliath.migrator.core.graph.model.ManyEdgeTarget;
@@ -69,8 +68,6 @@ class ModelElementTest {
 
     private MockTraversalVertex traversal;
 
-    private ModelGraphBuilder modelGraphBuilder;
-
     @Mock
     private MetamodelRequester metamodelGraphRequester;
 
@@ -87,7 +84,6 @@ class ModelElementTest {
         VertexResolver resolver = new InGraphVertexResolver();
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
         modelGraphEdgeBuilder = new ModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver);
-        modelGraphBuilder = new ModelGraphBuilder(provider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
     }
 
     @Test

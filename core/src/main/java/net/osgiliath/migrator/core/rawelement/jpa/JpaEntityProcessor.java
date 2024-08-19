@@ -28,12 +28,10 @@ import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodExcepti
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -61,9 +59,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     @PersistenceContext(unitName = SOURCE_PU)
     private EntityManager entityManager;
-
-    @Autowired
-    private PlatformTransactionManager sourcePlatformTransactionManager;
 
     /**
      * selects the owning side of a many to many relationship.
@@ -257,19 +252,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
-        transactionTemplate.setReadOnly(true);
-        return transactionTemplate.execute(status -> internalGetRawElementValue(entity, attributeName));
-    }
-
-    private Object internalGetRawElementValue(Object entity, String attributeName) {
         try {
             if (null != entityManager && isDetached(entity.getClass(), entity)) {
-                // Session session = entityManager.unwrap(Session.class);
-
-                // entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
-                // entityManager.refresh(entity);
-                entity = entityManager.merge(entity);
+                Session session = entityManager.unwrap(Session.class);
+                entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
                 entityManager.refresh(entity);
             }
             Object entityToUse = entity;
@@ -282,8 +268,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                 PersistenceUnitUtil unitUtil =
                                         entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-
                                     results.iterator().hasNext();
+                                    /*TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                    transactionTemplate.setReadOnly(true);
+                                    transactionTemplate.execute(status -> results.iterator().hasNext());*/
                                 }
                             }
                             return result;
@@ -448,6 +436,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     public boolean isFkIgnored(Class<?> entityClass, String attributeName) {
         try {
+
             return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
                     .filter(pd -> attributeName.equals(pd.getName()))
                     .map(PropertyDescriptor::getReadMethod)

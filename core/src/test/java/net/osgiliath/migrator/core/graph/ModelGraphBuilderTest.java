@@ -66,8 +66,6 @@ class ModelGraphBuilderTest {
     private ModelGraphBuilder modelGraphBuilder;
 
 
-    @Mock
-    private Vertex vertex;
     private JpaEntityProcessor jpaEntityHelper;
     private MetamodelRequester metamodelGraphRequester;
     private ModelGraphEdgeBuilder modelGraphEdgeBuilder;
