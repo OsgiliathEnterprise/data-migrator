@@ -35,9 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -70,26 +68,17 @@ public class ModelGraphEdgeBuilder {
 
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        Stream<SourceVertexFieldEdgeAndTargetVertex> sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph);
-        Collection<SourceVertexFieldEdgeAndTargetVertex> col = sourceVertexEdgeAndTargetVertexList.collect(Collectors.toSet());
-        Iterator<SourceVertexFieldEdgeAndTargetVertex> it = col.iterator();
-        if (it.hasNext()) {
-            SourceVertexFieldEdgeAndTargetVertex elt = it.next();
-            GraphTraversal traversal = modelGraph.V(elt
-                            .sourceVertex())
-                    .addE(elt.edge().getFieldName())
-                    .to(elt.targetVertex())
-                    .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName());
-            while (it.hasNext()) {
-                SourceVertexFieldEdgeAndTargetVertex elm = it.next();
-                traversal = traversal.V(elm
-                                .sourceVertex())
-                        .addE(elm.edge().getFieldName())
-                        .to(elm.targetVertex())
-                        .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elm.edge().getMetamodelField().getName());
-            }
-            traversal.iterate();
-        }
+        GraphTraversal sourceVertexEdgeAndTargetVertexList = computeEdgesOfVertices(modelGraph, entityMetamodelGraph)
+                .reduce(modelGraph.inject(0), (
+                                GraphTraversal t1, SourceVertexFieldEdgeAndTargetVertex elt
+                        ) ->
+                                t1.V(elt
+                                                .sourceVertex())
+                                        .addE(elt.edge().getFieldName())
+                                        .to(elt.targetVertex())
+                                        .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName())
+                        , (GraphTraversal t2, GraphTraversal t3) -> t2.combine(t3));
+        sourceVertexEdgeAndTargetVertexList.iterate();
     }
 
     private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {

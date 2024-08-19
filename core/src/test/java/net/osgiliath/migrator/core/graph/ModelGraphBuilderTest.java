@@ -88,6 +88,7 @@ class ModelGraphBuilderTest {
     @Test
     void testModelGraphFromMetamodelGraph() {
         GraphTraversal<Vertex, Vertex> traversal = mock(GraphTraversal.class);
+        when(graphTraversalSource.inject(0)).thenReturn((GraphTraversal) traversal);
         when(graphTraversalSource.V()).thenReturn(traversal);
         when(graphTraversalSourceProvider.getGraph()).thenReturn(graphTraversalSource);
         modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph);
@@ -104,7 +105,9 @@ class ModelGraphBuilderTest {
         Collection<FieldEdge<MetamodelVertex>> edges = Arrays.asList(fieldEdge);
         Set<MetamodelVertex> metaVertex = new HashSet<>();
         metaVertex.add(metamodelVertex);
-        when(graphTraversalSource.V()).thenReturn(new DefaultGraphTraversal());
+        GraphTraversal g = new DefaultGraphTraversal();
+        when(graphTraversalSource.inject(0)).thenReturn(g);
+        when(graphTraversalSource.V()).thenReturn(g);
         when(entityMetamodelGraph.vertexSet()).thenReturn(metaVertex);
         // Act
         modelGraphBuilder.createEdges(entityMetamodelGraph, graphTraversalSource);

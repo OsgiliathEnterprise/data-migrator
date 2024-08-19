@@ -33,11 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
@@ -82,22 +79,16 @@ public class ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        Collection<MetamodelVertexAndModelElementAndModelElementId> metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv).stream()).collect(Collectors.toSet());
-        Iterator<MetamodelVertexAndModelElementAndModelElementId> it = metamodelVertexAndModelElementAndModelElementIds.iterator();
-        if (it.hasNext()) {
-            MetamodelVertexAndModelElementAndModelElementId elt = it.next();
-            String name = elt.metamodelVertex().getTypeName();
-            GraphTraversal traversal = modelGraph
-                    .addV(name);
-            traversal = addVertexProperties(traversal, elt);
-            while (it.hasNext()) {
-                MetamodelVertexAndModelElementAndModelElementId eln = it.next();
-                traversal.addV(eln.metamodelVertex().getTypeName());
-                traversal = addVertexProperties(traversal, eln);
-            }
-            traversal.iterate();
-        }
+        GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
+                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv).stream())
+                .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
+                            String name = elt.metamodelVertex().getTypeName();
+                            traversal = traversal.addV(name);
+                            traversal = addVertexProperties(traversal, elt);
+                            return traversal;
+                        }, (GraphTraversal t, GraphTraversal t2) -> t.combine(t2)
+                );
+        metamodelVertexAndModelElementAndModelElementIds.iterate();
     }
 
     private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
