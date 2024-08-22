@@ -40,11 +40,9 @@ spring:
     lazy-initialization: true
   jpa:
     source:
-      generate-ddl: false
       properties:
         hibernate:
           dialect: @source.jdbc.dialect@
-          id.new_generator_mappings: true
           #        cache:
           #          use_second_level_cache: true
           #          use_query_cache: false
@@ -59,11 +57,7 @@ spring:
           query:
             fail_on_pagination_over_collection_fetch: true
             in_clause_parameter_padding: true
-          connection:
-            provider_disables_autocommit: true
-            autocommit: false
     sink:
-      generate-ddl: true
       properties:
         hibernate:
           dialect: @target.jdbc.dialect@
@@ -80,7 +74,6 @@ spring:
           order_inserts: true
           order_updates: true
           # modify fetch size as necessary
-          criteria.literal_handling_mode: BIND
           connection:
             provider_disables_autocommit: true
             autocommit: false

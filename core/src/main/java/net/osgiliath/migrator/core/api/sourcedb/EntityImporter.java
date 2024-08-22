@@ -23,7 +23,7 @@ package net.osgiliath.migrator.core.api.sourcedb;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 /**
@@ -38,5 +38,5 @@ public interface EntityImporter {
      * @param objectToExclude list of objects to exclude from the import.
      * @return the list of imported entities from the DB.
      */
-    Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude);
+    Stream<ModelElement> importEntities(MetamodelVertex entityVertex, Collection<ModelElement> objectToExclude);
 }

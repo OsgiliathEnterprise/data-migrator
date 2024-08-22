@@ -39,7 +39,7 @@ class JpaEntityProcessorTest {
 
     @BeforeEach
     public void setup() {
-        jpaEntityProcessor = new JpaEntityProcessor();
+        jpaEntityProcessor = new JpaEntityProcessor(null);
     }
 
     @Test

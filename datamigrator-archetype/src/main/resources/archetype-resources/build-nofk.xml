@@ -65,6 +65,14 @@
                 <include name="**/*.java"/>
             </fileset>
         </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="cascade.+,"/>
+            <substitution
+                    expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
         <!--<replaceregexp flags="gm">
             <regexp pattern="^.*@OneToOne[^;]*;[^\}]*}[^;]*;[^\}]*}$"/>
             <substitution expression=""/>

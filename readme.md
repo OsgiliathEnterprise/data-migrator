@@ -114,7 +114,7 @@ then need a graph server to be started upfront (see compose.yml).
 
 ## Generated entities
 
-### Schemas not respecting
+### Incorrect java entity generation from source database model
 
 Hibernates tools are quite good at reverse engineering entities, but are not perfect. You'll need to fix the entities
 manually. The most common issues are:
@@ -154,8 +154,8 @@ new `<replaceregexp` entries.
 Ora2PG and Mssql2PG are popular tools to migrate data.
 The procedure of these tools is quite simple:
 
-1. It first creates the target db schema without any foreign kye constraints.
-1. It selects data from the source db and injects into the foreignkeyless target db.
+1. It first creates the target db schema without any foreign key constraints.
+1. It selects data from the source db and injects into the foreignkey-less target db.
 1. Once all tables' content are migrated, the constraints on the target db are set.
 
 The same procedure using datamigrator would be the following:
@@ -166,8 +166,9 @@ The same procedure using datamigrator would be the following:
 1. Regenerate the entities with foreign keys this time: Generate entity from source schema
    using `./mvnw clean package -pentities-from-source-schema`.
 1. Execute the data migration with `java -jar target/<thejar>`, you can stop it just after the hibernate schema update.
+1. Transfer the 'many to many' intermediate table by hand as they won't have been generated
 
-# Developing
+# Developing/Contributing to the project
 
 ## Running the test (see sample-mono)
 

@@ -62,7 +62,7 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
 
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        log.info("Creating model vertex");
+        log.info("Creating model Vertices");
         GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
         TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
         tpl.setReadOnly(true);
@@ -92,7 +92,6 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-
         GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
                 .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
                 .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {

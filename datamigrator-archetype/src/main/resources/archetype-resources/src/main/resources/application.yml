@@ -1,10 +1,10 @@
 data-migrator:
   model-base-package: @jpa.domain.package@
   sequence:
-    #    - rows-minimize-1
-    #    - column-anonymize-1
-    #    - column-anonymize-2
-    - anonymizer-custom-1
+  #    - rows-minimize-1
+  #    - column-anonymize-1
+  #    - column-anonymize-2
+  #    - anonymizer-custom-1
   sequencers:
   # TODO    - name: rows-minimize-1
   #      type: rows-minimize
@@ -33,7 +33,6 @@ spring:
     lazy-initialization: true
   jpa:
     source:
-      generate-ddl: false
       properties:
         hibernate:
           dialect: @source.jdbc.dialect@
@@ -44,14 +43,13 @@ spring:
           generate_statistics: false
           # modify batch size as necessary
           jdbc:
-            fetch_size: 100 # recommended value for Oracle
+            fetch_size: 100 # TODO, modify if needed recommended value for Oracle
             time_zone: UTC
           criteria.literal_handling_mode: BIND
           query:
             fail_on_pagination_over_collection_fetch: true
             in_clause_parameter_padding: true
     sink:
-      generate-ddl: true
       properties:
         hibernate:
           dialect: @target.jdbc.dialect@
@@ -68,7 +66,6 @@ spring:
           order_inserts: true
           order_updates: true
           # modify fetch size as necessary
-          criteria.literal_handling_mode: BIND
           connection:
             provider_disables_autocommit: true
             autocommit: false
@@ -79,32 +76,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     show-sql: true
-    properties:
-      hibernate:
-        id.new_generator_mappings: true
-        #        cache:
-        #          use_second_level_cache: true
-        #          use_query_cache: false
-        #          region.factory_class: jcache
-        generate_statistics: false
-        # modify batch size as necessary
-        jdbc:
-          batch_size: 100 # tweak it to improve the perf
-          fetch_size: 100 # should be removed for PG & Mysql, tweak it to improve the perf
-          time_zone: UTC
-        order_inserts: true
-        order_updates: true
-        # modify fetch size as necessary
-        criteria.literal_handling_mode: BIND
-        query:
-          fail_on_pagination_over_collection_fetch: true
-          in_clause_parameter_padding: true
-        connection:
-          provider_disables_autocommit: true
-          autocommit: false
-          # provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
-        hbm2ddl:
-          auto: update
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource

@@ -45,7 +45,6 @@ public class ModelElementProcessor {
     private final RelationshipProcessor relationshipProcessor;
 
     public ModelElementProcessor(RawElementProcessor rawElementProcessor, MetamodelRequester metamodelRequester, RelationshipProcessor relationshipProcessor) {
-
         this.rawElementProcessor = rawElementProcessor;
         this.metamodelRequester = metamodelRequester;
         this.relationshipProcessor = relationshipProcessor;

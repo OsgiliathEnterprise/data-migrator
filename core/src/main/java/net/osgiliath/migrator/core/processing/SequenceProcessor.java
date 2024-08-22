@@ -38,9 +38,11 @@ import net.osgiliath.migrator.core.processing.model.SequencersBeansMetamodelVert
 import net.osgiliath.migrator.core.processing.model.VertexAndSequencerBeanClass;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -55,54 +57,60 @@ public class SequenceProcessor {
     private final SequencerFactory sequencerFactory;
     private final ModelElementProcessor modelElementProcessor;
     private final VertexResolver vertexResolver;
+    private final PlatformTransactionManager sourcePlatformTxManager;
 
-    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver) {
+    public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.context = context;
         this.sequencerFactory = sequencerFactory;
         this.modelElementProcessor = modelElementProcessor;
         this.vertexResolver = vertexResolver;
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
-    @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph) {
-        dataMigratorConfiguration.getSequence().stream()
-                .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
-                .map(seq -> {
-                            try {
-                                return new SequencerDefinitionAndBean(seq, Class.forName(seq.getTransformerClass()));
-                            } catch (ClassNotFoundException e) {
-                                throw new RawElementFieldOrMethodNotFoundException(e);
+        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
+        tpl.setReadOnly(true);
+        tpl.executeWithoutResult(status -> { // TODO refine
+
+            dataMigratorConfiguration.getSequence().stream()
+                    .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
+                    .map(seq -> {
+                                try {
+                                    return new SequencerDefinitionAndBean(seq, Class.forName(seq.getTransformerClass()));
+                                } catch (ClassNotFoundException e) {
+                                    throw new RawElementFieldOrMethodNotFoundException(e);
+                                }
                             }
+                    )
+                    .map(seqAndBeanClass -> {
+                        Class transformerClass = seqAndBeanClass.beanClass();
+                        if (WILDCARD.equals(seqAndBeanClass.sequencerConfiguration().getEntityClass()) && GraphTransformer.class.isAssignableFrom(transformerClass)) {
+                            context.getBeansOfType(transformerClass).values().stream().forEach(
+                                    globalSequencerBean -> ((GraphTransformer) globalSequencerBean).evaluate(modelGraph, metamodelGraph, seqAndBeanClass.sequencerConfiguration().getSequencerOptions())
+                            );
                         }
-                )
-                .map(seqAndBeanClass -> {
-                    Class transformerClass = seqAndBeanClass.beanClass();
-                    if (WILDCARD.equals(seqAndBeanClass.sequencerConfiguration().getEntityClass()) && GraphTransformer.class.isAssignableFrom(transformerClass)) {
-                        context.getBeansOfType(transformerClass).values().stream().forEach(
-                                globalSequencerBean -> ((GraphTransformer) globalSequencerBean).evaluate(modelGraph, metamodelGraph, seqAndBeanClass.sequencerConfiguration().getSequencerOptions())
-                        );
-                    }
-                    return seqAndBeanClass;
-                })
-                .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
-                        .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
-                .map(vertexAndSequencerBean -> {
-                    MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(vertexAndSequencerBean.vertex());
-                    ModelElement entity = vertexResolver.getModelElement(vertexAndSequencerBean.vertex());
-                    Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
-                    return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
-                }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
-                        sequencersBeansMetamodelVertexAndEntity.beans().stream()
-                                .map(bean -> new SequencerBeanMetamodelVertexAndEntity(bean, sequencersBeansMetamodelVertexAndEntity.metamodelVertex(), sequencersBeansMetamodelVertexAndEntity.entity())))
-                .forEach(sbmvae -> {
-                    SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
-                    if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof MetamodelColumnCellTransformer) {
-                        processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity());
-                    } else if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof ModelElementColumnTransformer ject) {
-                        processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.entity());
-                    }
-                });
+                        return seqAndBeanClass;
+                    })
+                    .flatMap(sequencerAndBeanClass -> modelGraph.V().hasLabel(sequencerAndBeanClass.sequencerConfiguration().getEntityClass()).toStream()
+                            .parallel().map(vertex -> new VertexAndSequencerBeanClass(vertex, sequencerAndBeanClass)))
+                    .map(vertexAndSequencerBean -> {
+                        MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(vertexAndSequencerBean.vertex());
+                        ModelElement entity = vertexResolver.getModelElement(vertexAndSequencerBean.vertex());
+                        Collection beans = findSequencerBeans(metamodelGraph, vertexAndSequencerBean, metamodelVertex, entity);
+                        return new SequencersBeansMetamodelVertexAndEntity(beans, metamodelVertex, entity);
+                    }).flatMap(sequencersBeansMetamodelVertexAndEntity ->
+                            sequencersBeansMetamodelVertexAndEntity.beans().stream()
+                                    .map(bean -> new SequencerBeanMetamodelVertexAndEntity(bean, sequencersBeansMetamodelVertexAndEntity.metamodelVertex(), sequencersBeansMetamodelVertexAndEntity.entity())))
+                    .forEach(sbmvae -> {
+                        SequencerBeanMetamodelVertexAndEntity sequencerBeanMetamodelVertexAndEntity = (SequencerBeanMetamodelVertexAndEntity) sbmvae;
+                        if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof MetamodelColumnCellTransformer) {
+                            processMetamodelCellTransformer((MetamodelColumnCellTransformer<?, ?, ?>) sequencerBeanMetamodelVertexAndEntity.bean(), sequencerBeanMetamodelVertexAndEntity.entity());
+                        } else if (sequencerBeanMetamodelVertexAndEntity.bean() instanceof ModelElementColumnTransformer ject) {
+                            processJpaEntityColumnTransformer(ject, sequencerBeanMetamodelVertexAndEntity.entity());
+                        }
+                    });
+        });
     }
 
     private Collection findSequencerBeans(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph, VertexAndSequencerBeanClass vertexAndSequencerBean, MetamodelVertex metamodelVertex, ModelElement entity) {

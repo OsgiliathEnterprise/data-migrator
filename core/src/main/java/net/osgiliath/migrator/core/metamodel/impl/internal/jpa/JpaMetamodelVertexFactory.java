@@ -20,8 +20,6 @@ package net.osgiliath.migrator.core.metamodel.impl.internal.jpa;
  * #L%
  */
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelVertexFactory;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.OutboundEdge;
@@ -40,11 +38,8 @@ import java.util.stream.Stream;
 public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMetamodelVertex> {
     private static final Logger log = LoggerFactory.getLogger(JpaMetamodelVertexFactory.class);
 
-    @PersistenceContext(unitName = "source")
-    private EntityManager entityManager;
-
     public JpaMetamodelVertexFactory() {
-        // empty constructor to get entotyManager injected
+        // empty constructor to get entityManager injected
     }
 
     public JpaMetamodelVertex createMetamodelVertex(Class<?> metamodelClass) {
@@ -72,7 +67,7 @@ public class JpaMetamodelVertexFactory implements MetamodelVertexFactory<JpaMeta
                 .map(t5 -> (Class<?>) t5)
                 .map(c -> {
                     try {
-                        return internalCreateMetamodelVertex(metamodelClass, entityManager.getClass().getClassLoader().loadClass(c.getName()));
+                        return internalCreateMetamodelVertex(metamodelClass, this.getClass().getClassLoader().loadClass(c.getName()));
                     } catch (ClassNotFoundException e) {
                         throw new RawElementFieldOrMethodNotFoundException(e);
                     }

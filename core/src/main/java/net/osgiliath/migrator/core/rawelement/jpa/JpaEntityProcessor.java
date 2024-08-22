@@ -28,10 +28,13 @@ import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodExcepti
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -43,7 +46,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 /**
  * JPA entity helper containing JPA reflection queries.
@@ -56,9 +59,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
      */
     private static final Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
     private static final Logger log = LoggerFactory.getLogger(JpaEntityProcessor.class);
+    private final PlatformTransactionManager sinkPlatformTxManager;
 
-    @PersistenceContext(unitName = SOURCE_PU)
-    private EntityManager entityManager;
+    public JpaEntityProcessor(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
+        this.sinkPlatformTxManager = sourcePlatformTxManager;
+    }
 
     /**
      * selects the owning side of a many to many relationship.
@@ -133,7 +138,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
     @Override
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
-        return getRawId(((JpaMetamodelVertex) metamodelVertex).entityClass(), entity);
+        return getRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity);
     }
 
 
@@ -252,11 +257,13 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
+        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
         try {
-            if (null != entityManager && isDetached(entity.getClass(), entity)) {
-                Session session = entityManager.unwrap(Session.class);
-                entity = session.merge(entity); // reattach entity to session (otherwise lazy loading won't work)
-                entityManager.refresh(entity);
+            if (null != em && isDetached(entity.getClass(), entity)) {
+                entity = em.merge(entity);
+                em.refresh(entity);
             }
             Object entityToUse = entity;
             return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
@@ -264,9 +271,9 @@ public class JpaEntityProcessor implements RawElementProcessor {
                     ).map(PropertyDescriptor::getReadMethod).map(getterMethod -> {
                         try {
                             Object result = getterMethod.invoke(entityToUse);
-                            if (null != entityManager && null != result && result instanceof Collection results) {
+                            if (null != em && null != result && result instanceof Collection results) {
                                 PersistenceUnitUtil unitUtil =
-                                        entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+                                        emf.getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
                                     results.iterator().hasNext();
                                     /*TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
@@ -359,10 +366,14 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the field value.
      */
     private boolean isDetached(Class entityClass, Object entity) {
+        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+
         Optional<Object> idValue = getRawId(entityClass, entity);
         return idValue.map(id -> {
-            return !entityManager.contains(entity)  // must not be managed now
-                    && entityManager.find(entityClass, id) != null; // must not have been removed
+            return !em.contains(entity)  // must not be managed now
+                    && em.find(entityClass, id) != null; // must not have been removed
         }).orElse(false);
     }
 

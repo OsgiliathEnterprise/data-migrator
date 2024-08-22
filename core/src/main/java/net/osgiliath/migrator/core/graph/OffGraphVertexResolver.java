@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.graph;
  */
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -36,12 +36,16 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static net.osgiliath.migrator.core.graph.ModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID;
 
 public class OffGraphVertexResolver implements VertexResolver {
@@ -51,18 +55,18 @@ public class OffGraphVertexResolver implements VertexResolver {
     private final MetamodelScanner metamodelScanner;
     private final ModelElementFactory modelElementFactory;
     private final RawElementProcessor rawElementProcessor;
+    private final PlatformTransactionManager sourcePlatformTxManager;
     private final Map<String, Object> cachedIds;
+
     /**
      * Source Entity manager.
      */
-    @PersistenceContext(unitName = SOURCE_PU)
-    private EntityManager entityManager;
-
-    public OffGraphVertexResolver(JpaMetamodelVertexFactory jpaMetamodelVertexFactory, MetamodelScanner metamodelScanner, ModelElementFactory modelElementFactory, RawElementProcessor rawElementProcessor) {
+    public OffGraphVertexResolver(JpaMetamodelVertexFactory jpaMetamodelVertexFactory, MetamodelScanner metamodelScanner, ModelElementFactory modelElementFactory, RawElementProcessor rawElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.jpaMetamodelVertexFactory = jpaMetamodelVertexFactory;
         this.metamodelScanner = metamodelScanner;
         this.modelElementFactory = modelElementFactory;
         this.rawElementProcessor = rawElementProcessor;
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
         this.cachedIds = new HashMap<>();
     }
 
@@ -80,7 +84,11 @@ public class OffGraphVertexResolver implements VertexResolver {
     //@Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public ModelElement getModelElement(Vertex vertex) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> query = null;
         MetamodelVertex mvtx = getMetamodelVertex(vertex);
         Class entityClass = ((JpaMetamodelVertex) mvtx).entityClass();
@@ -91,7 +99,7 @@ public class OffGraphVertexResolver implements VertexResolver {
         select.where(builder.equal(root.get(idFieldName), getVertexModelElementId(vertex)));
         Object resultList;
         try {
-            resultList = entityManager.createQuery(select).getSingleResult();
+            resultList = em.createQuery(select).getSingleResult();
             return modelElementFactory.createModelElement(mvtx, resultList);
         } catch (Exception e) {
             log.error("Error when querying source datasource for entity {}", mvtx.getTypeName(), e);
@@ -130,7 +138,10 @@ public class OffGraphVertexResolver implements VertexResolver {
 
     @Override
     public void clear() {
-        this.entityManager.clear();
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+        em.clear();
     }
 
 }
