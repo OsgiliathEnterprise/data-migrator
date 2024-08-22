@@ -1,10 +1,10 @@
 data-migrator:
   model-base-package: @jpa.domain.package@
   sequence:
-    #    - rows-minimize-1
-    #    - column-anonymize-1
-    #    - column-anonymize-2
-    - anonymizer-custom-1
+  #    - rows-minimize-1
+  #    - column-anonymize-1
+  #    - column-anonymize-2
+  #    - anonymizer-custom-1
   sequencers:
   # TODO    - name: rows-minimize-1
   #      type: rows-minimize
