@@ -36,6 +36,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -101,8 +102,8 @@ public class DataSourceConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "data-migrator.graph-datasource", name = "type", havingValue = "remote")
-    public VertexResolver vertexResolverOffGraph(JpaMetamodelVertexFactory jpaMetamodelVertexFactory, MetamodelScanner metamodelScanner, ModelElementFactory modelElementFactory, RawElementProcessor rawElementProcessor) {
-        return new OffGraphVertexResolver(jpaMetamodelVertexFactory, metamodelScanner, modelElementFactory, rawElementProcessor);
+    public VertexResolver vertexResolverOffGraph(JpaMetamodelVertexFactory jpaMetamodelVertexFactory, MetamodelScanner metamodelScanner, ModelElementFactory modelElementFactory, RawElementProcessor rawElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager) {
+        return new OffGraphVertexResolver(jpaMetamodelVertexFactory, metamodelScanner, modelElementFactory, rawElementProcessor, sinkPlatformTxManager);
     }
 
 

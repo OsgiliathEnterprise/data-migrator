@@ -24,11 +24,13 @@ package net.osgiliath.migrator.core;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.processing.SequenceProcessor;
+import net.osgiliath.migrator.core.processing.StreamingInjector;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
@@ -46,42 +48,49 @@ import java.util.Collection;
 public class TransformationSequencer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TransformationSequencer.class);
+    private final DataMigratorConfiguration dataMigratorConfiguration;
     private final MetamodelScanner metamodelScanner;
     private final MetamodelGraphBuilder graphBuilder;
     private final MetamodelRequester graphRequester;
     private final ModelGraphBuilder modelGraphBuilder;
     private final SequenceProcessor sequenceProcessor;
     private final SinkEntityInjector sinkEntityInjector;
+    private final StreamingInjector streamingInjector;
 
-    public TransformationSequencer(MetamodelScanner metamodelScanner, MetamodelGraphBuilder<? extends MetamodelVertex> graphProcessor, MetamodelRequester graphRequester, ModelGraphBuilder modelGraphBuilder, SequenceProcessor sequenceProcessor, SinkEntityInjector sinkEntityInjector) {
+    public TransformationSequencer(DataMigratorConfiguration dataMigratorConfiguration, MetamodelScanner metamodelScanner, MetamodelGraphBuilder<? extends MetamodelVertex> graphProcessor, MetamodelRequester graphRequester, ModelGraphBuilder modelGraphBuilder, SequenceProcessor sequenceProcessor, SinkEntityInjector sinkEntityInjector, StreamingInjector streamingInjector) {
+        this.dataMigratorConfiguration = dataMigratorConfiguration;
         this.metamodelScanner = metamodelScanner;
         this.graphBuilder = graphProcessor;
         this.graphRequester = graphRequester;
         this.modelGraphBuilder = modelGraphBuilder;
         this.sequenceProcessor = sequenceProcessor;
         this.sinkEntityInjector = sinkEntityInjector;
+        this.streamingInjector = streamingInjector;
     }
 
     /**
      * Standard workflow: building the graph of entity definitions (metamodel) from hibernate classes, then building the entity instances graph, then processing the model graph, and finally persisting.
      *
      * @param args incoming main method arguments
-     * @throws Exception
      */
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.warn("Starting the anonymization sequence");
         Collection<Class<?>> metamodelClasses = metamodelScanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph = graphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         graphRequester.displayGraphWithGraphiz(fullEntityMetamodelGraph);
         Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusteredEntityMetamodelGraph = graphBuilder.clusterGraphs(fullEntityMetamodelGraph);
-        clusteredEntityMetamodelGraph.stream().forEach(
+        clusteredEntityMetamodelGraph.forEach(
                 metamodelGraph -> {
-                    try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(metamodelGraph)) {
-                        sequenceProcessor.process(modelGraph, metamodelGraph);
-                        sinkEntityInjector.persist(modelGraph, metamodelGraph);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    if (metamodelGraph.edgeSet().isEmpty() && dataMigratorConfiguration.getSequence().isEmpty()) {
+                        streamingInjector.injectVerticesInTargetDb(metamodelGraph.vertexSet());// Just a simple migration,
+                    } else {
+                        try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(metamodelGraph)) {
+                            sequenceProcessor.process(modelGraph, metamodelGraph);
+                            sinkEntityInjector.persist(modelGraph, metamodelGraph);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
         );

@@ -75,7 +75,7 @@ class ModelElementTest {
 
     @BeforeEach
     public void setup() {
-        jpaEntityHelper = new JpaEntityProcessor();
+        jpaEntityHelper = new JpaEntityProcessor(null);
         traversal = new MockTraversalVertex(jpaEntityHelper);
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
         VertexResolver resolver = new InGraphVertexResolver();

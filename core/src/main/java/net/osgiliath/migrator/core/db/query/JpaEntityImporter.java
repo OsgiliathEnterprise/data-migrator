@@ -21,7 +21,7 @@ package net.osgiliath.migrator.core.db.query;
  */
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -34,14 +34,19 @@ import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_PU;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 /**
  * Imports entities from the database.
@@ -59,22 +64,18 @@ public class JpaEntityImporter implements EntityImporter {
     private final ModelElementFactory modelElementFactory;
     private final JpaEntityProcessor elementProcessor;
     private final ModelElementProcessor modelElementProcessor;
-
-    /**
-     * Source Entity manager.
-     */
-    @PersistenceContext(unitName = SOURCE_PU)
-    private EntityManager entityManager;
+    private final PlatformTransactionManager sourcePlatformTxManager;
 
     /**
      * Constructor.
      *
      * @param modelElementFactory model element factory
      */
-    public JpaEntityImporter(ModelElementFactory modelElementFactory, JpaEntityProcessor elementProcessor, ModelElementProcessor modelElementProcessor) {
+    public JpaEntityImporter(ModelElementFactory modelElementFactory, JpaEntityProcessor elementProcessor, ModelElementProcessor modelElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.modelElementFactory = modelElementFactory;
         this.elementProcessor = elementProcessor;
         this.modelElementProcessor = modelElementProcessor;
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
     /**
@@ -84,22 +85,26 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
-    public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, List<ModelElement> objectToExclude) {
+    public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, Collection<ModelElement> objectToExclude) {
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+
         log.info("Importing entity {}", entityVertex.getTypeName());
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> query = null;
         Class entityClass = ((JpaMetamodelVertex) entityVertex).entityClass();
         query = builder.createQuery(entityClass);// Didn't find any better idea
         Root root = query.from(entityClass);
         CriteriaQuery<?> select = query.select(root);
         if (!objectToExclude.isEmpty()) { // Not sure it really works
-            List<Predicate> predicates = excludeAlreadyLoaded(entityVertex, objectToExclude, builder, root);
+            Collection<Predicate> predicates = excludeAlreadyLoaded(entityVertex, objectToExclude, builder, root);
             predicates.add(builder.in(root).value(objectToExclude));
             select.where(predicates.toArray(new Predicate[predicates.size()]));
         }
         Stream<?> resultList;
         try {
-            resultList = entityManager.createQuery(select).getResultStream();
+            resultList = em.createQuery(select).getResultStream();
             return resultList.map(m -> modelElementFactory.createModelElement(entityVertex, m));
         } catch (Exception e) {
             log.error("Error when querying source datasource for entity {}", entityVertex.getTypeName(), e);
@@ -116,14 +121,15 @@ public class JpaEntityImporter implements EntityImporter {
      * @param root            root
      * @return list of predicates
      */
-    private List<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, List<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
+    private Collection<Predicate> excludeAlreadyLoaded(MetamodelVertex entityVertex, Collection<ModelElement> objectToExclude, CriteriaBuilder builder, Root root) {
         Optional<String> primaryKeyField = getPrimaryKeyField(((JpaMetamodelVertex) entityVertex));
         return primaryKeyField.map(pk -> objectToExclude.stream()
-                .map(object ->
-                        builder.not(
-                                builder.equal(
-                                        root.get(pk), modelElementProcessor.getId(object).orElseThrow()))
-                ).toList()).orElseGet(ArrayList::new);
+                        .map(object ->
+                                builder.not(
+                                        builder.equal(
+                                                root.get(pk), modelElementProcessor.getId(object).orElseThrow()))
+                        ).collect(Collectors.toSet()))
+                .orElseGet(HashSet::new);
     }
 
     /**
@@ -132,5 +138,4 @@ public class JpaEntityImporter implements EntityImporter {
     private Optional<String> getPrimaryKeyField(JpaMetamodelVertex jpaMetamodelVertex) {
         return elementProcessor.getPrimaryKeyFieldName(jpaMetamodelVertex.entityClass());
     }
-
 }

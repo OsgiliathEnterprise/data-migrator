@@ -75,7 +75,7 @@ class ModelGraphBuilderTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        jpaEntityHelper = new JpaEntityProcessor();
+        jpaEntityHelper = new JpaEntityProcessor(null);
         metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper);
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);

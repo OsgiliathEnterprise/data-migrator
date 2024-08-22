@@ -1,0 +1,76 @@
+package net.osgiliath.migrator.core.processing;
+
+/*-
+ * #%L
+ * data-migrator-core
+ * %%
+ * Copyright (C) 2024 Osgiliath Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
+import net.osgiliath.migrator.core.configuration.PerDSJpaProperties;
+import net.osgiliath.migrator.core.db.inject.VertexPersister;
+import net.osgiliath.migrator.core.processing.utils.BatchIterator;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_JPA_PROPERTIES;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
+
+@Component
+public class StreamingInjector {
+
+    private final PlatformTransactionManager sourcePlatformTxManager;
+    private final EntityImporter entityImporter;
+    private final VertexPersister vertexPersister;
+    private final PerDSJpaProperties jpaPropertiesWrapper;
+
+    public StreamingInjector(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager, EntityImporter entityImporter, VertexPersister vertexPersister, @Qualifier(SINK_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
+        this.entityImporter = entityImporter;
+        this.vertexPersister = vertexPersister;
+        this.jpaPropertiesWrapper = jpaPropertiesWrapper;
+    }
+
+    public void injectVerticesInTargetDb(Set<MetamodelVertex> metamodelVertices) {
+        metamodelVertices.forEach(
+                this::injectVertexInTargetDb
+        );
+    }
+
+    private void injectVertexInTargetDb(MetamodelVertex vertex) {
+        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
+        tpl.setReadOnly(true);
+        Collection<List<ModelElement>> streamToInsert = tpl.execute(status -> {
+            Stream<ModelElement> queried = entityImporter.importEntities(vertex, new HashSet<>());
+            return BatchIterator.batchStreamOf(queried, Integer.parseInt(jpaPropertiesWrapper.getProperties().get("hibernate.jdbc.batch_size"))).collect(Collectors.toSet());
+        });
+        streamToInsert.forEach(batch ->
+                vertexPersister.persistVertices(batch.stream())
+        );
+    }
+}

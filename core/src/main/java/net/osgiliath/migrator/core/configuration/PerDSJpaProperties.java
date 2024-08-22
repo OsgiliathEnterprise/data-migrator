@@ -29,45 +29,14 @@ public class PerDSJpaProperties {
     /**
      * Additional native properties to set on the JPA provider.
      */
-    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, String> properties = new HashMap<>();
 
-    /**
-     * Name of the target database to operate on, auto-detected by default. Can be
-     * alternatively set using the "Database" enum.
-     */
-    private String databasePlatform;
-    /**
-     * Whether to initialize the schema on startup.
-     */
-    private boolean generateDdl = false;
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
-    public String getDatabasePlatform() {
-        return databasePlatform;
-    }
-
-    public void setDatabasePlatform(String databasePlatform) {
-        this.databasePlatform = databasePlatform;
-    }
-
-    public boolean isGenerateDdl() {
-        return generateDdl;
-    }
-
-    public void setGenerateDdl(boolean generateDdl) {
-        this.generateDdl = generateDdl;
-    }
-
-    public Map<String, Object> getProperties() {
-        Map<String, Object> ret = this.properties;
-        if (this.generateDdl) {
-            ret.put("hibernate.hbm2ddl.auto", "create");
-        } else {
-            ret.put("hibernate.hbm2ddl.auto", "update");
-        }
+    public Map<String, String> getProperties() {
         return this.properties;
     }
 
