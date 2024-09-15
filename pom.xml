@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -74,7 +75,7 @@
         <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
-        <liquibase.version>4.28.0</liquibase.version>
+        <liquibase.vers3306ion>4.28.0</liquibase.vers3306ion>
         <spring-boot.version>3.3.2</spring-boot.version>
         <jdbc.h2.version>2.2.224</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
@@ -83,8 +84,8 @@
         <jdbc.mssql.version>12.7.0.jre11-preview</jdbc.mssql.version>
         <jdbc.mariadb-java-client.varsion>3.4.0</jdbc.mariadb-java-client.varsion>
         <hibernate.version>6.5.2.Final</hibernate.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.0</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
         <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
@@ -124,7 +125,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.3</version>
+                    <version>3.10.0</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -166,7 +167,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -378,13 +379,14 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>
