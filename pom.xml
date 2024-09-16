@@ -75,7 +75,7 @@
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
         <liquibase.vers3306ion>4.28.0</liquibase.vers3306ion>
-        <spring-boot.version>3.3.2</spring-boot.version>
+        <spring-boot.version>3.3.3</spring-boot.version>
         <jdbc.h2.version>2.2.224</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
         <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
