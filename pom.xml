@@ -483,7 +483,7 @@
         <profile>
             <id>coverage</id>
             <properties>
-                <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
+                <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
                 <sonar.organization>osgiliathenterprise</sonar.organization>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.coverage.jacoco.xmlReportPaths>
