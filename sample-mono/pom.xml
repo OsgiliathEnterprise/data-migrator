@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.78-SNAPSHOT</version>
+        <version>1.79-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -217,7 +217,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -382,7 +382,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -531,7 +531,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -574,7 +574,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -820,7 +820,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
