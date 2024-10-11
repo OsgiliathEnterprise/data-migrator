@@ -80,7 +80,7 @@
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
         <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
         <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
-        <jdbc.mssql.version>12.7.0.jre11-preview</jdbc.mssql.version>
+        <jdbc.mssql.version>12.8.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.4.1</jdbc.mariadb-java-client.version>
         <hibernate.version>6.6.1.Final</hibernate.version>
         <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
