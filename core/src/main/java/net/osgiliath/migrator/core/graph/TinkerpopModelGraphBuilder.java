@@ -44,7 +44,7 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(TinkerpopModelGraphBuilder.class);
-    private final GraphTraversalSourceProvider graphTraversalSource;
+    private final GraphTraversalSourceProvider graphTraversalSourceProvider;
     private final ModelVertexCustomizer modelVertexCustomizer;
     private final VertexResolver vertexResolver;
     private final ModelVertexInformationRetriever modelVertexInformationRetriever;
@@ -52,7 +52,7 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     private final PlatformTransactionManager sourcePlatformTxManager;
 
     public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
-        this.graphTraversalSource = graphTraversalSource;
+        this.graphTraversalSourceProvider = graphTraversalSource;
         this.modelVertexCustomizer = modelVertexCustomizer;
         this.vertexResolver = vertexResolver;
         this.modelVertexInformationRetriever = modelVertexInformationRetriever;
@@ -63,7 +63,7 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Creating model Vertices");
-        GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
+        GraphTraversalSource gTS = this.graphTraversalSourceProvider.getGraph();
         TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
         tpl.setReadOnly(true);
         tpl.executeWithoutResult(status -> { // TODO refine
@@ -75,20 +75,12 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
 
     private void createVertices(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model Vertex");
-        /*TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status ->*/
         createVertices(entityMetamodelGraph.vertexSet(), graphTraversalSource);
-        //);
     }
 
     void createEdges(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model edges");
-        /*TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status ->*/
         modelGraphEdgeBuilder.createEdges(graphTraversalSource, entityMetamodelGraph);
-        //);
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {

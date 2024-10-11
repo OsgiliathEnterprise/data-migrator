@@ -80,7 +80,7 @@ public class TransformationSequencer implements CommandLineRunner {
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph = graphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         graphRequester.displayGraphWithGraphiz(fullEntityMetamodelGraph);
         Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusteredEntityMetamodelGraph = graphBuilder.clusterGraphs(fullEntityMetamodelGraph);
-        clusteredEntityMetamodelGraph.forEach(
+        clusteredEntityMetamodelGraph.stream().parallel().forEach(
                 metamodelGraph -> {
                     if (metamodelGraph.edgeSet().isEmpty() && dataMigratorConfiguration.getSequence().isEmpty()) {
                         streamingInjector.injectVerticesInTargetDb(metamodelGraph.vertexSet());// Just a simple migration,

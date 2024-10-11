@@ -45,6 +45,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
@@ -472,21 +473,13 @@ public class JpaEntityProcessor implements RawElementProcessor {
         }
     }
 
-    public static boolean joinTableIgnoresFk(JoinTable a1) { // TODO refine joincol, is a pretty naive impl
+    public static boolean joinTableIgnoresFk(JoinTable a1) {
         boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        ignores = ignores || a1.inverseForeignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        for (var joinCol : a1.joinColumns()) {
-            ignores = ignores || joinColumnIgnoresFk(joinCol);
-        }
-        return ignores;
+        return a1.inverseForeignKey().value().equals(ConstraintMode.NO_CONSTRAINT) || Stream.of(a1.joinColumns()).anyMatch(jc -> joinColumnIgnoresFk(jc));
     }
 
-    public static boolean joinColumnsIgnoresFk(JoinColumns a1) { // TODO refine joincol, is a pretty naive impl
-        boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        for (var joinCol : a1.value()) {
-            ignores = ignores || joinColumnIgnoresFk(joinCol);
-        }
-        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
+    public static boolean joinColumnsIgnoresFk(JoinColumns a1) {
+        return Stream.of(a1.value()).anyMatch(v -> v.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT));
     }
 
     public static boolean joinColumnIgnoresFk(JoinColumn a1) {

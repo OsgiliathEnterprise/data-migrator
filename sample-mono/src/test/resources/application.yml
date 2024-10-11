@@ -40,6 +40,9 @@ data-migrator:
   graph-datasource:
     type: embedded
 spring:
+  threads:
+    virtual:
+      enabled: true
   profiles:
     active: test
   main:

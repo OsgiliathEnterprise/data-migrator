@@ -125,6 +125,14 @@ class MetamodelIT {
         assertThat(graph.edgeSet()).hasSize(12);
     }
 
+    @Test
+    void givenHrMetaClassesAndEntitiesWhenMetamodelGraphClustererIsCalledThenGraphClusterIsBuilt() {
+        Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
+        Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusteredEntityMetamodelGraph = metamodelGraphBuilder.clusterGraphs(graph);
+        assertThat(clusteredEntityMetamodelGraph.size()).isEqualTo(3);
+    }
+
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Test
     public void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
