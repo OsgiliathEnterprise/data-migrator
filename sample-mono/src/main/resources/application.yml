@@ -36,12 +36,16 @@ data-migrator:
 #    port: 8182
 #    host: 127.0.0.1
 spring:
+  #  threads:
+  #    virtual:
+  #      enabled: true
   main:
     lazy-initialization: true
   jpa:
     source:
       properties:
         hibernate:
+          enable_lazy_load_no_trans: true
           dialect: @source.jdbc.dialect@
           #        cache:
           #          use_second_level_cache: true
@@ -60,6 +64,7 @@ spring:
     sink:
       properties:
         hibernate:
+          enable_lazy_load_no_trans: true
           dialect: @target.jdbc.dialect@
           id.new_generator_mappings: true
           #        cache:

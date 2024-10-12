@@ -72,7 +72,6 @@ public class SequenceProcessor {
         TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
         tpl.setReadOnly(true);
         tpl.executeWithoutResult(status -> { // TODO refine
-
             dataMigratorConfiguration.getSequence().stream()
                     .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
                     .map(seq -> {

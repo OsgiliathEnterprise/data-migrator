@@ -10,10 +10,10 @@
         </Async>
         <!--<File name="FILE" fileName="target/app.log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </File>
+        </File>-->
         <Console name="CONSOLE">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </Console>-->
+        </Console>
     </Appenders>
     <Loggers>
         <!--<Logger name="org.hibernate.SQL" level="DEBUG">
@@ -29,7 +29,7 @@
             <AppenderRef ref="CONSOLE"/>
         </Logger> -->
         <Root level="info">
-            <AppenderRef ref="Async"/>
+            <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>
 </Configuration>

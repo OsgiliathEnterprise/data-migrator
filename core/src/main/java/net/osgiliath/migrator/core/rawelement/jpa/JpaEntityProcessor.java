@@ -146,11 +146,13 @@ public class JpaEntityProcessor implements RawElementProcessor {
     private Optional<Object> getRawId(Class entityClass, Object entity) {
         // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
         // log.debug("getting id for entity of class {} and entity {}", entityClass.getSimpleName(), entity);
-        return getPrimaryKeyGetterMethod(entityClass).map(
+        return getPrimaryKeyGetterMethod(entity.getClass()).map(// TODO investigate why entityClass doesn't work as expected
                 primaryKeyGetterMethod -> {
                     try {
                         if (null != entity) {
                             return primaryKeyGetterMethod.invoke(entity);
+                        /*} else if (null != entity && entityClass != entity.getClass()) {
+                            return getRawId(entity.getClass(), entityClass);*/
                         } else {
                             log.error("Cannot get the id because entity is null for entityclass {}", entityClass);
                             return Optional.empty();
@@ -475,11 +477,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     public static boolean joinTableIgnoresFk(JoinTable a1) {
         boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        return a1.inverseForeignKey().value().equals(ConstraintMode.NO_CONSTRAINT) || Stream.of(a1.joinColumns()).anyMatch(jc -> joinColumnIgnoresFk(jc));
+        return ignores || a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT) || Stream.of(a1.joinColumns()).anyMatch(JpaEntityProcessor::joinColumnIgnoresFk);
     }
 
     public static boolean joinColumnsIgnoresFk(JoinColumns a1) {
-        return Stream.of(a1.value()).anyMatch(v -> v.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT));
+        return Stream.of(a1.value()).anyMatch(JpaEntityProcessor::joinColumnIgnoresFk);
     }
 
     public static boolean joinColumnIgnoresFk(JoinColumn a1) {

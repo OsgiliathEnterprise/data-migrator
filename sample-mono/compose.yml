@@ -2,7 +2,7 @@ services:
   mysql:
     image: "mysql:latest"
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=test
       - MYSQL_DATABASE=test # name of the source db

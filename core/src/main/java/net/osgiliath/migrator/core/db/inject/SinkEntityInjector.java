@@ -70,18 +70,28 @@ public class SinkEntityInjector {
     }
 
     private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices) {
-        GraphTraversal leafElements = modelGraph.V()
+        GraphTraversal leafElements = modelGraph
+                .V()
                 .repeat(out())
                 .until(
-                        out().filter(not(is(P.within(processedVertices)))).count().is(0)// .or().loops().is(CYCLE_DETECTION_DEPTH)
-                )
-                .filter(not(is(P.within(processedVertices))));
-        if (!leafElements.hasNext()) {
-            vertexPersister.persistVertices(modelGraph.V().filter(not(is(P.within(processedVertices)))).toStream()
-                    .map(modelVertex -> vertexResolver.getModelElement(modelVertex)));
-            return;
+                        out().filter(not(is(P.within(processedVertices)))).count().is(0)
+                ).filter(not(is(P.within(processedVertices))));// .or().loops().is(CYCLE_DETECTION_DEPTH)
+        if (leafElements.hasNext()) {
+            persistTraversal(entityMetamodelGraph, processedVertices, leafElements);
+            processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
+        } else {
+            GraphTraversal orphansElements = modelGraph.V().filter(not(is(P.within(processedVertices)))).filter(out().count().is(0));
+            if (orphansElements.hasNext()) {
+                persistTraversal(entityMetamodelGraph, processedVertices, orphansElements);
+                processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
+            } else {
+                persistTraversal(entityMetamodelGraph, processedVertices, modelGraph.V().filter(not(is(P.within(processedVertices)))));
+            }
         }
-        Stream<Vertex> res = leafElements.toStream()
+    }
+
+    private void persistTraversal(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices, GraphTraversal traversal) {
+        Stream<ModelElement> res = traversal.toStream()
                 .map(e -> {
                     Vertex modelVertex = (Vertex) e;
                     updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph);
@@ -90,14 +100,14 @@ public class SinkEntityInjector {
                 .peek(mv -> {
                     Vertex tv = (Vertex) mv;
                     log.info("Persisting vertex of type {} with id {}", tv.label(), vertexResolver.getVertexModelElementId(tv));
-                });
-        vertexPersister.persistVertices(res
-                .map(modelVertex -> {
-                    processedVertices.add(modelVertex);
-                    return modelVertex;
                 })
-                .map(modelVertex -> vertexResolver.getModelElement(modelVertex)));
-        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
+                .map(m -> {
+                    Vertex v = (Vertex) m;
+                    processedVertices.add(v);
+                    return v;
+                })
+                .map(me -> vertexResolver.getModelElement((Vertex) me));
+        vertexPersister.persistVertices(res);
     }
 
     void updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
@@ -125,7 +135,25 @@ public class SinkEntityInjector {
                 .repeat(out())
                 .until(where(eq("a"))
                         .or().loops().is(CYCLE_DETECTION_DEPTH))
-                .filter(where(eq("a"))).drop().iterate();
+                .filter(where(eq("a")))
+                .filter(t -> {
+                    Vertex v = t.get();
+                    log.warn("Cyclic element of type {} with id {} found in the graph", v.label(), vertexResolver.getVertexModelElementId(v));
+                    return true;
+                })
+                .inE()
+                .drop().iterate();
+        modelGraph.V().as("a")
+                .repeat(out())
+                .until(where(eq("a"))
+                        .or().loops().is(CYCLE_DETECTION_DEPTH))
+                .filter(where(eq("a")))
+                .filter(t -> {
+                    Vertex v = t.get();
+                    log.warn("Cyclic element of type {} with id {} found in the graph", v.label(), vertexResolver.getVertexModelElementId(v));
+                    return true;
+                })
+                .drop().iterate();
 /*        cyclicElements.toStream()
                 .peek(v -> {
                     Vertex ve = (Vertex) v;
