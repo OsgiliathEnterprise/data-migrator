@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
@@ -12,9 +13,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <camel.version>4.6.0</camel.version>
+        <camel.version>4.8.0</camel.version>
         <log4j.version>2.22.0</log4j.version>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>1.20.2</testcontainers.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <tinkerpop.version>3.7.2</tinkerpop.version>
     </properties>

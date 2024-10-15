@@ -139,6 +139,29 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
         }
     }
 
+    @Override
+    public void resetElementRelationships(ModelElement elt, Field f) {
+        try {
+            Arrays.stream(Introspector.getBeanInfo(elt.rawElement().getClass()).getPropertyDescriptors())
+                    .filter(p -> p.getName().equals(f.getName()))
+                    .map(PropertyDescriptor::getReadMethod).forEach(getterMethod -> {
+                        try {
+                            RelationshipType type = relationshipType(getterMethod);
+                            if (isMany(type)) {
+                                jpaEntityProcessor.setFieldValue(elt, jpaEntityProcessor.getterToFieldName(getterMethod.getName()), new HashSet<>());
+                            } else {
+                                jpaEntityProcessor.setFieldValue(elt, jpaEntityProcessor.getterToFieldName(getterMethod.getName()), null);
+                            }
+                        } catch (RawElementFieldOrMethodNotFoundException r) {
+                            // Do nothing
+                        }
+                    });
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     /**
      * Finds the inverse relationship field without mappedBy information.
      *
