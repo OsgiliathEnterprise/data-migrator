@@ -24,9 +24,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
-import net.osgiliath.migrator.core.configuration.model.GraphDatasourceType;
+import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
-import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,6 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_TRANSACTION_MANAGER;
@@ -44,36 +44,30 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 @Component
 public class VertexPersister {
 
-    private final boolean reconcile;
     private final PlatformTransactionManager sinkPlatformTxManager;
-    private final PlatformTransactionManager sourcePlatformTxManager;
-    private final RawElementProcessor rawElementProcessor;
+    private final ModelElementProcessor modelElementProcessor;
     private static Logger log = LoggerFactory.getLogger(VertexPersister.class);
 
-    public VertexPersister(DataMigratorConfiguration dmc, RawElementProcessor rawElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
-        this.rawElementProcessor = rawElementProcessor;
-        this.reconcile = dmc.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE);
+    public VertexPersister(DataMigratorConfiguration dmc, ModelElementProcessor modelElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
+        this.modelElementProcessor = modelElementProcessor;
         this.sinkPlatformTxManager = sinkPlatformTxManager;
-        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
     public void persistVertices(Stream<ModelElement> entities) {
-        Stream<?> reattachedEntities = reattachEntities(entities);
-        TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
+        // Stream<?> reattachedEntities = reattachEntities(entities);
+        //TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
         EntityManagerFactory emf = tm.getEntityManagerFactory();
         log.info("******************** Persisting a batch of entities ****************");
         try {
-            tpl.executeWithoutResult(res -> {
-                EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
-                reattachedEntities
-                        .forEach((ent) -> {
-                                    log.debug("persisting entity of type {}, with id {}", ent.getClass(), rawElementProcessor.getId(null, ent).get());
-                                    em.merge(ent);
-                                }
-                        );
+            EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+            entities
+                    .forEach((ent) -> {
+                                log.debug("Persisting entity of type {}, with id {}", ent.rawElement(), modelElementProcessor.getId(ent).get());
+                                em.merge(ent.rawElement());
+                            }
+                    );
 
-            });
         } catch (Exception e) {
             log.error("******************** ERROR Persisting last batch of entities ****************");
             log.warn("Unable to persist last batch of entities, you may retry once", e);
@@ -81,22 +75,15 @@ public class VertexPersister {
         }
     }
 
-    private Stream<?> reattachEntities(Stream<ModelElement> entities) {
-        if (reconcile) {
-            JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
-            EntityManagerFactory emf = tm.getEntityManagerFactory();
-            TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-            tpl.setReadOnly(true);
-            return tpl.execute(status -> {
-                EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
-                return entities.flatMap(me ->
-                        rawElementProcessor.getId(me).map(
-                                id -> em.find(((JpaMetamodelVertex) me.vertex()).entityClass(), id)
-                        ).stream()
+    Optional<ModelElement> reattachEntityInSink(ModelElement entity) {
+        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
+        EntityManagerFactory emf = tm.getEntityManagerFactory();
+        TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
+        tpl.setReadOnly(true);
+        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+        return
+                modelElementProcessor.getId(entity).map(
+                        id -> new ModelElement(entity.vertex(), em.find(((JpaMetamodelVertex) entity.vertex()).entityClass(), id))
                 );
-            });
-        } else {
-            return entities.map(ModelElement::rawElement);
-        }
     }
 }

@@ -98,7 +98,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
                     }
                     for (FieldEdge<MetamodelVertex> outgoingEdge : fullEntityMetamodelGraph.outgoingEdgesOf(subgraphVertex)) {
                         if (!graph.containsEdge(outgoingEdge)) {
-                            graph.addEdge(outgoingEdge.getSource(), subgraphVertex, new FieldEdge<>(outgoingEdge.getMetamodelField()));
+                            graph.addEdge(subgraphVertex, outgoingEdge.getTarget(), new FieldEdge<>(outgoingEdge.getMetamodelField()));
                         }
                     }
                 }

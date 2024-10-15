@@ -70,7 +70,7 @@ spring:
     sink:
       properties:
         hibernate:
-          enable_lazy_load_no_trans: true
+          #          enable_lazy_load_no_trans: true
           dialect: org.hibernate.dialect.MySQLDialect
           id.new_generator_mappings: true
           #        cache:

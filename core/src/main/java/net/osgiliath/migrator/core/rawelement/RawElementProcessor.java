@@ -20,7 +20,6 @@ package net.osgiliath.migrator.core.rawelement;
  * #L%
  */
 
-import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 
@@ -33,16 +32,17 @@ public interface RawElementProcessor {
 
     Optional<Object> getId(MetamodelVertex metamodelVertex, Object rawElement);
 
-    Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass);
-
     Object getFieldValue(ModelElement entity, String attributeName);
 
     void setFieldValue(ModelElement entity, String attributeName, Object value);
 
-    RelationshipType relationshipType(Method getterMethod);
+    Optional<Method> getterMethod(Class<?> entityClass, Field attribute);
 
     Optional<Method> getterMethod(MetamodelVertex entityClass, Field attribute);
 
     Optional<Method> getPrimaryKeyGetterMethod(Class<?> entityClass);
 
+    Object unproxy(Object o);
+
+    String fieldNameOfGetter(Method getterMethod);
 }

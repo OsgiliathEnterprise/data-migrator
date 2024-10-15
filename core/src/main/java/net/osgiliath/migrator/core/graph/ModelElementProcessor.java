@@ -20,21 +20,18 @@ package net.osgiliath.migrator.core.graph;
  * #L%
  */
 
-import jakarta.persistence.Persistence;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-import net.osgiliath.migrator.core.rawelement.jpa.RelationshipProcessor;
-import org.jgrapht.Graph;
+import net.osgiliath.migrator.core.rawelement.RelationshipProcessor;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -51,7 +48,7 @@ public class ModelElementProcessor {
     }
 
     public void removeEdgeValueFromModelElementRelationShip(ModelElement sourceModelElement, FieldEdge<MetamodelVertex> fieldEdge, ModelElement targetModelElement) {
-        Object targetValue = relationshipProcessor.getEdgeRawValue(fieldEdge, sourceModelElement);
+        Object targetValue = getEdgeRawValue(fieldEdge, sourceModelElement);
         if (targetValue instanceof Collection targetValues) {
             targetValues.remove(targetModelElement.rawElement());
             setEdgeRawValue(fieldEdge, sourceModelElement, targetValue);
@@ -59,7 +56,7 @@ public class ModelElementProcessor {
             setEdgeRawValue(fieldEdge, sourceModelElement, null);
         }
         Optional<Method> getterMethodOpt = metamodelRequester.relationshipGetter(fieldEdge);
-        Optional<Field> inverseFieldOpt = getterMethodOpt.flatMap(getterMethod -> rawElementProcessor.inverseRelationshipField(getterMethod, fieldEdge.getTarget()));
+        Optional<Field> inverseFieldOpt = getterMethodOpt.flatMap(getterMethod -> relationshipProcessor.inverseRelationshipField(getterMethod, fieldEdge.getTarget()));
         inverseFieldOpt.ifPresent(
                 inverseField -> {
                     Object inverseValue = rawElementProcessor.getFieldValue(targetModelElement, inverseField.getName());
@@ -73,59 +70,6 @@ public class ModelElementProcessor {
         );
     }
 
-    /**
-     * Sets a relationship between two entities.
-     *
-     * @param fieldEdge    the metamodel edge to update
-     * @param sourceEntity the source entity.
-     * @param targetEntity the target entity.
-     * @param graph        the metamodel graph.
-     */
-    public void addRawElementsRelationshipForEdge(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph) {
-        Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(fieldEdge);
-        MetamodelVertex targetVertex = fieldEdge.getTarget();
-        relationshipTypeOpt.ifPresent(
-                (RelationshipType relationshipType) -> {
-                    switch (relationshipType) {
-                        case ONE_TO_ONE -> {
-                            setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());
-                            metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge ->
-                                    setEdgeRawValue(inverseFieldEdge, targetEntity, sourceEntity.rawElement())
-                            );
-                        }
-                        case ONE_TO_MANY -> {
-                            Collection set = (Collection) relationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
-                            set.add(targetEntity.rawElement());
-                            setEdgeRawValue(fieldEdge, sourceEntity, set);
-                            metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge ->
-                                    setEdgeRawValue(inverseFieldEdge, targetEntity, sourceEntity.rawElement())
-                            );
-                        }
-                        case MANY_TO_ONE -> {
-                            setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());
-                            addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
-                        }
-                        case MANY_TO_MANY -> {
-                            Collection set = (Collection) relationshipProcessor.getEdgeRawValue(fieldEdge, sourceEntity);
-                            set.add(targetEntity.rawElement());
-                            setEdgeRawValue(fieldEdge, sourceEntity, set);
-                            addEntityToInverseToManyTargetEntity(fieldEdge, sourceEntity, targetEntity, graph, targetVertex);
-                        }
-                    }
-                }
-        );
-    }
-
-    private void addEntityToInverseToManyTargetEntity(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex targetVertex) {
-        metamodelRequester.getInverseFieldEdge(fieldEdge, targetVertex, graph).ifPresent(inverseFieldEdge -> {
-            Collection inverseCollection = (Collection) relationshipProcessor.getEdgeRawValue(inverseFieldEdge, targetEntity);
-            if (!Persistence.getPersistenceUtil().isLoaded(targetEntity, inverseFieldEdge.getFieldName())) {
-                inverseCollection = HashSet.newHashSet(0);
-            }
-            inverseCollection.add(sourceEntity.rawElement());
-            setEdgeRawValue(inverseFieldEdge, targetEntity, inverseCollection);
-        });
-    }
 
     /**
      * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
@@ -147,16 +91,14 @@ public class ModelElementProcessor {
         rawElementProcessor.setFieldValue(modelElement, fieldName, value);
     }
 
-    public void setEdgeRawValue(FieldEdge<MetamodelVertex> field, ModelElement modelElement, Object value) {
-        rawElementProcessor.setFieldValue(modelElement, field.getFieldName(), value);
-    }
-
     public Optional<Object> getId(ModelElement modelElement) {
         return rawElementProcessor.getId(modelElement);
     }
 
-    public void resetModelElementEdge(FieldEdge<MetamodelVertex> metamodelEdge, ModelElement sourceModelElement) {
-        Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(metamodelEdge);
+    public void resetModelElementEdge(ModelElement sourceModelElement) {
+
+        relationshipProcessor.resetElementRelationships(sourceModelElement);
+        /*Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(metamodelEdge);
         relationshipTypeOpt.ifPresent(
                 relationshipType -> {
                     if (metamodelRequester.isMany(relationshipType)) {
@@ -165,6 +107,51 @@ public class ModelElementProcessor {
                         setEdgeRawValue(metamodelEdge, sourceModelElement, null);
                     }
                 }
+        );*/
+    }
+
+    public ModelElement unproxy(ModelElement modelElement) {
+        return new ModelElement(modelElement.vertex(), rawElementProcessor.unproxy(modelElement.rawElement()));
+    }
+
+    /**
+     * Sets a relationship between two entities.
+     *
+     * @param fieldEdge    the metamodel edge to update
+     * @param sourceEntity the source entity.
+     * @param targetEntity the target entity.
+     */
+    public void addRawElementsRelationshipForEdge(FieldEdge<MetamodelVertex> fieldEdge, ModelElement sourceEntity, ModelElement targetEntity) {
+        Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(fieldEdge);
+        relationshipTypeOpt.ifPresent(
+                (RelationshipType relationshipType) -> {
+                    switch (relationshipType) {
+                        case ONE_TO_ONE, MANY_TO_ONE ->
+                                setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());
+                        case ONE_TO_MANY, MANY_TO_MANY -> {
+                            Collection set = (Collection) getEdgeRawValue(fieldEdge, sourceEntity);
+                            set.add(targetEntity.rawElement());
+                            setEdgeRawValue(fieldEdge, sourceEntity, set);
+                        }
+                    }
+                }
         );
+    }
+
+    private void setEdgeRawValue(FieldEdge<MetamodelVertex> field, ModelElement modelElement, Object value) {
+        relationshipProcessor.setEdgeRawValue(field.getFieldName(), field.getMetamodelField(), field.getTarget(), modelElement, value);
+    }
+
+    /**
+     * Returns the Raw value(s) corresponding to the entity referenced by the outboundEdge
+     *
+     * @param fieldEdge the edge to get the target vertices from
+     * @return Returns the ModelElement(s) corresponding to the entity referenced by the outboundEdge
+     */
+    // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
+    public Object getEdgeRawValue(FieldEdge<MetamodelVertex> fieldEdge, ModelElement modelElement) {
+        Optional<Method> getterMethodOpt = metamodelRequester.relationshipGetter(fieldEdge);
+        return getterMethodOpt.map(getterMethod -> relationshipProcessor.getEdgeRawValue(modelElement, getterMethod)
+        ).orElse(null);
     }
 }

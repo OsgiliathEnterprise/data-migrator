@@ -25,7 +25,9 @@ import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamode
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Optional;
 
@@ -36,10 +38,12 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class JpaEntityProcessorTest {
 
     private JpaEntityProcessor jpaEntityProcessor;
+    @Mock
+    private PlatformTransactionManager txMgr;
 
     @BeforeEach
     public void setup() {
-        jpaEntityProcessor = new JpaEntityProcessor(null);
+        jpaEntityProcessor = new JpaEntityProcessor(txMgr);
     }
 
     @Test

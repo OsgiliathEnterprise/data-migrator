@@ -64,12 +64,9 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Creating model Vertices");
         GraphTraversalSource gTS = this.graphTraversalSourceProvider.getGraph();
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status -> { // TODO refine
-            createVertices(entityMetamodelGraph, gTS);
-            createEdges(entityMetamodelGraph, gTS);
-        });
+        createVertices(entityMetamodelGraph, gTS);
+        log.info("There are {} Vertex in the graph", gTS.V().count().next());
+        createEdges(entityMetamodelGraph, gTS);
         return gTS;
     }
 
@@ -84,20 +81,27 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
-                .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
-                            String name = elt.metamodelVertex().getTypeName();
-                            traversal = traversal.addV(name);
-                            traversal = addVertexProperties(traversal, elt);
-                            return traversal;
-                        }, GraphTraversal::combine
-                );
-        metamodelVertexAndModelElementAndModelElementIds.iterate();
+        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
+        tpl.setReadOnly(true);
+        tpl.executeWithoutResult(status -> { // TODO refine
+            GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
+                    .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
+                    .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
+                                String name = elt.metamodelVertex().getTypeName();
+                                log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
+                                traversal = traversal.addV(name);
+                                traversal = addVertexProperties(traversal, elt);
+                                return traversal;
+                            }, GraphTraversal::combine
+                    );
+            metamodelVertexAndModelElementAndModelElementIds.iterate();
+        });
     }
 
     private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
+        log.debug("Adding id to vertex {}", eln.id());
         traversal = vertexResolver.setVertexModelElementId(traversal, eln.id());
+        log.debug("Adding metamodelveertex to vertex {}", eln.metamodelVertex().getTypeName());
         traversal = vertexResolver.setMetamodelVertex(traversal, eln.metamodelVertex());
         traversal = vertexResolver.setModelElement(traversal, eln.modelElement());
         for (Map.Entry<String, Object> entry : modelVertexCustomizer.getAdditionalModelVertexProperties(eln.metamodelVertex()).entrySet()) {

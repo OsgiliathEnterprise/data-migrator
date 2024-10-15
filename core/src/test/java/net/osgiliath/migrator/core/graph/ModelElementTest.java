@@ -75,11 +75,12 @@ class ModelElementTest {
 
     @BeforeEach
     public void setup() {
-        jpaEntityHelper = new JpaEntityProcessor(null);
+        jpaEntityHelper = new JpaEntityProcessor(txMgr);
         traversal = new MockTraversalVertex(jpaEntityHelper);
-        JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
+        JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);
         VertexResolver resolver = new InGraphVertexResolver();
-        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, txMgr);
+        ModelElementProcessor processor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, processor, txMgr);
     }
 
     @Test
