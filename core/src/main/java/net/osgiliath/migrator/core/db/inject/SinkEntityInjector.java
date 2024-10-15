@@ -143,7 +143,6 @@ public class SinkEntityInjector {
     ModelElement updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         ModelElement sourceModelElement = modelElementProcessor.unproxy(vertexResolver.getModelElement(sourceVertex));
         modelElementProcessor.resetModelElementEdge(sourceModelElement);
-
         MetamodelVertex sourceMetamodelVertex = vertexResolver.getMetamodelVertex(sourceVertex);
         metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream()
                 .flatMap(metamodelEdge ->
@@ -152,14 +151,8 @@ public class SinkEntityInjector {
                 )
                 .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), vertexResolver.getVertexModelElementId(sourceVertex), modelAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getVertexModelElementId(modelAndMetamodelEdge.modelEdge().inVertex())))
                 .forEach(modelAndMetamodelEdge -> {
-                    ModelElement targetModelElement = modelElementProcessor.unproxy(vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdge().inVertex()));
-                    modelElementProcessor.resetModelElementEdge(targetModelElement);
-                    Optional<ModelElement> targetModelElementInTarget = vertexPersister.reattachEntityInSink(targetModelElement);
-                    targetModelElementInTarget.ifPresentOrElse(tgt ->
-                                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, tgt),
-                            () -> log.error("Cannot find target element to add relationship to. SourceType: {}, SourceId: {}, Edge: {}, TargetType: {}, targetId: {}", vertexResolver.getMetamodelVertex(sourceVertex).getTypeName(), vertexResolver.getVertexModelElementId(sourceVertex), modelAndMetamodelEdge.metamodelEdge().getFieldName(), targetModelElement.vertex().getTypeName(), modelElementProcessor.getId(targetModelElement))
-
-                    );
+                    ModelElement targetModelElement = vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdge().inVertex());
+                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, targetModelElement);
                 });
         return sourceModelElement;
     }

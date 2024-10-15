@@ -33,6 +33,8 @@ public interface RelationshipProcessor {
 
     void resetElementRelationships(ModelElement o);
 
+    void resetElementRelationships(ModelElement o, Field f);
+
     RelationshipType relationshipType(Method getterMethod);
 
     Optional<? extends Field> inverseRelationshipField(Method getterMethod, MetamodelVertex target);
