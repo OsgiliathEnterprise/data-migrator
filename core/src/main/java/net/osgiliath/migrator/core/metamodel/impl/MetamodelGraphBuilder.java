@@ -77,22 +77,58 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
     protected abstract boolean isEntity(M metamodelVertex);
 
     public Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusterGraphs(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph) {
-        // TODO improve this method to cluster graph that are disjoints, not only isolated vertex
         Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> ret = new HashSet<>();
-        Collection<MetamodelVertex> isolatedVertices = new HashSet<>();
+        Collection<MetamodelVertex> visited = new HashSet<>();
         for (MetamodelVertex vtx : fullEntityMetamodelGraph.vertexSet()) {
-            if (fullEntityMetamodelGraph.degreeOf(vtx) == 0) {
-                isolatedVertices.add(vtx);
+            Collection<MetamodelVertex> subgraph = new HashSet<>();
+            if (!visited.contains(vtx)) {
+                depthFirstSearch(fullEntityMetamodelGraph, vtx, subgraph, visited);
+            }
+            if (!subgraph.isEmpty()) {
+                Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
+                        .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
+                for (MetamodelVertex subgraphVertex : subgraph) {
+                    graph.addVertex(subgraphVertex);
+                }
+                for (MetamodelVertex subgraphVertex : subgraph) {
+                    for (FieldEdge<MetamodelVertex> incomingEdge : fullEntityMetamodelGraph.incomingEdgesOf(subgraphVertex)) {
+                        if (!graph.containsEdge(incomingEdge)) {
+                            graph.addEdge(incomingEdge.getSource(), subgraphVertex, new FieldEdge<>(incomingEdge.getMetamodelField()));
+                        }
+                    }
+                    for (FieldEdge<MetamodelVertex> outgoingEdge : fullEntityMetamodelGraph.outgoingEdgesOf(subgraphVertex)) {
+                        if (!graph.containsEdge(outgoingEdge)) {
+                            graph.addEdge(subgraphVertex, outgoingEdge.getTarget(), new FieldEdge<>(outgoingEdge.getMetamodelField()));
+                        }
+                    }
+                }
+                ret.add(graph);
             }
         }
-        fullEntityMetamodelGraph.removeAllVertices(isolatedVertices);
-        ret.add(fullEntityMetamodelGraph);
-        for (MetamodelVertex vtx : isolatedVertices) {
-            Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
-                    .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
-            graph.addVertex(vtx);
-            ret.add(graph);
-        }
         return ret;
+    }
+
+    private void depthFirstSearch(
+            Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph,
+            MetamodelVertex vertex,
+            Collection<MetamodelVertex> subgraph,
+            Collection<MetamodelVertex> visited
+    ) {
+        visited.add(vertex);
+        subgraph.add(vertex);
+        Collection<MetamodelVertex> neighbours = new HashSet<>();
+        Collection<FieldEdge<MetamodelVertex>> incomingEdges = fullEntityMetamodelGraph.incomingEdgesOf(vertex);
+        for (FieldEdge<MetamodelVertex> incomingEdge : incomingEdges) {
+            neighbours.add(incomingEdge.getSource());
+        }
+        Collection<FieldEdge<MetamodelVertex>> outgoingEdges = fullEntityMetamodelGraph.outgoingEdgesOf(vertex);
+        for (FieldEdge<MetamodelVertex> outgoingEdge : outgoingEdges) {
+            neighbours.add(outgoingEdge.getTarget());
+        }
+        for (var neighbour : neighbours) {
+            if (!visited.contains(neighbour)) {
+                depthFirstSearch(fullEntityMetamodelGraph, neighbour, subgraph, visited);
+            }
+        }
     }
 }

@@ -44,7 +44,7 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(TinkerpopModelGraphBuilder.class);
-    private final GraphTraversalSourceProvider graphTraversalSource;
+    private final GraphTraversalSourceProvider graphTraversalSourceProvider;
     private final ModelVertexCustomizer modelVertexCustomizer;
     private final VertexResolver vertexResolver;
     private final ModelVertexInformationRetriever modelVertexInformationRetriever;
@@ -52,7 +52,7 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     private final PlatformTransactionManager sourcePlatformTxManager;
 
     public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
-        this.graphTraversalSource = graphTraversalSource;
+        this.graphTraversalSourceProvider = graphTraversalSource;
         this.modelVertexCustomizer = modelVertexCustomizer;
         this.vertexResolver = vertexResolver;
         this.modelVertexInformationRetriever = modelVertexInformationRetriever;
@@ -63,49 +63,45 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public GraphTraversalSource modelGraphFromMetamodelGraph(org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Creating model Vertices");
-        GraphTraversalSource gTS = this.graphTraversalSource.getGraph();
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status -> { // TODO refine
-            createVertices(entityMetamodelGraph, gTS);
-            createEdges(entityMetamodelGraph, gTS);
-        });
+        GraphTraversalSource gTS = this.graphTraversalSourceProvider.getGraph();
+        createVertices(entityMetamodelGraph, gTS);
+        log.info("There are {} Vertex in the graph", gTS.V().count().next());
+        createEdges(entityMetamodelGraph, gTS);
         return gTS;
     }
 
     private void createVertices(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model Vertex");
-        /*TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status ->*/
         createVertices(entityMetamodelGraph.vertexSet(), graphTraversalSource);
-        //);
     }
 
     void createEdges(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversalSource graphTraversalSource) {
         log.info("Creating model edges");
-        /*TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status ->*/
         modelGraphEdgeBuilder.createEdges(graphTraversalSource, entityMetamodelGraph);
-        //);
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
-                .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
-                            String name = elt.metamodelVertex().getTypeName();
-                            traversal = traversal.addV(name);
-                            traversal = addVertexProperties(traversal, elt);
-                            return traversal;
-                        }, GraphTraversal::combine
-                );
-        metamodelVertexAndModelElementAndModelElementIds.iterate();
+        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
+        tpl.setReadOnly(true);
+        tpl.executeWithoutResult(status -> { // TODO refine
+            GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
+                    .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
+                    .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
+                                String name = elt.metamodelVertex().getTypeName();
+                                log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
+                                traversal = traversal.addV(name);
+                                traversal = addVertexProperties(traversal, elt);
+                                return traversal;
+                            }, GraphTraversal::combine
+                    );
+            metamodelVertexAndModelElementAndModelElementIds.iterate();
+        });
     }
 
     private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
+        log.debug("Adding id to vertex {}", eln.id());
         traversal = vertexResolver.setVertexModelElementId(traversal, eln.id());
+        log.debug("Adding metamodelveertex to vertex {}", eln.metamodelVertex().getTypeName());
         traversal = vertexResolver.setMetamodelVertex(traversal, eln.metamodelVertex());
         traversal = vertexResolver.setModelElement(traversal, eln.modelElement());
         for (Map.Entry<String, Object> entry : modelVertexCustomizer.getAdditionalModelVertexProperties(eln.metamodelVertex()).entrySet()) {

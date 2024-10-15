@@ -55,7 +55,11 @@ public class InGraphVertexResolver implements VertexResolver {
 
     @Override
     public Object getVertexModelElementId(Vertex vtx) {
-        return vtx.value(MODEL_GRAPH_VERTEX_ENTITY_ID);
+        try {
+            return vtx.value(MODEL_GRAPH_VERTEX_ENTITY_ID);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override

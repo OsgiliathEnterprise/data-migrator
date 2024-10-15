@@ -104,16 +104,16 @@ class ModelIT {
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
-            assertThat(modelGraph.V().hasLabel(Country.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Department.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Job.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(JobHistory.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Location.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Region.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Task.class.getName()).toList()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(JhiUser.class.getName()).toList()).hasSize(2);
-            assertThat(modelGraph.V().hasLabel(JhiAuthority.class.getName()).toList()).hasSize(2);
+            assertThat(modelGraph.V().hasLabel(Country.class.getName()).count().next()).isEqualTo(10);
+            assertThat(modelGraph.V().hasLabel(Department.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Job.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(JobHistory.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Location.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Region.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Task.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(JhiUser.class.getName()).toSet()).hasSize(2);
+            assertThat(modelGraph.V().hasLabel(JhiAuthority.class.getName()).toSet()).hasSize(2);
         }
     }
 
@@ -123,8 +123,8 @@ class ModelIT {
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             assertThat(modelGraph).isNotNull();
-            Collection<Vertex> employees = modelGraph.V().hasLabel(Employee.class.getName()).toList();
-            Optional<Vertex> anibalVertex = employees.parallelStream().filter(v -> ((EmployeeId) v.property(MODEL_GRAPH_VERTEX_ENTITY_ID).value()).getEmail().equals("Herminia.Beahan77@hotmail.com")).findAny();
+            Collection<Vertex> employees = modelGraph.V().hasLabel(Employee.class.getName()).toSet();
+            Optional<Vertex> anibalVertex = employees.stream().filter(v -> ((EmployeeId) v.property(MODEL_GRAPH_VERTEX_ENTITY_ID).value()).getEmail().equals("Herminia.Beahan77@hotmail.com")).findAny();
             EmployeeId id = (EmployeeId) (anibalVertex.get()).property(MODEL_GRAPH_VERTEX_ENTITY_ID).value();
             assertThat(modelGraph.V().hasLabel(Employee.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, id).out(Employee_.EMPLOYEE).toList()).hasSize(1);
             assertThat(((Employee) ((ModelElement) modelGraph.V().hasLabel(Employee.class.getName()).has(MODEL_GRAPH_VERTEX_ENTITY_ID, id).out(Employee_.EMPLOYEE).values(MODEL_GRAPH_VERTEX_ENTITY).next()).rawElement()).getFirstName()).isEqualTo("Horace");

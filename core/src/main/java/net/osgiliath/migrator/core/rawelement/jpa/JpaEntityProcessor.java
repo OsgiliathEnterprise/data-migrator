@@ -21,13 +21,13 @@ package net.osgiliath.migrator.core.rawelement.jpa;
  */
 
 import jakarta.persistence.*;
-import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,16 +35,17 @@ import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
@@ -54,53 +55,13 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 @Component
 public class JpaEntityProcessor implements RawElementProcessor {
 
-    /**
-     * List of many to many owning side chosen randomly (when no mappedBy instruction is set on any of both sides).
-     */
-    private static final Collection<Class<?>> randomManyToManyOwningSide = new ArrayList<>();
     private static final Logger log = LoggerFactory.getLogger(JpaEntityProcessor.class);
-    private final PlatformTransactionManager sinkPlatformTxManager;
+    private final PlatformTransactionManager sourcePlatformTxManager;
 
     public JpaEntityProcessor(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
-        this.sinkPlatformTxManager = sourcePlatformTxManager;
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
-    /**
-     * selects the owning side of a many to many relationship.
-     *
-     * @param entityClass      the entity class.
-     * @param manyToManyMethod the many to many method.
-     */
-    private void addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(Class<?> entityClass, Method manyToManyMethod) {
-        if (randomManyToManyOwningSide.contains(entityClass)) {
-            return;
-        }
-        boolean isMappedBy = Arrays.stream(manyToManyMethod.getDeclaredAnnotations())
-                .filter(ManyToMany.class::isInstance)
-                .anyMatch(a -> !((ManyToMany) a).mappedBy().isEmpty());
-        if (isMappedBy) {
-            return;
-        }
-        Class<?> targetEntityClass = (Class<?>) ((ParameterizedType) manyToManyMethod.getGenericReturnType()).getActualTypeArguments()[0];
-        try {
-            log.debug("finding inverse many to many method: {} for class {}", manyToManyMethod.getName(), targetEntityClass.getSimpleName());
-            Arrays.stream(Introspector.getBeanInfo(targetEntityClass)
-                            .getPropertyDescriptors()).map(PropertyDescriptor::getReadMethod)
-                    .forEach(targetEntityClassMethod -> {
-                        for (Annotation a : targetEntityClassMethod.getDeclaredAnnotations()) {
-                            if (a instanceof ManyToMany mtm && mtm.mappedBy().isEmpty()) {
-                                Class<?> targetEntityClassManyToManyTargetEntity = (Class<?>) ((ParameterizedType) targetEntityClassMethod.getGenericReturnType()).getActualTypeArguments()[0];
-                                if (targetEntityClassManyToManyTargetEntity.equals(entityClass) && !randomManyToManyOwningSide.contains(targetEntityClass)) {
-                                    randomManyToManyOwningSide.add(entityClass);
-                                    break;
-                                }
-                            }
-                        }
-                    });
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Gets the primary key getter entity method.
@@ -122,6 +83,24 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     @Override
+    public Object unproxy(Object o) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        transactionTemplate.setReadOnly(true);
+        return transactionTemplate.execute(status -> {
+            Object ret = Hibernate.unproxy(o);
+            EntityManagerFactory emf = ((JpaTransactionManager) sourcePlatformTxManager).getEntityManagerFactory();
+            EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+            em.detach(ret);
+            return ret;
+        });
+    }
+
+    @Override
+    public String fieldNameOfGetter(Method getterMethod) {
+        return Character.toUpperCase(getterMethod.getName().charAt(3)) + getterMethod.getName().substring(3);
+    }
+
+    @Override
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(ModelElement element) {
         // return getRawId(((JpaMetamodelVertex) element.vertex()).entityClass(), element.rawElement()); // Not calling getId(MV, E) to avoid nested transaction proxy
@@ -138,23 +117,20 @@ public class JpaEntityProcessor implements RawElementProcessor {
     @Override
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
-        return getRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity);
+        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        transactionTemplate.setReadOnly(true);
+        return transactionTemplate.execute(status -> internalGetRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity));
     }
 
-
-    private Optional<Object> getRawId(Class entityClass, Object entity) {
+    private Optional<Object> internalGetRawId(Class entityClass, Object entity) {
         // Cannot use getRawFieldValue due to cycle and the @Transactional aspect
         // log.debug("getting id for entity of class {} and entity {}", entityClass.getSimpleName(), entity);
-        return getPrimaryKeyGetterMethod(entityClass).map(
+        return getPrimaryKeyGetterMethod(entityClass).map(// TODO investigate why entityClass doesn't work as expected
                 primaryKeyGetterMethod -> {
                     try {
-                        if (null != entity) {
-                            return primaryKeyGetterMethod.invoke(entity);
-                        } else {
-                            log.error("Cannot get the id because entity is null for entityclass {}", entityClass);
-                            return Optional.empty();
-                        }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        return primaryKeyGetterMethod.invoke(entity);
+                    } catch (Exception e) {
+                        log.error("Exception thrown while getting the id of entity {}, with entityclass {}", entity, entityClass.getSimpleName());
                         throw new ErrorCallingRawElementMethodException(e);
                     }
                 }
@@ -173,7 +149,8 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param attribute   the attribute.
      * @return the getter method.
      */
-    private Optional<Method> getterMethod(Class<?> entityClass, Field attribute) {
+    @Override
+    public Optional<Method> getterMethod(Class<?> entityClass, Field attribute) {
         try {
             return getPropertyDescriptor(entityClass, attribute).map(PropertyDescriptor::getReadMethod);
         } catch (Exception e) {
@@ -205,50 +182,6 @@ public class JpaEntityProcessor implements RawElementProcessor {
         return Character.toLowerCase(getterName.charAt(3)) + getterName.substring(4);
     }
 
-    /**
-     * Gets Relationship type of a relationship between two entities.
-     *
-     * @param getterMethod the getter method of the relationship.
-     * @return the type of the relationship (one to one, one to many, many to many).
-     */
-    @Override
-    public RelationshipType relationshipType(Method getterMethod) {
-        if (getterMethod.isAnnotationPresent(OneToMany.class)) {
-            return RelationshipType.ONE_TO_MANY;
-        } else if (getterMethod.isAnnotationPresent(ManyToMany.class)) {
-            return RelationshipType.MANY_TO_MANY;
-        } else if (getterMethod.isAnnotationPresent(OneToOne.class)) {
-            return RelationshipType.ONE_TO_ONE;
-        } else if (getterMethod.isAnnotationPresent(ManyToOne.class)) {
-            return RelationshipType.MANY_TO_ONE;
-        } else {
-            throw new RawElementFieldOrMethodNotFoundException("The getter method " + getterMethod.getName() + " is not a relationship");
-        }
-    }
-
-    /**
-     * Gets the inverse relationship field.
-     *
-     * @param getterMethod      the getter method that targets an entity (relationship).
-     * @param targetEntityClass the target entity class.
-     * @return the inverse relationship field.
-     */
-    private Optional<Field> inverseRelationshipField(Method getterMethod, Class<?> targetEntityClass) {
-        RelationshipType relationshipType = relationshipType(getterMethod);
-        Optional<String> mappedBy = getMappedByValue(getterMethod);
-        Optional<Field> mappedByField = mappedBy.flatMap(mappedByValue -> Arrays.stream(targetEntityClass.getDeclaredFields()).filter(f -> f.getName().equals(mappedByValue)).findAny());
-        if (mappedByField.isPresent()) {
-            return mappedByField;
-        } else {
-            return findInverseRelationshipFieldWithoutMappedByInformation(targetEntityClass, getterMethod, relationshipType);
-        }
-    }
-
-    @Override
-    public Optional<Field> inverseRelationshipField(Method getterMethod, MetamodelVertex targetEntityClass) {
-        return inverseRelationshipField(getterMethod, ((JpaMetamodelVertex) targetEntityClass).entityClass());
-    }
-
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Override
     public Object getFieldValue(ModelElement modelElement, String attributeName) {
@@ -257,7 +190,13 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
-        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
+        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        transactionTemplate.setReadOnly(true);
+        return transactionTemplate.execute(status -> internalGetRawElementValue(entity, attributeName));
+    }
+
+    private Object internalGetRawElementValue(Object entity, String attributeName) {
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
         EntityManagerFactory emf = tm.getEntityManagerFactory();
         EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
         try {
@@ -275,86 +214,20 @@ public class JpaEntityProcessor implements RawElementProcessor {
                                 PersistenceUnitUtil unitUtil =
                                         emf.getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-                                    results.iterator().hasNext();
-                                    /*TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTransactionManager);
+                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
                                     transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext());*/
+                                    transactionTemplate.execute(status -> results.iterator().hasNext());
                                 }
                             }
                             return result;
-                        } catch (IllegalAccessException | InvocationTargetException e) {
+                        } catch (Exception e) {
+                            log.error("error while getting value for entity");
                             throw new ErrorCallingRawElementMethodException(e);
                         }
                     }).findAny()
                     .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityToUse.getClass().getName()));
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Finds the inverse relationship field without mappedBy information.
-     *
-     * @param targetEntityClass the target entity class.
-     * @param getterMethod      the getter method that targets the target entity.
-     * @param relationshipType  the relationship type.
-     * @return the inverse relationship field.
-     */
-    private Optional<Field> findInverseRelationshipFieldWithoutMappedByInformation(Class<?> targetEntityClass, Method getterMethod, RelationshipType relationshipType) {
-        Class<?> sourceClass = getterMethod.getDeclaringClass();
-        return Arrays.stream(targetEntityClass.getDeclaredFields())
-                .filter((Field field) -> {
-                    if (field.getGenericType().equals(sourceClass)) {
-                        return true;
-                    } else if (Collection.class.isAssignableFrom(field.getType())) {
-                        Class<?> typeOfCollection = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        return typeOfCollection.equals(sourceClass);
-                    }
-                    return false;
-                }).map((Field field) -> {
-                    Optional<Method> getterMethodOfFieldOpt = getterMethod(targetEntityClass, field);
-                    Optional<RelationshipType> inverseRelationshipTypeOpt = getterMethodOfFieldOpt.map(getterMethodOfField -> relationshipType(getterMethodOfField));
-                    return inverseRelationshipTypeOpt.map(inverseRelationshipType -> new AbstractMap.SimpleEntry<>(field, inverseRelationshipType)).orElseThrow();
-                }).filter(entry -> isInverseRelationshipType(relationshipType, entry.getValue()))
-                .map(Map.Entry::getKey).findAny();
-    }
-
-    /**
-     * Gets the mappedBy value.
-     *
-     * @param getterMethod the getter method to get the information from (the annotation value).
-     * @return the mappedBy value.
-     */
-    private static Optional<String> getMappedByValue(Method getterMethod) {
-        return Arrays.stream(getterMethod.getDeclaredAnnotations()).map(a ->
-                switch (a) {
-                    case ManyToMany mtm -> mtm.mappedBy();
-                    case OneToMany otm -> otm.mappedBy();
-                    case OneToOne oto -> oto.mappedBy();
-                    default -> null;
-                }
-        ).filter(mappedBy -> null != mappedBy && !mappedBy.isEmpty()).findAny();
-    }
-
-    /**
-     * Checks if the inverse relationship type is the inverse type of a the relationship type.
-     *
-     * @param relationshipType        the relationship type.
-     *                                (one to one, one to many, many to many, many to one).
-     * @param inverseRelationshipType the inverse relationship type.
-     * @return the inverse relationship field.
-     */
-    private boolean isInverseRelationshipType(RelationshipType relationshipType, RelationshipType inverseRelationshipType) {
-        if (relationshipType.equals(RelationshipType.MANY_TO_MANY)) {
-            return inverseRelationshipType.equals(RelationshipType.MANY_TO_MANY);
-        } else if (relationshipType.equals(RelationshipType.ONE_TO_MANY)) {
-            return inverseRelationshipType.equals(RelationshipType.MANY_TO_ONE);
-        } else if (relationshipType.equals(RelationshipType.MANY_TO_ONE)) {
-            return inverseRelationshipType.equals(RelationshipType.ONE_TO_MANY);
-        } else if (relationshipType.equals(RelationshipType.ONE_TO_ONE)) {
-            return inverseRelationshipType.equals(RelationshipType.ONE_TO_ONE);
-        } else {
-            throw new RawElementFieldOrMethodNotFoundException("The relationship type " + relationshipType + " is not supported");
         }
     }
 
@@ -366,11 +239,11 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @return the field value.
      */
     private boolean isDetached(Class entityClass, Object entity) {
-        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
         EntityManagerFactory emf = tm.getEntityManagerFactory();
         EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
 
-        Optional<Object> idValue = getRawId(entityClass, entity);
+        Optional<Object> idValue = internalGetRawId(entityClass, entity);
         return idValue.map(id -> {
             return !em.contains(entity)  // must not be managed now
                     && em.find(entityClass, id) != null; // must not have been removed
@@ -403,97 +276,5 @@ public class JpaEntityProcessor implements RawElementProcessor {
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Assess if the class relationship is derived (not the owner side).
-     *
-     * @param entityClass   the entity class.
-     * @param attributeName the attribute name.
-     * @return the entity class name.
-     */
-    public boolean isDerived(Class<?> entityClass, String attributeName) {
-        try {
-            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
-                    .filter(pd -> attributeName.equals(pd.getName()))
-                    .map(PropertyDescriptor::getReadMethod)
-                    .anyMatch(
-                            m -> {
-                                for (Annotation a : m.getDeclaredAnnotations()) {
-                                    if (a instanceof OneToMany otm) {
-                                        return !otm.mappedBy().isEmpty();
-                                    } else if (a instanceof ManyToMany mtm) {
-                                        addEntityClassAsOwningSideIfMappedByIsNotDefinedOnBothSides(entityClass, m);
-                                        return !mtm.mappedBy().isEmpty() || randomManyToManyOwningSide.contains(((ParameterizedType) m.getGenericReturnType()).getActualTypeArguments()[0]);
-                                    } else if (a instanceof OneToOne oto) {
-                                        return !oto.mappedBy().isEmpty();
-                                    }
-                                }
-                                return false;
-                            }
-                    );
-        } catch (IntrospectionException e) {
-            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
-        }
-    }
-
-    /**
-     * Assess if the class relationship should ignore foreign key.
-     *
-     * @param entityClass   the entity class.
-     * @param attributeName the attribute name.
-     * @return the entity class name.
-     */
-
-    public boolean isFkIgnored(Class<?> entityClass, String attributeName) {
-        try {
-
-            return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
-                    .filter(pd -> attributeName.equals(pd.getName()))
-                    .map(PropertyDescriptor::getReadMethod)
-                    .anyMatch(
-                            m -> {
-                                for (Annotation a : m.getDeclaredAnnotations()) {
-                                    if (a instanceof JoinTable otm) {
-                                        return joinTableIgnoresFk(otm);
-                                    } else if (a instanceof JoinColumns mtm) {
-                                        return joinColumnsIgnoresFk(mtm);
-                                    } else if (a instanceof JoinColumn oto) {
-                                        return joinColumnIgnoresFk(oto);
-                                    } else if (a instanceof PrimaryKeyJoinColumn oto) {
-                                        return joinColumnIgnoresFk(oto);
-                                    }
-                                }
-                                return false;
-                            }
-                    );
-        } catch (IntrospectionException e) {
-            throw new RawElementFieldOrMethodNotFoundException("The relationship scan didn't succeed to find the getter method for the relation attribute", e);
-        }
-    }
-
-    public static boolean joinTableIgnoresFk(JoinTable a1) { // TODO refine joincol, is a pretty naive impl
-        boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        ignores = ignores || a1.inverseForeignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        for (var joinCol : a1.joinColumns()) {
-            ignores = ignores || joinColumnIgnoresFk(joinCol);
-        }
-        return ignores;
-    }
-
-    public static boolean joinColumnsIgnoresFk(JoinColumns a1) { // TODO refine joincol, is a pretty naive impl
-        boolean ignores = a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-        for (var joinCol : a1.value()) {
-            ignores = ignores || joinColumnIgnoresFk(joinCol);
-        }
-        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-    }
-
-    public static boolean joinColumnIgnoresFk(JoinColumn a1) {
-        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
-    }
-
-    public static boolean joinColumnIgnoresFk(PrimaryKeyJoinColumn a1) {
-        return a1.foreignKey().value().equals(ConstraintMode.NO_CONSTRAINT);
     }
 }

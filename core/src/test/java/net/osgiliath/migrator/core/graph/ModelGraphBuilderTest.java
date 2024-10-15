@@ -29,6 +29,7 @@ import net.osgiliath.migrator.core.configuration.ModelVertexCustomizer;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
+import net.osgiliath.migrator.core.rawelement.RelationshipProcessor;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaRelationshipProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
@@ -75,13 +76,13 @@ class ModelGraphBuilderTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        jpaEntityHelper = new JpaEntityProcessor(null);
-        metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper);
-        JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(metamodelGraphRequester);
-        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
+        jpaEntityHelper = new JpaEntityProcessor(txMgr);
+        RelationshipProcessor relationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);
+        metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper, relationshipProcessor);
+        ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, relationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
-        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, txMgr);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(relationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, modelElementProcessor, txMgr);
         modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder, txMgr);
     }
 
@@ -90,6 +91,7 @@ class ModelGraphBuilderTest {
         GraphTraversal<Vertex, Vertex> traversal = mock(GraphTraversal.class);
         when(graphTraversalSource.inject(0)).thenReturn((GraphTraversal) traversal);
         when(graphTraversalSource.V()).thenReturn(traversal);
+        when(traversal.count()).thenReturn((GraphTraversal) traversal);
         when(graphTraversalSourceProvider.getGraph()).thenReturn(graphTraversalSource);
         modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph);
         verify(graphTraversalSourceProvider).getGraph();

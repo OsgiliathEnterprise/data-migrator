@@ -40,6 +40,9 @@ data-migrator:
   graph-datasource:
     type: embedded
 spring:
+  #  threads:
+  #    virtual:
+  #      enabled: true
   profiles:
     active: test
   main:
@@ -48,6 +51,7 @@ spring:
     source:
       properties:
         hibernate:
+          enable_lazy_load_no_trans: true
           dialect: org.hibernate.dialect.MySQLDialect
           #        cache:
           #          use_second_level_cache: true
@@ -66,6 +70,7 @@ spring:
     sink:
       properties:
         hibernate:
+          #          enable_lazy_load_no_trans: true
           dialect: org.hibernate.dialect.MySQLDialect
           id.new_generator_mappings: true
           #        cache:

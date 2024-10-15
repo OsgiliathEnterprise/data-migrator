@@ -10,26 +10,30 @@
         </Async>
         <!--<File name="FILE" fileName="target/app.log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </File>
+        </File>-->
         <Console name="CONSOLE">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </Console>-->
+        </Console>
     </Appenders>
     <Loggers>
-        <!--<Logger name="org.hibernate.SQL" level="DEBUG">
-            <AppenderRef ref="FILE"/>
+        <Logger name="org.hibernate.SQL" level="DEBUG">
+            <AppenderRef ref="CONSOLE"/>
         </Logger>
-        <Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
-            <AppenderRef ref="FILE"/>
-        </Logger> -->
-        <!--<Logger name="net.osgiliath" level="TRACE">
-            <AppenderRef ref="RandomAccessFile"/>
-        </Logger>-->
+        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE">
+            <AppenderRef ref="CONSOLE"/>
+        </logger>
+        <!-- <Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
+             <AppenderRef ref="FILE"/>
+         </Logger>
+         -->
+        <Logger name="net.osgiliath" level="TRACE">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
         <!--<Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </Logger> -->
-        <Root level="info">
-            <AppenderRef ref="Async"/>
-        </Root>
+        <!--<Root level="trace">
+            <AppenderRef ref="CONSOLE"/>
+        </Root>-->
     </Loggers>
 </Configuration>
