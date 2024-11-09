@@ -21,35 +21,51 @@ package net.osgiliath.migrator.core.graph;
  */
 
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElement;
 import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElementAndModelElementId;
 import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElements;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 @Component
 public class ModelVertexInformationRetriever {
 
     private final EntityImporter entityImporter;
     private final ModelElementProcessor modelElementProcessor;
+    private final PlatformTransactionManager sourcePlatformTxManager;
 
-    public ModelVertexInformationRetriever(EntityImporter entityImporter, ModelElementProcessor modelElementProcessor) {
+    public ModelVertexInformationRetriever(EntityImporter entityImporter, ModelElementProcessor modelElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.entityImporter = entityImporter;
         this.modelElementProcessor = modelElementProcessor;
+        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
-    // @Transactional(readOnly = true, transactionManager = SOURCE_TRANSACTION_MANAGER)
     public Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
         return getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(mv);
     }
 
     private Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertexStream(MetamodelVertex mv) {
-        return new MetamodelVertexAndModelElements(mv, entityImporter.importEntities(mv, new ArrayList<>()))
+        return new MetamodelVertexAndModelElements(mv, getModelElementsOfVertex(mv).stream())
                 .modelElements().map(modelElement -> new MetamodelVertexAndModelElement(mv, modelElement))
                 .flatMap(mvae -> modelElementProcessor.getId(mvae.modelElement()).stream().map(eid -> new MetamodelVertexAndModelElementAndModelElementId(mvae.metamodelVertex(), mvae.modelElement(), eid))
                 );
+    }
+
+    private Collection<ModelElement> getModelElementsOfVertex(MetamodelVertex mv) {
+        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
+        tpl.setReadOnly(true);
+        return tpl.execute(status -> entityImporter.importEntities(mv, new ArrayList<>()).collect(Collectors.toSet())
+        );
     }
 }

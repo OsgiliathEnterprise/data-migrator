@@ -81,9 +81,9 @@ class ModelGraphBuilderTest {
         metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper, relationshipProcessor);
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, relationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
-        ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor);
+        ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor, txMgr);
         modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(relationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, modelElementProcessor, txMgr);
-        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder, txMgr);
+        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
     }
 
     @Test
