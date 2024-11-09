@@ -30,15 +30,10 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Map;
 import java.util.Set;
-
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 @Component
 public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
@@ -49,15 +44,14 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     private final VertexResolver vertexResolver;
     private final ModelVertexInformationRetriever modelVertexInformationRetriever;
     private final ModelGraphEdgeBuilder modelGraphEdgeBuilder;
-    private final PlatformTransactionManager sourcePlatformTxManager;
 
-    public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
+
+    public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder) {
         this.graphTraversalSourceProvider = graphTraversalSource;
         this.modelVertexCustomizer = modelVertexCustomizer;
         this.vertexResolver = vertexResolver;
         this.modelVertexInformationRetriever = modelVertexInformationRetriever;
         this.modelGraphEdgeBuilder = modelGraphEdgeBuilder;
-        this.sourcePlatformTxManager = sourcePlatformTxManager;
     }
 
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
@@ -81,21 +75,17 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status -> { // TODO refine
-            GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                    .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
-                    .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
-                                String name = elt.metamodelVertex().getTypeName();
-                                log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
-                                traversal = traversal.addV(name);
-                                traversal = addVertexProperties(traversal, elt);
-                                return traversal;
-                            }, GraphTraversal::combine
-                    );
-            metamodelVertexAndModelElementAndModelElementIds.iterate();
-        });
+        GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
+                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
+                .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
+                            String name = elt.metamodelVertex().getTypeName();
+                            log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
+                            traversal = traversal.addV(name);
+                            traversal = addVertexProperties(traversal, elt);
+                            return traversal;
+                        }, GraphTraversal::combine
+                );
+        metamodelVertexAndModelElementAndModelElementIds.iterate();
     }
 
     private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {

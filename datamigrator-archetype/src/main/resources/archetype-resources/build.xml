@@ -1,6 +1,10 @@
 <project name="EntityPostProcessor" default="dist" basedir=".">
     <description>Post process the entities</description>
     <target name="amendEntities">
+        <replace token='precision=19' value='precision=9'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
         <replace token=', nullable=false' value='' dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>
