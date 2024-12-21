@@ -62,10 +62,10 @@ public class VertexPersister {
         try {
             EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
             entities
-                    .forEach((ent) -> {
-                                log.debug("Persisting entity of type {}, with id {}", ent.rawElement(), modelElementProcessor.getId(ent).get());
-                                em.merge(ent.rawElement());
-                            }
+                    .peek((ent) ->
+                            log.debug("Persisting entity of type {}, with id {}", ent.rawElement(), modelElementProcessor.getId(ent).get())
+                    )
+                    .forEach((ent) -> em.merge(ent.rawElement())
                     );
 
         } catch (Exception e) {

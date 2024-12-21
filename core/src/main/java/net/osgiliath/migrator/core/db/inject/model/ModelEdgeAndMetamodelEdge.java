@@ -24,5 +24,5 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 
-public record ModelAndMetamodelEdge(Edge modelEdge, FieldEdge<MetamodelVertex> metamodelEdge) {
+public record ModelEdgeAndMetamodelEdge(Edge modelEdge, FieldEdge<MetamodelVertex> metamodelEdge) {
 }

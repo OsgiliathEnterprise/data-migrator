@@ -141,8 +141,14 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
 
     @Override
     public void resetElementRelationships(ModelElement elt, Field f) {
+        PropertyDescriptor[] propertyDescriptors;
         try {
-            Arrays.stream(Introspector.getBeanInfo(elt.rawElement().getClass()).getPropertyDescriptors())
+            propertyDescriptors = Introspector.getBeanInfo(elt.rawElement().getClass()).getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+        if (null != propertyDescriptors) {
+            Arrays.stream(propertyDescriptors)
                     .filter(p -> p.getName().equals(f.getName()))
                     .map(PropertyDescriptor::getReadMethod).forEach(getterMethod -> {
                         try {
@@ -156,10 +162,7 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
                             // Do nothing
                         }
                     });
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
         }
-
     }
 
     /**

@@ -23,7 +23,8 @@ package net.osgiliath.migrator.core.db.inject;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.db.inject.model.ModelAndMetamodelEdge;
+import net.osgiliath.migrator.core.db.inject.model.ModelEdgeAndMetamodelEdge;
+import net.osgiliath.migrator.core.db.inject.model.ModelEdgeMetamodelEdgeAndTargetModelElement;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
@@ -147,12 +148,15 @@ public class SinkEntityInjector {
         metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph).stream()
                 .flatMap(metamodelEdge ->
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(sourceVertex.edges(Direction.OUT, metamodelEdge.getFieldName()), 0), false)
-                                .map(modelEdge -> new ModelAndMetamodelEdge(modelEdge, metamodelEdge))
+                                .map(modelEdge -> new ModelEdgeAndMetamodelEdge(modelEdge, metamodelEdge))
                 )
                 .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdge().label(), sourceVertex.label(), vertexResolver.getVertexModelElementId(sourceVertex), modelAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getVertexModelElementId(modelAndMetamodelEdge.modelEdge().inVertex())))
-                .forEach(modelAndMetamodelEdge -> {
+                .map(modelAndMetamodelEdge -> {
                     ModelElement targetModelElement = vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdge().inVertex());
-                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, targetModelElement);
+                    return new ModelEdgeMetamodelEdgeAndTargetModelElement(modelAndMetamodelEdge, targetModelElement);
+                })
+                .forEach(modelAndMetamodelEdge -> {
+                    modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, modelAndMetamodelEdge.target());
                 });
         return sourceModelElement;
     }
