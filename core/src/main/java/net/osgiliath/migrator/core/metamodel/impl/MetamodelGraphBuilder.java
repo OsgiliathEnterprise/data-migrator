@@ -48,15 +48,15 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
                 .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
         Stream<M> vertex = metamodelVertexFromRawMetamodelClass(metamodelClasses);
         vertex.filter(this::isEntity).forEach(graph::addVertex);
-        addVertexEdgesFromMetamodel(graph);
+        addVertexEdgesFromMetamodel(graph).forEach(elt -> log.debug("edge added"));
         return graph;
     }
 
-    private void addVertexEdgesFromMetamodel(Graph<M, FieldEdge<M>> graph) {
-        graph.vertexSet().stream()
+    private Stream<Boolean> addVertexEdgesFromMetamodel(Graph<M, FieldEdge<M>> graph) {
+        return graph.vertexSet().stream()
                 .flatMap(v -> computeOutboundEdges(v, graph)
                         .map(e -> new MetamodelVertexAndOutboundEdge<>(v, e)))
-                .forEach(me ->
+                .map(me ->
                         graph.addEdge(me.sourceVertex(), me.targetVertex(), me.fieldEdge()));
     }
 
