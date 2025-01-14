@@ -100,8 +100,9 @@ public class SinkEntityInjector {
                 log.debug("persisting related elements");
                 Stream stream = modelGraph.V().filter(not(is(P.within(processedVertices)))).toStream();
                 Collection set = (Collection) stream.collect(Collectors.toSet());
-                for (var o : set)
+                for (var o : set) {
                     persistTraversal(entityMetamodelGraph, processedVertices, Optional.of(o).stream());
+                }
             }
         }
     }
@@ -127,8 +128,7 @@ public class SinkEntityInjector {
                             return id.isPresent() && id.get() != null &&
                                     ((id.get() instanceof Long && 0L != (Long) id.get()) ||
                                             (id.get() instanceof String && !((String) id.get()).isEmpty()) ||
-                                            id.get().getClass().getAnnotation(jakarta.persistence.Embeddable.class) != null)
-                                    ;
+                                            id.get().getClass().getAnnotation(jakarta.persistence.Embeddable.class) != null);
                         }
                 );
         TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
