@@ -53,8 +53,7 @@ public class DataMigratorConfiguration {
 
     /**
      * Graph datasource configuration.
-     *
-     * @return
+     * {@return the graph datasource}
      */
     public GraphDatasource getGraphDatasource() {
         return graphDatasource;

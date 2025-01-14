@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -48,22 +49,28 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
         this.metamodelVertexFactory = metamodelVertexFactory;
     }
 
+    private record VertexMetamodelClassAndEntityClass(FieldAndTargetType fieldAndTargetType, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
     /**
      * {@inheritDoc}
      */
     @Override
     protected Stream<OutboundEdge<JpaMetamodelVertex>> computeOutboundEdges(JpaMetamodelVertex sourceVertex, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
-        return Stream.of(sourceVertex.metamodelClass().getDeclaredFields())
-                .flatMap(f -> targetTypeOfMetamodelField(f)
-                        .map(targetType -> new FieldAndTargetType(f, targetType)).stream())
-                .flatMap(t ->
-                        graph.vertexSet().stream().filter(candidateVertex -> candidateVertex.entityClass().equals(t.targetType()))
-                                .filter(targetMetamodelVertex -> !relationshipProcessor.isFkIgnored(sourceVertex.entityClass(), t.field().getName()))
-                                .filter(targetMetamodelVertex -> !relationshipProcessor.isDerived(sourceVertex.entityClass(), t.field().getName()))
-                                .map(targetMetamodelVertex ->
-                                        metamodelVertexFactory.createOutboundEdge(metamodelVertexFactory.createFieldEdge(t.field()), targetMetamodelVertex)
-                                )
-                );
+        record VertexMetamodelClassDeclaredFieldsAndEntityClass(Field[] fields, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
+        record VertexMetamodelClassDeclaredFieldAndEntityClass(Field field, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
+        record VertexMetamodelClassAndEntityClass(Class<?> metamodelClass, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
+
+        VertexMetamodelClassAndEntityClass streamInput = new VertexMetamodelClassAndEntityClass(sourceVertex.metamodelClass(), sourceVertex.entityClass(), graph);
+        return Stream
+                .of(streamInput)
+                .map((VertexMetamodelClassAndEntityClass r) -> new VertexMetamodelClassDeclaredFieldsAndEntityClass(r.metamodelClass().getDeclaredFields(), r.entityClass(), r.graph()))
+                .flatMap((VertexMetamodelClassDeclaredFieldsAndEntityClass r) -> Arrays.stream(r.fields()).map(f -> new VertexMetamodelClassDeclaredFieldAndEntityClass(f, r.entityClass(), r.graph())))
+                .flatMap(f -> targetTypeOfMetamodelField(f.field(), f.entityClass(), f.graph()).stream())
+                .flatMap(t -> t.graph().vertexSet().stream().filter(candidateVertex -> candidateVertex.entityClass().equals(t.fieldAndTargetType().targetType()))
+                        .filter(targetMetamodelVertex -> !relationshipProcessor.isFkIgnored(t.entityClass(), t.fieldAndTargetType().field().getName()))
+                        .filter(targetMetamodelVertex -> !relationshipProcessor.isDerived(t.entityClass(), t.fieldAndTargetType().field().getName()))
+                        .map(targetMetamodelVertex ->
+                                metamodelVertexFactory.createOutboundEdge(metamodelVertexFactory.createFieldEdge(t.fieldAndTargetType().field()), targetMetamodelVertex)
+                        ));
     }
 
     @Override
@@ -74,12 +81,12 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
     /**
      * Get the Java Type of the target of a field.
      */
-    private Optional<Type> targetTypeOfMetamodelField(Field f) {
+    private Optional<VertexMetamodelClassAndEntityClass> targetTypeOfMetamodelField(Field f, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
         Type t = f.getGenericType();
         if (t instanceof ParameterizedType pt) {
             Type[] types = pt.getActualTypeArguments();
             if (types.length == 2) {
-                return Optional.of(types[1]);
+                return Optional.of(new VertexMetamodelClassAndEntityClass(new FieldAndTargetType(f, types[1]), entityClass, graph));
             }
         }
         return Optional.empty();

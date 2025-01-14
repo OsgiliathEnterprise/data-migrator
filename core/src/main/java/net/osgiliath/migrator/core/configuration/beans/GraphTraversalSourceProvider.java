@@ -59,10 +59,10 @@ public class GraphTraversalSourceProvider {
      * @return the graph traversal source.
      */
     public GraphTraversalSource getGraph() {
-        if (dataMigratorConfiguration.getGraphDatasource().getType() == GraphDatasourceType.EMBEDDED) {
+        if (dataMigratorConfiguration.getGraphDatasource().getType().equals(GraphDatasourceType.EMBEDDED)) {
             Graph graph = TinkerGraph.open();
             return traversal().withEmbedded(graph);
-        } else if (dataMigratorConfiguration.getGraphDatasource().getType() == GraphDatasourceType.REMOTE) {
+        } else if (dataMigratorConfiguration.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE)) {
             IoRegistry registry = TinkerIoRegistryV3.instance();
             TypeSerializerRegistry typeSerializerRegistry = TypeSerializerRegistry.build().addRegistry(registry)
                     .create();
