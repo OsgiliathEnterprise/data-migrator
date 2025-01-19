@@ -95,9 +95,9 @@ public class ModelElementProcessor {
         return rawElementProcessor.getId(modelElement);
     }
 
-    public void resetModelElementEdge(ModelElement sourceModelElement) {
+    public ModelElement resetModelElementEdge(ModelElement sourceModelElement) {
 
-        relationshipProcessor.resetElementRelationships(sourceModelElement);
+        return relationshipProcessor.resetElementRelationships(sourceModelElement);
         /*Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(metamodelEdge);
         relationshipTypeOpt.ifPresent(
                 relationshipType -> {

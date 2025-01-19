@@ -28,10 +28,10 @@ import net.osgiliath.migrator.core.db.inject.model.ModelEdgeMetamodelEdgeAndTarg
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
@@ -42,10 +42,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Spliterators;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -57,6 +55,7 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 public class SinkEntityInjector {
     private static final Logger log = LoggerFactory.getLogger(SinkEntityInjector.class);
     public static final Integer CYCLE_DETECTION_DEPTH = 30;
+    public static final String PROCESSED = "processed";
     private final VertexPersister vertexPersister;
     private final MetamodelRequester metamodelGraphRequester;
     private final ModelElementProcessor modelElementProcessor;
@@ -78,45 +77,47 @@ public class SinkEntityInjector {
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
         removeCyclicElements(modelGraph);
-        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, new HashSet<>());
+        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
     }
 
-    private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices) {
-        GraphTraversal<Vertex, Vertex> orphansElements = modelGraph.V().filter(not(is(P.within(processedVertices)))).filter(out().count().is(0));
+    private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
+        GraphTraversal<Vertex, Vertex> orphansElements = modelGraph.V()
+                .hasNot(PROCESSED)
+                .as("s")
+                .or(
+                        not(outE()),
+                        out().filter(not(where(eq("s"))))
+                                .hasNot(PROCESSED)
+                                .count().is(0)
+                );
         if (orphansElements.hasNext()) {
             log.debug("persisting orphans elements");
-            persistTraversal(entityMetamodelGraph, processedVertices, orphansElements.toStream());
-            processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
+            persistTraversal(entityMetamodelGraph, orphansElements);
+            modelGraph.V()
+                    .hasNot(PROCESSED)
+                    .as("s")
+                    .or(
+                            not(outE()),
+                            out()
+                                    .filter(not(where(eq("s"))))
+                                    .hasNot(PROCESSED)
+                                    .count().is(0)
+                    ).property(PROCESSED, true).iterate();
+            processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
         } else {
-            GraphTraversal<Vertex, Vertex> leafElements = modelGraph
-                    .V()
-                    .repeat(out())
-                    .until(
-                            out().filter(not(is(P.within(processedVertices)))).count().is(0)
-                    ).filter(not(is(P.within(processedVertices)))).dedup();
-            if (leafElements.hasNext()) {
-                log.debug("persisting leaf elements");
-                persistTraversal(entityMetamodelGraph, processedVertices, leafElements.toStream());
-                processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph, processedVertices);
-            } else {
-                log.debug("persisting related elements");
-                Stream<Vertex> stream = modelGraph.V().filter(not(is(P.within(processedVertices)))).toStream();
-                Collection<Vertex> set = stream.collect(Collectors.toSet());
-                for (var o : set) {
-                    persistTraversal(entityMetamodelGraph, processedVertices, Optional.of(o).stream());
-                }
-            }
+            log.debug("persisting related elements in the same transaction");
+            GraphTraversal<Vertex, Vertex> bulk = modelGraph.V().hasNot(PROCESSED);
+            persistTraversal(entityMetamodelGraph, bulk);
+            modelGraph.V().hasNot(PROCESSED).property(PROCESSED, true).iterate();
         }
     }
 
-    private void persistTraversal(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, Collection<Vertex> processedVertices, Stream<Vertex> traversal) {
+    private void persistTraversal(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversal<Vertex, Vertex> traversal) {
         Stream<ModelElement> res =
                 traversal
-                        .map(vertex -> {
-                            processedVertices.add(vertex);
-                            return vertex;
-                        })
-                        .map(modelVertex -> updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph)
+                        .toStream()
+                        .map(modelVertex ->
+                                updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph)
                         )
                         .peek(me -> {
                             log.info("Persisting vertex of type {} with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get());
@@ -132,30 +133,56 @@ public class SinkEntityInjector {
         TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         try {
             tpl.executeWithoutResult(
-                    act -> vertexPersister.persistVertices(res)
+                    act -> {
+                        vertexPersister.persistVertices(res);
+                    }
             );
         } catch (Exception e) {
             log.error("Unable to save one element", e);
         }
     }
 
+    record FieldEdgesAndSourceVertex(FieldEdge<MetamodelVertex> fieldEdge, Vertex sourceVertex) {
+    }
+
+    ;
+
+    record SourceVertexAndModelEdgeAndMetamodelEdge(Vertex sourceVertex,
+                                                    ModelEdgeAndMetamodelEdge modelEdgeAndMetamodelEdge) {
+
+        public Vertex sourceVertex() {
+            return sourceVertex;
+        }
+
+        public Edge modelEdge() {
+            return modelEdgeAndMetamodelEdge.modelEdge();
+        }
+    }
+
+    ;
+
+    record SourceVertexModelEdgeMetamodelEdgeAndTargetModelElement(ModelElement modelElement,
+                                                                   ModelEdgeMetamodelEdgeAndTargetModelElement modelEdgeMetamodelEdgeAndTargetModelElement) {
+        public ModelElement modelElement() {
+            return modelElement;
+        }
+
+        public FieldEdge<MetamodelVertex> metamodelEdge() {
+            return modelEdgeMetamodelEdgeAndTargetModelElement.metamodelEdge();
+        }
+
+        public ModelElement target() {
+            return modelEdgeMetamodelEdgeAndTargetModelElement.target();
+        }
+    }
+
+    ;
+
     ModelElement updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         ModelElement sourceModelElement = modelElementProcessor.unproxy(vertexResolver.getModelElement(sourceVertex));
         modelElementProcessor.resetModelElementEdge(sourceModelElement);
         MetamodelVertex sourceMetamodelVertex = vertexResolver.getMetamodelVertex(sourceVertex);
         Collection<FieldEdge<MetamodelVertex>> fieldEdges = metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph);
-        record FieldEdgesAndSourceVertex(FieldEdge<MetamodelVertex> fieldEdge, Vertex sourceVertex) {
-        }
-        ;
-        record SourceVertexAndModelEdgeAndMetamodelEdge(Vertex vertex,
-                                                        ModelEdgeAndMetamodelEdge modelEdgeAndMetamodelEdge) {
-        }
-        ;
-        record ModelElementModelEdgeMetamodelEdgeAndTargetModelElement(ModelElement sourceModelElement,
-                                                                       ModelEdgeMetamodelEdgeAndTargetModelElement modelEdgeMetamodelEdgeAndTargetModelElement) {
-        }
-        ;
-        // TODO inject the model element at the beginning of the stream to avoid side effect
         Collection<FieldEdgesAndSourceVertex> toProcess = fieldEdges.stream().map(fE -> new FieldEdgesAndSourceVertex(fE, sourceVertex)).toList();
 
         toProcess.stream()
@@ -163,13 +190,13 @@ public class SinkEntityInjector {
                         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fieldEdgeAndSourceVertex.sourceVertex().edges(Direction.OUT, fieldEdgeAndSourceVertex.fieldEdge().getFieldName()), 0), false)
                                 .map(modelEdge -> new SourceVertexAndModelEdgeAndMetamodelEdge(fieldEdgeAndSourceVertex.sourceVertex(), new ModelEdgeAndMetamodelEdge(modelEdge, fieldEdgeAndSourceVertex.fieldEdge())))
                 )
-                .peek(modelAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", modelAndMetamodelEdge.modelEdgeAndMetamodelEdge().modelEdge().label(), modelAndMetamodelEdge.vertex().label(), vertexResolver.getVertexModelElementId(modelAndMetamodelEdge.vertex()), modelAndMetamodelEdge.modelEdgeAndMetamodelEdge().modelEdge().inVertex().label(), vertexResolver.getVertexModelElementId(modelAndMetamodelEdge.modelEdgeAndMetamodelEdge().modelEdge().inVertex())))
-                .map(modelAndMetamodelEdge -> {
-                    ModelElement targetModelElement = vertexResolver.getModelElement(modelAndMetamodelEdge.modelEdgeAndMetamodelEdge().modelEdge().inVertex());
-                    return new ModelEdgeMetamodelEdgeAndTargetModelElement(modelAndMetamodelEdge.modelEdgeAndMetamodelEdge(), targetModelElement);
+                .peek(sourceVertexAndMetamodelEdge -> log.info("Recomposing edge: {} between source vertex of type {} with id {} and target vertex of type {} and id {}", sourceVertexAndMetamodelEdge.modelEdge().label(), sourceVertexAndMetamodelEdge.sourceVertex().label(), vertexResolver.getVertexModelElementId(sourceVertexAndMetamodelEdge.sourceVertex()), sourceVertexAndMetamodelEdge.modelEdge().inVertex().label(), vertexResolver.getVertexModelElementId(sourceVertexAndMetamodelEdge.modelEdge().inVertex())))
+                .map(sourceVertexAndMetamodelEdge -> {
+                    ModelElement targetModelElement = vertexResolver.getModelElement(sourceVertexAndMetamodelEdge.modelEdge().inVertex());
+                    return new SourceVertexModelEdgeMetamodelEdgeAndTargetModelElement(sourceModelElement, new ModelEdgeMetamodelEdgeAndTargetModelElement(sourceVertexAndMetamodelEdge.modelEdgeAndMetamodelEdge(), targetModelElement));
                 })
                 .forEach(modelAndMetamodelEdge ->
-                        modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), sourceModelElement, modelAndMetamodelEdge.target())
+                        modelElementProcessor.addRawElementsRelationshipForEdge(modelAndMetamodelEdge.metamodelEdge(), modelAndMetamodelEdge.modelElement(), modelAndMetamodelEdge.target())
                 );
         return sourceModelElement;
     }
@@ -181,6 +208,7 @@ public class SinkEntityInjector {
                 .until(where(eq("a"))
                         .or().loops().is(CYCLE_DETECTION_DEPTH))
                 .filter(where(eq("a")))
+                .filter(not(in().where(eq("a"))))
                 .filter(t -> {
                     Vertex v = t.get();
                     log.warn("Cyclic element of type {} with id {} found in the graph", v.label(), vertexResolver.getVertexModelElementId(v));

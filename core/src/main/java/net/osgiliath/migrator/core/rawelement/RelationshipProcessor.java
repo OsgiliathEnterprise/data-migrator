@@ -31,7 +31,7 @@ import java.util.Optional;
 public interface RelationshipProcessor {
     Object getEdgeRawValue(ModelElement modelElement, Method getterMethod);
 
-    void resetElementRelationships(ModelElement o);
+    ModelElement resetElementRelationships(ModelElement o);
 
     void resetElementRelationships(ModelElement o, Field f);
 
