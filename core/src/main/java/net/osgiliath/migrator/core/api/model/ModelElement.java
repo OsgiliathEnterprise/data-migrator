@@ -28,5 +28,24 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
  * @param vertex     the metamodel element.
  * @param rawElement the underlying element.
  */
-public record ModelElement(MetamodelVertex vertex, Object rawElement) {
+public class ModelElement {
+    private final MetamodelVertex vertex;
+    private Object rawElement;
+
+    public ModelElement(MetamodelVertex vertex, Object rawElement) {
+        this.vertex = vertex;
+        this.rawElement = rawElement;
+    }
+
+    public MetamodelVertex vertex() {
+        return vertex;
+    }
+
+    public Object rawElement() {
+        return this.rawElement;
+    }
+
+    public void setRawElement(Object rawElement) {
+        this.rawElement = rawElement;
+    }
 }
