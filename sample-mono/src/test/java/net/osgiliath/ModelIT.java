@@ -106,7 +106,7 @@ class ModelIT {
             assertThat(modelGraph).isNotNull();
             assertThat(modelGraph.V().hasLabel(Country.class.getName()).count().next()).isEqualTo(10);
             assertThat(modelGraph.V().hasLabel(Department.class.getName()).toSet()).hasSize(10);
-            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).toSet()).hasSize(10);
+            assertThat(modelGraph.V().hasLabel(Employee.class.getName()).toSet()).hasSize(13);
             assertThat(modelGraph.V().hasLabel(Job.class.getName()).toSet()).hasSize(10);
             assertThat(modelGraph.V().hasLabel(JobHistory.class.getName()).toSet()).hasSize(10);
             assertThat(modelGraph.V().hasLabel(Location.class.getName()).toSet()).hasSize(10);
