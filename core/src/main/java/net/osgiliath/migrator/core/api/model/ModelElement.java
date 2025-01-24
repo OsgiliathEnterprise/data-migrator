@@ -24,14 +24,15 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 
 /**
  * A vertex in the model graph.
- *
- * @param vertex     the metamodel element.
- * @param rawElement the underlying element.
  */
 public class ModelElement {
     private final MetamodelVertex vertex;
     private Object rawElement;
 
+    /**
+     * @param vertex     the metamodel element.
+     * @param rawElement the underlying element.
+     */
     public ModelElement(MetamodelVertex vertex, Object rawElement) {
         this.vertex = vertex;
         this.rawElement = rawElement;
