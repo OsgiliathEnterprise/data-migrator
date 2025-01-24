@@ -28,6 +28,9 @@ import java.util.stream.Stream;
 
 /**
  * Field edge and target vertices (entity definition).
+ *
+ * @param targetVertices the target vertices of the edge.
+ * @param edge           the metamodel edge starting from the Vertex.
  */
 public record FieldEdgeTargetVertices(FieldEdge<MetamodelVertex> edge, Stream<Vertex> targetVertices) {
 }

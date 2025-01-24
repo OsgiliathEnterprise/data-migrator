@@ -23,9 +23,10 @@ package net.osgiliath.migrator.core.db.inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
+import org.apache.tinkerpop.shaded.jackson.core.JsonProcessingException;
+import org.apache.tinkerpop.shaded.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,7 +40,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_TRANSACTION_MANAGER;
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 
 @Component
 public class VertexPersister {
@@ -48,31 +48,38 @@ public class VertexPersister {
     private final ModelElementProcessor modelElementProcessor;
     private static Logger log = LoggerFactory.getLogger(VertexPersister.class);
 
-    public VertexPersister(DataMigratorConfiguration dmc, ModelElementProcessor modelElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
+    public VertexPersister(ModelElementProcessor modelElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager) {
         this.modelElementProcessor = modelElementProcessor;
         this.sinkPlatformTxManager = sinkPlatformTxManager;
     }
 
-    public void persistVertices(Stream<ModelElement> entities) {
-        // Stream<?> reattachedEntities = reattachEntities(entities);
-        //TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
-        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
-        EntityManagerFactory emf = tm.getEntityManagerFactory();
+    public Stream<ModelElement> persistVertices(Stream<ModelElement> entities, PlatformTransactionManager sinkTxManager) {
+        EntityManagerFactory emf = ((JpaTransactionManager) sinkTxManager).getEntityManagerFactory();
         log.info("******************** Persisting a batch of entities ****************");
         try {
             EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
-            entities
-                    .peek((ent) ->
-                            log.debug("Persisting entity of type {}, with id {}", ent.rawElement(), modelElementProcessor.getId(ent).get())
-                    )
-                    .forEach((ent) -> em.merge(ent.rawElement())
-                    );
-
+            return entities
+                    .peek((me) -> {
+                        log.debug("Persisting entity of type {}, with id {}", me.rawElement(), modelElementProcessor.getId(me).get());
+                        if (log.isInfoEnabled()) {
+                            ObjectMapper mapper = new ObjectMapper();
+                            try {
+                                log.info("Object passed to persist: {}", mapper.writer().writeValueAsString(me.rawElement()));
+                            } catch (JsonProcessingException e) {
+                            }
+                        }
+                    })
+                    .map((me) -> {
+                        me.setRawElement(em.merge(me.rawElement()));
+                        //em.merge(me.rawElement());
+                        return me;
+                    });
         } catch (Exception e) {
             log.error("******************** ERROR Persisting last batch of entities ****************");
             log.warn("Unable to persist last batch of entities, you may retry once", e);
             log.error("******************** End error ****************");
         }
+        return Stream.empty();
     }
 
     Optional<ModelElement> reattachEntityInSink(ModelElement entity) {

@@ -120,9 +120,9 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
 
 
     @Override
-    public void resetElementRelationships(ModelElement elt) {
+    public ModelElement resetElementRelationships(ModelElement elt) {
         try {
-            Arrays.stream(Introspector.getBeanInfo(elt.rawElement().getClass()).getPropertyDescriptors()).map(PropertyDescriptor::getReadMethod).forEach(getterMethod -> {
+            Arrays.stream(Introspector.getBeanInfo(((JpaMetamodelVertex) elt.vertex()).entityClass()).getPropertyDescriptors()).map(PropertyDescriptor::getReadMethod).forEach(getterMethod -> {
                 try {
                     RelationshipType type = relationshipType(getterMethod);
                     if (isMany(type)) {
@@ -137,6 +137,7 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
         }
+        return elt;
     }
 
     @Override

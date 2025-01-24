@@ -38,8 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_JPA_PROPERTIES;
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
+import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.*;
 
 @Component
 public class StreamingInjector {
@@ -48,12 +47,14 @@ public class StreamingInjector {
     private final EntityImporter entityImporter;
     private final VertexPersister vertexPersister;
     private final PerDSJpaProperties jpaPropertiesWrapper;
+    private final PlatformTransactionManager sinkPlatformTxManager;
 
-    public StreamingInjector(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager, EntityImporter entityImporter, VertexPersister vertexPersister, @Qualifier(SINK_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
+    public StreamingInjector(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, EntityImporter entityImporter, VertexPersister vertexPersister, @Qualifier(SINK_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
         this.sourcePlatformTxManager = sourcePlatformTxManager;
         this.entityImporter = entityImporter;
         this.vertexPersister = vertexPersister;
         this.jpaPropertiesWrapper = jpaPropertiesWrapper;
+        this.sinkPlatformTxManager = sinkPlatformTxManager;
     }
 
     public void injectVerticesInTargetDb(Set<MetamodelVertex> metamodelVertices) {
@@ -69,8 +70,9 @@ public class StreamingInjector {
             Stream<ModelElement> queried = entityImporter.importEntities(vertex, new HashSet<>());
             return BatchIterator.batchStreamOf(queried, Integer.parseInt(jpaPropertiesWrapper.getProperties().get("hibernate.jdbc.batch_size"))).collect(Collectors.toSet());
         });
-        streamToInsert.forEach(batch ->
-                vertexPersister.persistVertices(batch.stream())
-        );
+        streamToInsert.forEach(batch -> {
+            TransactionTemplate sinkTx = new TransactionTemplate(sinkPlatformTxManager);
+            sinkTx.executeWithoutResult(status -> vertexPersister.persistVertices(batch.stream(), sinkPlatformTxManager));
+        });
     }
 }

@@ -95,9 +95,9 @@ public class ModelElementProcessor {
         return rawElementProcessor.getId(modelElement);
     }
 
-    public void resetModelElementEdge(ModelElement sourceModelElement) {
+    public ModelElement resetModelElementEdge(ModelElement sourceModelElement) {
 
-        relationshipProcessor.resetElementRelationships(sourceModelElement);
+        return relationshipProcessor.resetElementRelationships(sourceModelElement);
         /*Optional<RelationshipType> relationshipTypeOpt = metamodelRequester.getRelationshipType(metamodelEdge);
         relationshipTypeOpt.ifPresent(
                 relationshipType -> {
@@ -126,8 +126,9 @@ public class ModelElementProcessor {
         relationshipTypeOpt.ifPresent(
                 (RelationshipType relationshipType) -> {
                     switch (relationshipType) {
-                        case ONE_TO_ONE, MANY_TO_ONE ->
-                                setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());
+                        case ONE_TO_ONE, MANY_TO_ONE -> {
+                            setEdgeRawValue(fieldEdge, sourceEntity, targetEntity.rawElement());
+                        }
                         case ONE_TO_MANY, MANY_TO_MANY -> {
                             Collection set = (Collection) getEdgeRawValue(fieldEdge, sourceEntity);
                             set.add(targetEntity.rawElement());

@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 
 /**
  * Metamodel edge representing a relationship between two tables.
+ *
+ * @param <M> the MetamodelVertex kind.
  */
 public class FieldEdge<M extends MetamodelVertex> extends DefaultEdge {
 
