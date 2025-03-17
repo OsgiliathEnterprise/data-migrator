@@ -82,7 +82,7 @@
         <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
         <jdbc.mssql.version>12.8.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.1</jdbc.mariadb-java-client.version>
-        <hibernate.version>6.6.4.Final</hibernate.version>
+        <hibernate.version>6.6.11.Final</hibernate.version>
         <hibernate-tools.version>6.6.2.Final</hibernate-tools.version>
         <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
