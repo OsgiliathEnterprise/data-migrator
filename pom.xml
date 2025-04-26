@@ -79,11 +79,11 @@
         <jdbc.h2.version>2.3.232</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
         <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
-        <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
+        <jdbc.oracle.version>23.7.0.25.01</jdbc.oracle.version>
         <jdbc.mssql.version>12.8.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.1</jdbc.mariadb-java-client.version>
-        <hibernate.version>6.6.4.Final</hibernate.version>
-        <hibernate-tools.version>6.6.2.Final</hibernate-tools.version>
+        <hibernate.version>6.6.13.Final</hibernate.version>
+        <hibernate-tools.version>6.6.13.Final</hibernate-tools.version>
         <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
@@ -414,7 +414,7 @@
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.13</version>
+                    <version>1.7.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <serverId>ossrh</serverId>
