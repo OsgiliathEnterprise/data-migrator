@@ -49,9 +49,11 @@ public class ModelElementProcessor {
 
     public void removeEdgeValueFromModelElementRelationShip(ModelElement sourceModelElement, FieldEdge<MetamodelVertex> fieldEdge, ModelElement targetModelElement) {
         Object targetValue = getEdgeRawValue(fieldEdge, sourceModelElement);
-        if (targetValue instanceof Collection targetValues) {
-            targetValues.remove(targetModelElement.rawElement());
-            setEdgeRawValue(fieldEdge, sourceModelElement, targetValue);
+        if (targetValue instanceof Collection<?> targetValues) {
+            boolean removed = targetValues.remove(targetModelElement.rawElement());
+            if (removed) {
+                setEdgeRawValue(fieldEdge, sourceModelElement, targetValue);
+            }
         } else {
             setEdgeRawValue(fieldEdge, sourceModelElement, null);
         }
@@ -60,7 +62,7 @@ public class ModelElementProcessor {
         inverseFieldOpt.ifPresent(
                 inverseField -> {
                     Object inverseValue = rawElementProcessor.getFieldValue(targetModelElement, inverseField.getName());
-                    if (inverseValue instanceof Collection inverseValues) {
+                    if (inverseValue instanceof Collection<?> inverseValues) {
                         inverseValues.remove(sourceModelElement.rawElement());
                         rawElementProcessor.setFieldValue(targetModelElement, inverseField.getName(), inverseValues);
                     } else {

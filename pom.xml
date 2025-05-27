@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>3.4.5</version>
     </parent>
     <groupId>net.osgiliath.datamigrator</groupId>
     <artifactId>data-migrator</artifactId>
-    <version>1.90-SNAPSHOT</version>
+    <version>1.91-SNAPSHOT</version>
     <packaging>pom</packaging>
     <ciManagement>
         <system>Github actions</system>
@@ -75,17 +75,17 @@
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
         <liquibase.vers3306ion>4.28.0</liquibase.vers3306ion>
-        <spring-boot.version>3.4.3</spring-boot.version>
+        <spring-boot.version>3.4.5</spring-boot.version>
         <jdbc.h2.version>2.3.232</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
         <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
-        <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
+        <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
         <jdbc.mssql.version>12.8.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.1</jdbc.mariadb-java-client.version>
-        <hibernate.version>6.6.11.Final</hibernate.version>
-        <hibernate-tools.version>6.6.2.Final</hibernate-tools.version>
-        <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
+        <hibernate.version>6.6.13.Final</hibernate.version>
+        <hibernate-tools.version>6.6.13.Final</hibernate-tools.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
         <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
@@ -414,7 +414,7 @@
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.13</version>
+                    <version>1.7.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <serverId>ossrh</serverId>

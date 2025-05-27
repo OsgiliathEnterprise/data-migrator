@@ -105,8 +105,8 @@ You can limit the number of rows to be injected in the target database using the
 
 This data migrator basically transforms the database schema into two graphs (metamodel and model) then reinject the data
 in the sink.
-By default, a 4gb inmemory graph is created, which could be
-Sometimes you would want to take a look at the entity graph to better understand the data model.
+By default, a 4gb inmemory graph is created, which could be limitating.
+Additionally, you may sometimes want to take a look at the entity graph to better understand the data model.
 
 Remote tinkerpop server is supported by changing
 the `src/main/resources/application.yml#data-migrator.graph-datasource.type`. Setting that property to 'remote' will
@@ -119,11 +119,12 @@ then need a graph server to be started upfront (see compose.yml).
 Hibernates tools are quite good at reverse engineering entities, but are not perfect. You'll need to fix the entities
 manually. The most common issues are:
 
-- (optional) adding the mappedBy (ownig side id) annotation on `@ManyToMany` annotation to ensure reproducibility of the
+- (optional) adding the mappedBy (owning side id) annotation on `@ManyToMany` annotation to ensure reproducibility of
+  the
   anonymization sequence (i.e. the same data will be generated for the same input data). Not doing so will result in a '
   mappedBy' annotation added randomly on one or the other side of the relationship, leading to a different entity graph
   to process at each run.
-- (optional) add `@Basic(fetch = FetchType.LAZY)` on blobs and clobs attributes (to avoid heavy memory overloading.
+- (optional) add `@Basic(fetch = FetchType.LAZY)` on blobs and clobs attributes (to avoid heavy memory overload).
 - Remove `@Version` annotation if it's not an hibernate version column (i.e. it's a business version column)
 - Escape the column names that are reserved words in the target database (e.g. ` @Column(name = "\"schema\"")` in
   postgresql)
@@ -166,7 +167,8 @@ The same procedure using datamigrator would be the following:
 1. Regenerate the entities with foreign keys this time: Generate entity from source schema
    using `./mvnw clean package -pentities-from-source-schema`.
 1. Execute the data migration with `java -jar target/<thejar>`, you can stop it just after the hibernate schema update.
-1. Transfer the 'many to many' intermediate table by hand as they won't have been generated
+1. Transfer the 'many to many' intermediate table by hand as they won't have been created (due to the first nofk
+   migration).
 
 # Developing/Contributing to the project
 

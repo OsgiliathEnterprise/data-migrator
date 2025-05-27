@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.90-SNAPSHOT</version>
+        <version>1.91-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
     <properties>
         <camel.version>4.9.0</camel.version>
         <log4j.version>2.22.0</log4j.version>
-        <testcontainers.version>1.20.3</testcontainers.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <tinkerpop.version>3.7.2</tinkerpop.version>
     </properties>
