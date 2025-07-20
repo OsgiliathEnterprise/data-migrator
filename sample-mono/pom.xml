@@ -412,7 +412,7 @@
         <profile>
             <id>entities-from-changelog</id>
             <properties>
-                <source.database.docker.image>mysql:8.2</source.database.docker.image>
+                <source.database.docker.image>mysql:9.3.0</source.database.docker.image>
                 <source.database.spinup.wait.time>10000</source.database.spinup.wait.time>
             </properties>
             <build>

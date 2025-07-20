@@ -44,10 +44,7 @@ public record JpaMetamodelVertex(Class<?> metamodelClass, Class<?> entityClass) 
      */
     @Override
     public String toString() {
-        return "ClassVertex{" +
-                "metamodelClass=" + metamodelClass.getName() +
-                ", entityClass=" + entityClass.getName() +
-                '}';
+        return "ClassVertex{metamodelClass=%s, entityClass=%s}".formatted(metamodelClass.getName(), entityClass.getName());
     }
 
 }

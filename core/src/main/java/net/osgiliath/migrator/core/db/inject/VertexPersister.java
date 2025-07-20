@@ -59,7 +59,7 @@ public class VertexPersister {
         try {
             EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
             return entities
-                    .peek((me) -> {
+                    .peek((ModelElement me) -> {
                         log.debug("Persisting entity of type {}, with id {}", me.rawElement(), modelElementProcessor.getId(me).get());
                         if (log.isInfoEnabled()) {
                             ObjectMapper mapper = new ObjectMapper();
@@ -69,9 +69,9 @@ public class VertexPersister {
                             }
                         }
                     })
-                    .map((me) -> {
-                        me.setRawElement(em.merge(me.rawElement()));
+                    .map((ModelElement me) -> {
                         //em.merge(me.rawElement());
+                        me.setRawElement(em.merge(me.rawElement()));
                         return me;
                     });
         } catch (Exception e) {

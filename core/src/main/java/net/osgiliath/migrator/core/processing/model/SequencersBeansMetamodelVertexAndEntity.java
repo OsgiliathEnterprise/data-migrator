@@ -25,6 +25,8 @@ import net.osgiliath.migrator.core.api.model.ModelElement;
 
 import java.util.Collection;
 
-public record SequencersBeansMetamodelVertexAndEntity(Collection beans, MetamodelVertex metamodelVertex,
-                                                      ModelElement entity) {
+public record SequencersBeansMetamodelVertexAndEntity<T>(Collection<T> beans, MetamodelVertex metamodelVertex,
+                                                         ModelElement entity) {
 }
+
+

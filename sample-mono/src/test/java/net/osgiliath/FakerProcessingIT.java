@@ -47,11 +47,11 @@ class FakerProcessingIT {
     private static final Logger logger = LoggerFactory.getLogger(FakerProcessingIT.class);
 
     @Container
-    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:9.3.0"));
     // .withExposedPorts(64449);
 
     @Container
-    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:9.3.0"));
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {
