@@ -29,7 +29,7 @@ data-migrator:
     - name: anonymizer-custom-1
       type: bean
       transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
-      entity-class: Country
+      entity-class: net.osgiliath.datamigrator.sample.domain.Country
   graph-datasource:
     type: embedded
     #type: remote

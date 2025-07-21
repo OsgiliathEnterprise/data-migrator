@@ -20,7 +20,7 @@ package net.osgiliath.migrator.core.configuration;
  * #L%
  */
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class PerDSJpaProperties {
@@ -29,16 +29,17 @@ public class PerDSJpaProperties {
     /**
      * Additional native properties to set on the JPA provider.
      */
-    private Map<String, String> properties = new HashMap<>();
-
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
+    private Map<String, String> properties = Collections.emptyMap();
 
     public Map<String, String> getProperties() {
         return this.properties;
     }
 
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
 
 }
+
+

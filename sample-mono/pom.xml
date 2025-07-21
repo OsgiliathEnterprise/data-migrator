@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.91-SNAPSHOT</version>
+        <version>1.92-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
@@ -412,8 +412,10 @@
         <profile>
             <id>entities-from-changelog</id>
             <properties>
-                <source.database.docker.image>mysql:8.2</source.database.docker.image>
-                <source.database.spinup.wait.time>10000</source.database.spinup.wait.time>
+                <source.database.docker.image.name>mysql</source.database.docker.image.name>
+
+                <source.database.docker.image>${source.database.docker.image.name}:9.3.0</source.database.docker.image>
+                <source.database.spinup.wait.time>30000</source.database.spinup.wait.time>
             </properties>
             <build>
                 <plugins>
@@ -465,19 +467,25 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <alias>database</alias>
-                                            <name>${source.database.docker.image}</name>
+                                            <alias>${source.database.docker.image.name}</alias>
+                                            <name>${source.database.docker.image.name}</name>
+
                                             <run>
                                                 <wait>
-                                                    <time>${source.database.spinup.wait.time}</time>
+                                                    <!--<time>${source.database.spinup.wait.time}</time>-->
+
+
                                                     <!-- Do not work no matter the ideal wait <tcp>
                                                         <host>127.0.0.1</host>
                                                         <ports>
                                                             <port>3306</port>
                                                         </ports>
-                                                    </tcp>
-                                                    <log>mysqld: ready for connections</log>
-                                                    <time>20000</time>-->
+                                                    </tcp> -->
+                                                    <log>.*mysqld:\sready\sfor\sconnections.*</log>
+                                                    <time>40000</time>
+                                                    <exec>
+                                                        <postStart>sleep 7</postStart>
+                                                    </exec>
                                                 </wait>
                                                 <env>
                                                     <MYSQL_ROOT_PASSWORD>${source.datasource.password}
@@ -490,7 +498,16 @@
                                                 <ports>
                                                     <port>${source.database.port}:${source.database.port}</port>
                                                 </ports>
-                                                <!--<network><mode>bridge</mode></network>-->
+                                                <network>
+                                                    <mode>bridge</mode>
+                                                </network>
+                                                <volumes>
+                                                    <bind>
+                                                        <volume>
+                                                            ${project.resources[0].directory}/docker/my.cnf:/etc/my.cnf
+                                                        </volume>
+                                                    </bind>
+                                                </volumes>
                                             </run>
                                         </image>
                                     </images>

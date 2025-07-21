@@ -85,6 +85,8 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
     }
 
     private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
+        // ATTENTION : modelGraph.V().toStream() peut charger tous les sommets en mémoire selon l'implémentation.
+        // Privilégiez une itération paresseuse ou paginée si le graphe est volumineux.
         return modelGraph.V().toStream().flatMap(v -> {
                     MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(v);
                     log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), vertexResolver.getVertexModelElementId(v));
@@ -142,3 +144,5 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
         return Optional.empty();
     }
 }
+
+

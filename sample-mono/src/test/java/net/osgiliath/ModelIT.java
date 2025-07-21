@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static net.osgiliath.Constants.mysqlTimeoutInSecond;
+import static net.osgiliath.Constants.mysqlVersion;
 import static net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY;
 import static net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder.MODEL_GRAPH_VERTEX_ENTITY_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,11 +49,11 @@ class ModelIT {
     private static final Logger logger = LoggerFactory.getLogger(ModelIT.class);
 
     @Container
-    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLSourceContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion)).withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
     // .withExposedPorts(64449);
 
     @Container
-    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLTargetContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion)).withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {

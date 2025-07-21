@@ -34,6 +34,8 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.List;
 
+import static net.osgiliath.Constants.mysqlTimeoutInSecond;
+import static net.osgiliath.Constants.mysqlVersion;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
@@ -47,11 +49,13 @@ class FakerProcessingIT {
     private static final Logger logger = LoggerFactory.getLogger(FakerProcessingIT.class);
 
     @Container
-    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLSourceContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion))
+            .withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
     // .withExposedPorts(64449);
 
     @Container
-    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:8.2"));
+    static MySQLContainer mySQLTargetContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion))
+            .withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {

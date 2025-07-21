@@ -23,5 +23,7 @@ package net.osgiliath.migrator.core.processing.model;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 
-public record SequencerBeanMetamodelVertexAndEntity(Object bean, MetamodelVertex metamodelVertex, ModelElement entity) {
+public record SequencerBeanMetamodelVertexAndEntity<T>(T bean, MetamodelVertex metamodelVertex, ModelElement entity) {
 }
+
+
