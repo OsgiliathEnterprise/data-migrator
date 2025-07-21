@@ -33,6 +33,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.osgiliath.Constants.mysqlTimeoutInSecond;
+import static net.osgiliath.Constants.mysqlVersion;
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SOURCE_TRANSACTION_MANAGER;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,11 +49,11 @@ class MetamodelIT {
     private static final Logger logger = LoggerFactory.getLogger(MetamodelIT.class);
 
     @Container
-    static MySQLContainer mySQLSourceContainer = new MySQLContainer(DockerImageName.parse("mysql:9.3.0"));
+    static MySQLContainer mySQLSourceContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion)).withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
     // .withExposedPorts(64449);
 
     @Container
-    static MySQLContainer mySQLTargetContainer = new MySQLContainer(DockerImageName.parse("mysql:9.3.0"));
+    static MySQLContainer mySQLTargetContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion)).withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
 
     @DynamicPropertySource
     static void mySQLProperties(DynamicPropertyRegistry registry) {

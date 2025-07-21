@@ -35,6 +35,10 @@ public class PerDSJpaProperties {
         return this.properties;
     }
 
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
 
 }
 
