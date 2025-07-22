@@ -429,10 +429,10 @@
                     <version>0.8.0</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <publishingServerId>central</publishingServerId>
+                        <publishingServerId>ossrh</publishingServerId>
                         <tokenAuth>true</tokenAuth>
                         <autoPublish>true</autoPublish>
-                        <waitUntil>ossrh</waitUntil>
+                        <waitUntil>published</waitUntil>
                     </configuration>
                 </plugin>
                 <plugin>
