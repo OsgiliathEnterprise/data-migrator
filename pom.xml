@@ -31,14 +31,14 @@
             <name>Github GH Pages</name>
             <url>scm:git:git@github.com:OsgiliathEnterprise/data-migrator.git</url>
         </site>
-        <snapshotRepository>
+        <!--<snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
+        </repository>-->
     </distributionManagement>
     <scm>
         <connection>scm:git:https://github.com/OsgiliathEnterprise/data-migrator.git</connection>
@@ -428,7 +428,7 @@
                     <version>0.8.0</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <publishingServerId>ossrh</publishingServerId>
+                        <publishingServerId>central</publishingServerId>
                         <tokenAuth>true</tokenAuth>
                         <autoPublish>true</autoPublish>
                         <waitUntil>published</waitUntil>
