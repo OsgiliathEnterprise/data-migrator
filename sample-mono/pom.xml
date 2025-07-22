@@ -452,10 +452,61 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <filter>${source.database.docker.image.name}</filter>
+                            <images>
+                                <image>
+                                    <alias>${source.database.docker.image.name}</alias>
+                                    <name>${source.database.docker.image.name}</name>
+                                    <run>
+                                        <wait>
+                                            <!--<time>${source.database.spinup.wait.time}</time>-->
+
+
+                                            <!-- Do not work no matter the ideal wait <tcp>
+                                                <host>127.0.0.1</host>
+                                                <ports>
+                                                    <port>3306</port>
+                                                </ports>
+                                            </tcp> -->
+                                            <log>.*mysqld:\sready\sfor\sconnections.*</log>
+                                            <time>40000</time>
+                                            <exec>
+                                                <postStart>sleep 7</postStart>
+                                            </exec>
+                                        </wait>
+                                        <env>
+                                            <MYSQL_ROOT_PASSWORD>${source.datasource.password}
+                                            </MYSQL_ROOT_PASSWORD>
+                                            <MYSQL_DATABASE>${source.datasource.defaultSchemaName}
+                                            </MYSQL_DATABASE>
+                                            <MYSQL_USER>${source.datasource.username}</MYSQL_USER>
+                                            <MYSQL_PASSWORD>${source.datasource.password}</MYSQL_PASSWORD>
+                                        </env>
+                                        <ports>
+                                            <port>${source.database.port}:${source.database.port}</port>
+                                        </ports>
+                                        <network>
+                                            <mode>bridge</mode>
+                                        </network>
+                                        <volumes>
+                                            <bind>
+                                                <volume>
+                                                    ${project.resources[0].directory}/docker/my.cnf:/etc/my.cnf
+                                                </volume>
+                                            </bind>
+                                        </volumes>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>default</id>
-                                <phase>none</phase>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <skipRun>true</skipRun>
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>start-db</id>
@@ -464,54 +515,13 @@
                                     <goal>stop</goal>
                                     <goal>start</goal>
                                 </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <alias>${source.database.docker.image.name}</alias>
-                                            <name>${source.database.docker.image.name}</name>
-
-                                            <run>
-                                                <wait>
-                                                    <!--<time>${source.database.spinup.wait.time}</time>-->
-
-
-                                                    <!-- Do not work no matter the ideal wait <tcp>
-                                                        <host>127.0.0.1</host>
-                                                        <ports>
-                                                            <port>3306</port>
-                                                        </ports>
-                                                    </tcp> -->
-                                                    <log>.*mysqld:\sready\sfor\sconnections.*</log>
-                                                    <time>40000</time>
-                                                    <exec>
-                                                        <postStart>sleep 7</postStart>
-                                                    </exec>
-                                                </wait>
-                                                <env>
-                                                    <MYSQL_ROOT_PASSWORD>${source.datasource.password}
-                                                    </MYSQL_ROOT_PASSWORD>
-                                                    <MYSQL_DATABASE>${source.datasource.defaultSchemaName}
-                                                    </MYSQL_DATABASE>
-                                                    <MYSQL_USER>${source.datasource.username}</MYSQL_USER>
-                                                    <MYSQL_PASSWORD>${source.datasource.password}</MYSQL_PASSWORD>
-                                                </env>
-                                                <ports>
-                                                    <port>${source.database.port}:${source.database.port}</port>
-                                                </ports>
-                                                <network>
-                                                    <mode>bridge</mode>
-                                                </network>
-                                                <volumes>
-                                                    <bind>
-                                                        <volume>
-                                                            ${project.resources[0].directory}/docker/my.cnf:/etc/my.cnf
-                                                        </volume>
-                                                    </bind>
-                                                </volumes>
-                                            </run>
-                                        </image>
-                                    </images>
-                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop-db</id>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
