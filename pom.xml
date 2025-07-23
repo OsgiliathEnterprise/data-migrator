@@ -10,6 +10,7 @@
     <artifactId>data-migrator</artifactId>
     <version>1.103-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <name>datamigrator-parent</name>
     <ciManagement>
         <system>Github actions</system>
         <url>https://github.com/OsgiliathEnterprise/data-migrator/actions</url>
@@ -125,7 +126,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.10.1</version>
+                    <version>3.11.2</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
