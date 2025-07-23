@@ -20,7 +20,10 @@ package net.osgiliath.migrator.core.rawelement.jpa;
  * #L%
  */
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,17 +52,69 @@ class JpaEntityProcessorTest {
     @Test
     void testGetEntityId() {
         TestEntity ent = new TestEntity();
-
         JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
         Optional<Object> ret = jpaEntityProcessor.getId(jpaMetamodelVertex, ent);
         assertThat(ret.get()).isEqualTo(1L);
     }
 
+    @Test
+    void testIsUniqueWhenClassIsAnnotated() {
+        JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
+        assertThat(jpaEntityProcessor.isUnique(jpaMetamodelVertex, "uniqueColumnThroughClassAnnotation")).isTrue();
+    }
 
+    @Test
+    void testIsUniqueWhenFieldIsAnnotated() {
+        JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
+        assertThat(jpaEntityProcessor.isUnique(jpaMetamodelVertex, "uniqueColumnThroughFieldAnnotation")).isTrue();
+    }
+
+    @Test
+    void testIsNotUnique() {
+        JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
+        assertThat(jpaEntityProcessor.isUnique(jpaMetamodelVertex, "nonUniqueColumnThroughFieldAnnotation")).isFalse();
+    }
+
+    @Table(name = "country"
+            , uniqueConstraints = @UniqueConstraint(columnNames = "unique_column_through_class_annotation")
+    )
     class TestEntity {
+        private String uniqueColumnThroughClassAnnotation;
+        private String uniqueColumnThroughFieldAnnotation;
+        private String nonUniqueColumnThroughFieldAnnotation;
+
         @Id
         public Long getId() {
             return 1L;
         }
+
+        @Column(name = "not_unique")
+        public String getNonUniqueColumnThroughFieldAnnotation() {
+            return nonUniqueColumnThroughFieldAnnotation;
+        }
+
+        public void setNonUniqueColumnThroughFieldAnnotation(String nonUniqueColumnThroughFieldAnnotation) {
+            this.nonUniqueColumnThroughFieldAnnotation = nonUniqueColumnThroughFieldAnnotation;
+        }
+
+
+        @Column(name = "unique_column_through_class_annotation")
+        public String getUniqueColumnThroughClassAnnotation() {
+            return uniqueColumnThroughClassAnnotation;
+        }
+
+        public void setUniqueColumnThroughClassAnnotation(String uniqueColumnThroughClassAnnotation) {
+            this.uniqueColumnThroughClassAnnotation = uniqueColumnThroughClassAnnotation;
+        }
+
+        @Column(name = "unique_column_through_field_annotation", unique = true)
+        public String getUniqueColumnThroughFieldAnnotation() {
+            return uniqueColumnThroughFieldAnnotation;
+        }
+
+        public void setUniqueColumnThroughFieldAnnotation(String uniqueColumnThroughFieldAnnotation) {
+            this.uniqueColumnThroughFieldAnnotation = uniqueColumnThroughFieldAnnotation;
+        }
+
     }
 }
