@@ -6,11 +6,12 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.102-SNAPSHOT</version>
+        <version>1.103-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>net.osgiliath.datamigrator.sample</groupId>
     <artifactId>sample-mono</artifactId>
+    <name>datamigrator-sample-mono</name>
     <properties>
         <data-migrator.version>${project.version}</data-migrator.version>
         <!-- End test configuration-->

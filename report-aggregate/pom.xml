@@ -6,9 +6,10 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.102-SNAPSHOT</version>
+        <version>1.103-SNAPSHOT</version>
     </parent>
     <artifactId>report-aggregate</artifactId>
+    <name>datamigrator-report-aggregate</name>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
