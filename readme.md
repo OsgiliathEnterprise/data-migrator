@@ -186,3 +186,6 @@ tests from the sample-mono project (`./mvnw clean verify -Pentities-from-changel
 
 1. Bump the version of sample-mono and report-aggregate modules poms according to parent version
 2. Merge to main branch.
+3. Call the sonatype staging api to get the list of staging repositories: a Bruno API collection is available
+   [here](./report-aggregate/src/main/bruno)
+4. Call the sonatype staging api with a post to close the staging repository

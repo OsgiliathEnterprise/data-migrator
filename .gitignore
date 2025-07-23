@@ -6,4 +6,4 @@ docs
 site
 tmp/
 */*.iml
-Sonatype staging/
+report-aggregate/src/main/bruno/environments
