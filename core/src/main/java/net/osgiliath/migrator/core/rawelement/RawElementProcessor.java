@@ -45,4 +45,6 @@ public interface RawElementProcessor {
     Object unproxy(Object o);
 
     String fieldNameOfGetter(Method getterMethod);
+
+    Boolean isUnique(MetamodelVertex metamodelVertex, String attributeName);
 }

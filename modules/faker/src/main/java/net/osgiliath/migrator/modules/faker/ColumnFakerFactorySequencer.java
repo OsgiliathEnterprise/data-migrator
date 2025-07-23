@@ -27,6 +27,7 @@ import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.configuration.SequencerDefinition;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.processing.FactorySequencer;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.jgrapht.Graph;
 import org.springframework.stereotype.Component;
 
@@ -34,10 +35,12 @@ import org.springframework.stereotype.Component;
 public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     private final ModelElementProcessor modelElementProcessor;
+    private final RawElementProcessor rawElementProcessor;
 
-    public ColumnFakerFactorySequencer(ModelElementProcessor modelElementProcessor) {
+    public ColumnFakerFactorySequencer(ModelElementProcessor modelElementProcessor, RawElementProcessor rawElementProcessor) {
 
         this.modelElementProcessor = modelElementProcessor;
+        this.rawElementProcessor = rawElementProcessor;
     }
 
     @Override
@@ -47,6 +50,6 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     @Override
     public Object createSequencerBean(Class beanClass, SequencerDefinition definition, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex metamodelVertex, ModelElement entity, ColumnTransformationDefinition columnTransformationDefinition) {
-        return new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition);
+        return new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor);
     }
 }

@@ -35,6 +35,11 @@ import org.slf4j.LoggerFactory;
 public abstract class ModelElementColumnTransformer<F> extends CamelExchangeWrapper<ModelElement> implements ColumnTransformer {
     private static final Logger log = LoggerFactory.getLogger(ModelElementColumnTransformer.class);
     private final ModelElementProcessor modelElementProcessor;
+
+    public MetamodelVertex getMetamodel() {
+        return metamodel;
+    }
+
     private final MetamodelVertex metamodel;
     private final String columnName;
 

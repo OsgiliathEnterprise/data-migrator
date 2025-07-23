@@ -101,6 +101,63 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     @Override
+    public Boolean isUnique(MetamodelVertex metamodelVertex, String fieldName) {
+        JpaMetamodelVertex jpaMetamodelVertex = (JpaMetamodelVertex) metamodelVertex;
+        return isUniqueBecauseOfClassAnnotation(jpaMetamodelVertex, fieldName)
+                || isUniqueBecauseOfFieldAnnotation(jpaMetamodelVertex, fieldName);
+    }
+
+    private Boolean isUniqueBecauseOfClassAnnotation(JpaMetamodelVertex metamodelVertex, String fieldName) {
+        Field field = getFieldFromClass(metamodelVertex, fieldName);
+        String columnName = getColumnNameFromField(metamodelVertex, field);
+        return isUniqueColumnNameBecauseOfClassAnnotation(metamodelVertex, columnName);
+    }
+
+    private Boolean isUniqueBecauseOfFieldAnnotation(JpaMetamodelVertex metamodelVertex, String fieldName) {
+        Field field = getFieldFromClass(metamodelVertex, fieldName);
+        String columnName = getColumnNameFromField(metamodelVertex, field);
+        return isUniqueColumnNameBecauseOfFieldAnnotation(metamodelVertex, field, columnName);
+    }
+
+
+    private Field getFieldFromClass(MetamodelVertex metamodelVertex, String fieldName) {
+        return Arrays.stream(((JpaMetamodelVertex) metamodelVertex).entityClass().getDeclaredFields())
+                .filter(f -> f.getName().equals(fieldName))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("No field named " + fieldName + " in class " + ((JpaMetamodelVertex) metamodelVertex).entityClass().getName()));
+    }
+
+    private Boolean isUniqueColumnNameBecauseOfClassAnnotation(MetamodelVertex metamodelVertex, String columnName) {
+        return ((JpaMetamodelVertex) metamodelVertex).entityClass().getAnnotation(Table.class) != null
+                && Arrays.stream(((JpaMetamodelVertex) metamodelVertex).entityClass().getAnnotation(Table.class).uniqueConstraints())
+                .anyMatch(uc -> Arrays.asList(uc.columnNames()).contains(columnName));
+    }
+
+    private Boolean isUniqueColumnNameBecauseOfFieldAnnotation(JpaMetamodelVertex metamodelVertex, Field field, String columnName) {
+        Method getterMethod = getterMethod(metamodelVertex.entityClass(), field)
+                .orElseThrow(() -> new RuntimeException("No getter for field " + field.getName() + " in class " + field.getDeclaringClass().getName()));
+        Column column = getterMethod.getAnnotation(Column.class);
+        if (null != column && column.unique()) {
+            return true;
+        }
+        UniqueConstraint uniqueConstraint = getterMethod.getAnnotation(UniqueConstraint.class);
+        if (null != uniqueConstraint && Arrays.asList(uniqueConstraint.columnNames()).contains(columnName)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getColumnNameFromField(JpaMetamodelVertex metamodelVertex, Field field) {
+        Method getterMethod = getterMethod(metamodelVertex.entityClass(), field)
+                .orElseThrow(() -> new RuntimeException("No getter for field " + field.getName() + " in class " + field.getDeclaringClass().getName()));
+        Column column = getterMethod.getAnnotation(Column.class);
+        if (null != column && !column.name().isEmpty()) {
+            return column.name();
+        }
+        return field.getName();
+    }
+
+    @Override
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(ModelElement element) {
         // return getRawId(((JpaMetamodelVertex) element.vertex()).entityClass(), element.rawElement()); // Not calling getId(MV, E) to avoid nested transaction proxy

@@ -20,12 +20,13 @@ package net.osgiliath.migrator.modules.faker;
  * #L%
  */
 
-
 import net.datafaker.Faker;
+import net.datafaker.providers.base.Text;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.transformers.ModelElementColumnTransformer;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
+import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import static net.datafaker.providers.base.Text.DIGITS;
+import static net.datafaker.providers.base.Text.EN_UPPERCASE;
+
+
 /**
  * Column faker superclass
  *
@@ -47,14 +52,16 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
 
     public static final String FAKER = "faker";
     private final ColumnTransformationDefinition columnTransformationDefinition;
+    private final RawElementProcessor rawElementProcessor;
     private static final Logger log = LoggerFactory.getLogger(AbstractFaker.class);
 
     private static final Random RANDOM = new Random();
     private static Map<String, String> fakedKeys = new HashMap<>();
 
-    protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition) {
+    protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition, RawElementProcessor rawElementProcessor) {
         super(modelElementProcessor, metamodel, columnTransformationDefinition.getColumnName());
         this.columnTransformationDefinition = columnTransformationDefinition;
+        this.rawElementProcessor = rawElementProcessor;
     }
 
     protected String fake(String value) {
@@ -79,13 +86,24 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
 
     private String getRandomString() {
         Faker faker = new Faker().getFaker();
-        if (columnTransformationDefinition.getOptions().containsKey(FAKER)) {
-            String fakerAlg = columnTransformationDefinition.getOptions().get(FAKER);
-            return faker.resolve(fakerAlg);
+        String fakerAlg = columnTransformationDefinition.getOptions().getOrDefault(FAKER, "dragon_ball.character");
+        if (rawElementProcessor.isUnique(getMetamodel(), columnTransformationDefinition.getColumnName())) {
+            log.debug("Using unique faker algorithm: {}", fakerAlg);
+            String uniqueFromPreferredFaker = null;
+            while (uniqueFromPreferredFaker == null || uniqueFromPreferredFaker.isEmpty()) {
+                uniqueFromPreferredFaker = faker.unique().fetchFromYaml(fakerAlg);
+                if (uniqueFromPreferredFaker != null && !uniqueFromPreferredFaker.isEmpty()) {
+                    return uniqueFromPreferredFaker;
+                } else {
+                    log.warn("No more unique value found for algorithm: {}. Will generate random values.", fakerAlg);
+                    return faker.text().text(Text.TextSymbolsBuilder.builder()
+                            .len(8)
+                            .with(EN_UPPERCASE, 2)
+                            .with(DIGITS, 3).build());
+                }
+            }
         }
-        return new StringBuilder()
-                .append(faker.dragonBall().character())
-                .toString();
+        return faker.resolve(fakerAlg);
     }
 
     private Optional<String> getRandomInteger(String value) {

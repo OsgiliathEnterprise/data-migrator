@@ -48,7 +48,7 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
                 .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
         Stream<M> vertex = metamodelVertexFromRawMetamodelClass(metamodelClasses);
         vertex.filter(this::isEntity).forEach(graph::addVertex);
-        addVertexEdgesFromMetamodel(graph).forEach(elt -> log.debug("edge added"));
+        addVertexEdgesFromMetamodel(graph).forEach(elt -> log.debug("edges added"));
         return graph;
     }
 
@@ -76,6 +76,13 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
 
     protected abstract boolean isEntity(M metamodelVertex);
 
+    /**
+     * Cluster the full entity metamodel graph into subgraphs.
+     * Each subgraph contains vertices that are connected to each other.
+     *
+     * @param fullEntityMetamodelGraph the full entity metamodel graph
+     * @return a collection of subgraphs
+     */
     public Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusterGraphs(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph) {
         Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> ret = new HashSet<>();
         Collection<MetamodelVertex> visited = new HashSet<>();
@@ -87,27 +94,30 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
             if (!subgraph.isEmpty()) {
                 Graph graph = GraphTypeBuilder.directed().allowingMultipleEdges(true)
                         .allowingSelfLoops(true).vertexClass(MetamodelVertex.class).edgeClass(FieldEdge.class).weighted(false).buildGraph();
-                for (MetamodelVertex subgraphVertex : subgraph) {
-                    graph.addVertex(subgraphVertex);
-                }
-                for (MetamodelVertex subgraphVertex : subgraph) {
-                    for (FieldEdge<MetamodelVertex> incomingEdge : fullEntityMetamodelGraph.incomingEdgesOf(subgraphVertex)) {
-                        if (!graph.containsEdge(incomingEdge)) {
-                            graph.addEdge(incomingEdge.getSource(), subgraphVertex, new FieldEdge<>(incomingEdge.getMetamodelField()));
+                subgraph.stream().forEach(graph::addVertex);
+                // Add edges from the subgraph to the full graph
+                subgraph.stream().forEach(
+                        subgraphVertex -> {
+                            fullEntityMetamodelGraph.incomingEdgesOf(subgraphVertex).stream().filter(incomingEdge -> !graph.containsEdge(incomingEdge))
+                                    .forEach(incomingEdge -> graph.addEdge(incomingEdge.getSource(), subgraphVertex, new FieldEdge<>(incomingEdge.getMetamodelField())));
+                            fullEntityMetamodelGraph.outgoingEdgesOf(subgraphVertex).stream().filter(outgoingEdge -> !graph.containsEdge(outgoingEdge))
+                                    .forEach(outgoingEdge -> graph.addEdge(subgraphVertex, outgoingEdge.getTarget(), new FieldEdge<>(outgoingEdge.getMetamodelField())));
                         }
-                    }
-                    for (FieldEdge<MetamodelVertex> outgoingEdge : fullEntityMetamodelGraph.outgoingEdgesOf(subgraphVertex)) {
-                        if (!graph.containsEdge(outgoingEdge)) {
-                            graph.addEdge(subgraphVertex, outgoingEdge.getTarget(), new FieldEdge<>(outgoingEdge.getMetamodelField()));
-                        }
-                    }
-                }
+                );
                 ret.add(graph);
             }
         }
         return ret;
     }
 
+    /**
+     * Depth first search to find all vertices connected to the given vertex.
+     *
+     * @param fullEntityMetamodelGraph the full entity metamodel graph
+     * @param vertex                   the vertex to start from
+     * @param subgraph                 the collection to add found vertices to
+     * @param visited                  the collection of visited vertices from the full graph
+     */
     private void depthFirstSearch(
             Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> fullEntityMetamodelGraph,
             MetamodelVertex vertex,
@@ -118,17 +128,9 @@ public abstract class MetamodelGraphBuilder<M extends MetamodelVertex> {
         subgraph.add(vertex);
         Collection<MetamodelVertex> neighbours = new HashSet<>();
         Collection<FieldEdge<MetamodelVertex>> incomingEdges = fullEntityMetamodelGraph.incomingEdgesOf(vertex);
-        for (FieldEdge<MetamodelVertex> incomingEdge : incomingEdges) {
-            neighbours.add(incomingEdge.getSource());
-        }
+        incomingEdges.stream().map(FieldEdge::getSource).forEach(neighbours::add);
         Collection<FieldEdge<MetamodelVertex>> outgoingEdges = fullEntityMetamodelGraph.outgoingEdgesOf(vertex);
-        for (FieldEdge<MetamodelVertex> outgoingEdge : outgoingEdges) {
-            neighbours.add(outgoingEdge.getTarget());
-        }
-        for (var neighbour : neighbours) {
-            if (!visited.contains(neighbour)) {
-                depthFirstSearch(fullEntityMetamodelGraph, neighbour, subgraph, visited);
-            }
-        }
+        outgoingEdges.stream().map(FieldEdge::getTarget).forEach(neighbours::add);
+        neighbours.stream().filter(neighbour -> !visited.contains(neighbour)).forEach(neighbour -> depthFirstSearch(fullEntityMetamodelGraph, neighbour, subgraph, visited));
     }
 }
