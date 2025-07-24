@@ -1,0 +1,21 @@
+meta {
+  name: Get Osgiliath MavenArtifacts
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?ip=any&profile_id=net.osgiliath
+  body: none
+  auth: basic
+}
+
+params:query {
+  ip: any
+  profile_id: net.osgiliath
+}
+
+auth:basic {
+  username: {{MAVEN_USERNAME}}
+  password: {{MAVEN_PASSWORD}}
+}

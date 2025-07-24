@@ -1,0 +1,16 @@
+meta {
+  name: Delete artefacts to deployment repository
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://ossrh-staging-api.central.sonatype.com/manual/upload/repository/IBDbUP/68.220.61.179/net.osgiliath--default-repository
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{MAVEN_USERNAME}}
+  password: {{MAVEN_PASSWORD}}
+}

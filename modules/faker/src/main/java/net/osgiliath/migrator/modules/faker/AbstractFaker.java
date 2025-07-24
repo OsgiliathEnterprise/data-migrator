@@ -34,10 +34,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import static net.datafaker.providers.base.Text.DIGITS;
 import static net.datafaker.providers.base.Text.EN_UPPERCASE;
@@ -57,6 +54,7 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
 
     private static final Random RANDOM = new Random();
     private static Map<String, String> fakedKeys = new HashMap<>();
+    private static final Collection<String> alreadyFakedValues = new ArrayList<>();
 
     protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition, RawElementProcessor rawElementProcessor) {
         super(modelElementProcessor, metamodel, columnTransformationDefinition.getColumnName());
@@ -86,20 +84,25 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
 
     private String getRandomString() {
         Faker faker = new Faker().getFaker();
-        String fakerAlg = columnTransformationDefinition.getOptions().getOrDefault(FAKER, "dragon_ball.character");
+        String fakerAlg = columnTransformationDefinition.getOptions().getOrDefault(FAKER, "dragon_ball.characters");
         if (rawElementProcessor.isUnique(getMetamodel(), columnTransformationDefinition.getColumnName())) {
             log.debug("Using unique faker algorithm: {}", fakerAlg);
             String uniqueFromPreferredFaker = null;
-            while (uniqueFromPreferredFaker == null || uniqueFromPreferredFaker.isEmpty()) {
+            try {
                 uniqueFromPreferredFaker = faker.unique().fetchFromYaml(fakerAlg);
-                if (uniqueFromPreferredFaker != null && !uniqueFromPreferredFaker.isEmpty()) {
-                    return uniqueFromPreferredFaker;
+                return uniqueFromPreferredFaker;
+            } catch (NoSuchElementException nsee) {
+                log.warn("No unique value found for algorithm: {}. Will generate random values.", fakerAlg);
+                String randomValue = faker.text().text(Text.TextSymbolsBuilder.builder()
+                        .len(8)
+                        .with(EN_UPPERCASE, 2)
+                        .with(DIGITS, 3).build());
+                if (!alreadyFakedValues.contains(randomValue)) {
+                    alreadyFakedValues.add(randomValue);
+                    return randomValue;
                 } else {
-                    log.warn("No more unique value found for algorithm: {}. Will generate random values.", fakerAlg);
-                    return faker.text().text(Text.TextSymbolsBuilder.builder()
-                            .len(8)
-                            .with(EN_UPPERCASE, 2)
-                            .with(DIGITS, 3).build());
+                    log.warn("Random value {} already faked. Will generate another one.", randomValue);
+                    return getRandomString(); // Recursion to find a unique value
                 }
             }
         }
