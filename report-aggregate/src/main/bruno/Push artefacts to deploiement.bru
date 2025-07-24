@@ -1,0 +1,16 @@
+meta {
+  name: Push artefacts to deploiement
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://ossrh-staging-api.central.sonatype.com/manual/upload/repository/IBDbUP/172.178.119.21/net.osgiliath--default-repository
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{MAVEN_USERNAME}}
+  password: {{MAVEN_PASSWORD}}
+}

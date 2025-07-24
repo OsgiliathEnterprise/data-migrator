@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.osgiliath.datamigrator</groupId>
         <artifactId>data-migrator</artifactId>
-        <version>1.104-SNAPSHOT</version>
+        <version>1.105-SNAPSHOT</version>
     </parent>
     <artifactId>report-aggregate</artifactId>
     <name>datamigrator-report-aggregate</name>
