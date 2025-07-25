@@ -271,7 +271,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -505,7 +505,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -548,7 +548,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
@@ -756,7 +756,7 @@
                             <dependency>
                                 <groupId>org.mariadb.jdbc</groupId>
                                 <artifactId>mariadb-java-client</artifactId>
-                                <version>${jdbc.mariadb-java-client.varsion}</version>
+                                <version>${jdbc.mariadb-java-client.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>com.mysql</groupId>
