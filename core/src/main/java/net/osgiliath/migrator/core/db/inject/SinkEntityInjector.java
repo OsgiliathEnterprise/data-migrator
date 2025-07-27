@@ -132,9 +132,8 @@ public class SinkEntityInjector {
         TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         try {
             tpl.executeWithoutResult(
-                    act -> {
-                        vertexPersister.persistVertices(res, sinkPlatformTxManager).collect(Collectors.toList());
-                    }
+                    act ->
+                            vertexPersister.persistVertices(res, sinkPlatformTxManager).collect(Collectors.toList())
             );
         } catch (Exception e) {
             log.error("Unable to save one element", e);
