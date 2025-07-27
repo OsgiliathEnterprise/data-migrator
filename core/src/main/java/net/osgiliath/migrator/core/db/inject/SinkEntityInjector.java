@@ -28,6 +28,7 @@ import net.osgiliath.migrator.core.db.inject.model.ModelEdgeMetamodelEdgeAndTarg
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.graph.VertexResolver;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
+import org.apache.tinkerpop.gremlin.process.traversal.Scope;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -51,8 +52,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_TRANSACTION_MANAGER;
-import static org.apache.tinkerpop.gremlin.process.traversal.P.eq;
-import static org.apache.tinkerpop.gremlin.process.traversal.P.gt;
+import static org.apache.tinkerpop.gremlin.process.traversal.Order.asc;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 
 @Component
@@ -78,57 +78,36 @@ public class SinkEntityInjector {
 
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         log.info("Least connected vertex are ordered, starting the import");
-        removeCyclicElements(modelGraph);
+        removeCyclicElements(modelGraph); // TODO: remove this line: theorically it should not be needed as the graph because cyclis elements are processed together with the others
         processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
     }
 
     private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
 
-        GraphTraversal<Vertex, Vertex> orphansElements = modelGraph.V().hasNot(PROCESSED).where(
-                not(outE()));
-                /*orphansElements =
-                modelGraph.V().hasNot(PROCESSED).or( // I think i do not understand the or correctly
-                        not(outE()),
-                        not(out().hasNot(PROCESSED))
-                        //outE().filter(not(inV().id().is(outV().id()))).inV().hasNot(PROCESSED)) // for now, the self loop filter does not work...
-                );*/
-        GraphTraversal<Vertex, Vertex> markAndSweep = orphansElements.asAdmin().clone();
+        GraphTraversal<Vertex, Vertex> orphansElements = modelGraph.V().hasNot(PROCESSED).
+                not(outE()).property(PROCESSED, true);
         if (orphansElements.hasNext()) {
             log.info("Persisting leaf elements");
             persistTraversal(entityMetamodelGraph, orphansElements);
-            markAndSweep.property(PROCESSED, true).iterate();
             processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
         } else {
-            GraphTraversal<Vertex, Vertex> cyclicPath = modelGraph.V().hasNot(PROCESSED).out().cyclicPath();
-            GraphTraversal<Vertex, Vertex> markAndSweepCyclic = cyclicPath.asAdmin().clone();
-            if (cyclicPath.hasNext()) {
-                log.info("Persisting cyclic paths");
-                persistTraversal(entityMetamodelGraph, cyclicPath);
-                markAndSweepCyclic.property(PROCESSED, true).iterate();
+            GraphTraversal<Vertex, Vertex> allOutProcessed = modelGraph.V().hasNot(PROCESSED).
+                    where(not(out().hasNot(PROCESSED))).property(PROCESSED, true);
+            if (allOutProcessed.hasNext()) {
+                log.info("Persisting processed outbound elements");
+                persistTraversal(entityMetamodelGraph, allOutProcessed);
                 processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
             } else {
-                GraphTraversal<Vertex, Vertex> allOutProcessed = modelGraph.V().hasNot(PROCESSED).as("a").where(not(out().hasNot(PROCESSED))).select("a");
-                GraphTraversal<Vertex, Vertex> allOutProcessedMarkAndSweep = allOutProcessed.asAdmin().clone();
-                if (allOutProcessed.hasNext()) {
-                    log.info("Persisting processed outbound elements");
-                    persistTraversal(entityMetamodelGraph, allOutProcessed);
-                    allOutProcessedMarkAndSweep.property(PROCESSED, true).iterate();
+                GraphTraversal<Vertex, Vertex> cyclicPath = modelGraph.V()
+                        .hasNot(PROCESSED)
+                        .repeat(out().filter(hasNot(PROCESSED)))
+                        .until(or(loops().is(CYCLE_DETECTION_DEPTH), cyclicPath())).path().order().by(count(Scope.local), asc).limit(1).reverse().unfold();
+                GraphTraversal<Vertex, Vertex> markAndSweepCyclic = cyclicPath.asAdmin().clone();
+                if (cyclicPath.hasNext()) {
+                    log.warn("Persisting cyclic paths, element are supposed to be removed");
+                    persistTraversal(entityMetamodelGraph, cyclicPath);
+                    markAndSweepCyclic.property(PROCESSED, true).iterate();
                     processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
-                } else {
-                    GraphTraversal<Vertex, Vertex> reversed = modelGraph.V().hasNot(PROCESSED).repeat(out().hasNot(PROCESSED))
-                            .until(loops().is(CYCLE_DETECTION_DEPTH)).path().reverse();
-                    GraphTraversal<Vertex, Vertex> reversedMarkSweep = allOutProcessed.asAdmin().clone();
-                    if (reversed.hasNext()) {
-                        log.info("Persisting bulk in reverse pathpath");
-                        persistTraversal(entityMetamodelGraph, reversed);
-                        reversedMarkSweep.property(PROCESSED, true).iterate();
-                        processEntitiesWithoutCycles(modelGraph, entityMetamodelGraph);
-                    } else {
-                        log.info("Persisting related elements in the same transaction");
-                        GraphTraversal<Vertex, Vertex> bulk = modelGraph.V().hasNot(PROCESSED);
-                        persistTraversal(entityMetamodelGraph, bulk);
-                        modelGraph.V().hasNot(PROCESSED).property(PROCESSED, true).iterate();
-                    }
                 }
             }
         }
@@ -138,8 +117,7 @@ public class SinkEntityInjector {
         Stream<ModelElement> res =
                 traversal
                         .toStream()
-                        .map(modelVertex ->
-                                updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph)
+                        .map(modelVertex -> updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph)
                         ).filter(
                                 me -> {
                                     Optional<Object> id = modelElementProcessor.getId(me);
@@ -154,7 +132,9 @@ public class SinkEntityInjector {
         TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         try {
             tpl.executeWithoutResult(
-                    act -> vertexPersister.persistVertices(res, sinkPlatformTxManager).collect(Collectors.toSet())
+                    act -> {
+                        vertexPersister.persistVertices(res, sinkPlatformTxManager).collect(Collectors.toList());
+                    }
             );
         } catch (Exception e) {
             log.error("Unable to save one element", e);
@@ -167,10 +147,6 @@ public class SinkEntityInjector {
     record SourceVertexAndModelEdgeAndMetamodelEdge(Vertex sourceVertex,
                                                     ModelEdgeAndMetamodelEdge modelEdgeAndMetamodelEdge) {
 
-        public Vertex sourceVertex() {
-            return sourceVertex;
-        }
-
         public Edge modelEdge() {
             return modelEdgeAndMetamodelEdge.modelEdge();
         }
@@ -178,10 +154,6 @@ public class SinkEntityInjector {
 
     record SourceVertexModelEdgeMetamodelEdgeAndTargetModelElement(ModelElement modelElement,
                                                                    ModelEdgeMetamodelEdgeAndTargetModelElement modelEdgeMetamodelEdgeAndTargetModelElement) {
-        public ModelElement modelElement() {
-            return modelElement;
-        }
-
         public FieldEdge<MetamodelVertex> metamodelEdge() {
             return modelEdgeMetamodelEdgeAndTargetModelElement.metamodelEdge();
         }
@@ -191,6 +163,7 @@ public class SinkEntityInjector {
         }
     }
 
+    @java.lang.SuppressWarnings("java:S3864")
     ModelElement updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         ModelElement sourceModelElement = modelElementProcessor.unproxy(vertexResolver.getModelElement(sourceVertex));
         ModelElement sourceModelElementWithRelationshipsReset = modelElementProcessor.resetModelElementEdge(sourceModelElement);
@@ -216,18 +189,12 @@ public class SinkEntityInjector {
 
 
     private void removeCyclicElements(GraphTraversalSource modelGraph) {
-
-        GraphTraversal cycle = modelGraph.V().as("a")
-                .repeat(out())
-                .until(where(eq("a"))
-                        .or().loops().is(CYCLE_DETECTION_DEPTH))
-                .filter(where(eq("a")))
-                .path().
-                filter(unfold().count().is(gt(2)))
-                .unfold()
-                .dedup();
+        GraphTraversal<Vertex, Vertex> cycle = modelGraph.V()
+                .hasNot(PROCESSED).as("a")
+                .repeat(out().filter(hasNot(PROCESSED)))
+                .until(or(loops().is(CYCLE_DETECTION_DEPTH), cyclicPath())).path().order().by(count(Scope.local), asc).unfold();
         if (cycle.hasNext()) {
-            Vertex v = (Vertex) cycle.next();
+            Vertex v = cycle.next();
             ObjectMapper mapper = new ObjectMapper();
             try {
                 log.warn("Cyclic element of type {} : {}", v.label(), mapper.writer().writeValueAsString(modelElementProcessor.unproxy(vertexResolver.getModelElement(v)).rawElement()));

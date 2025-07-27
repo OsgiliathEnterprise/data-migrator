@@ -22,6 +22,9 @@
         <logger name="org.hibernate.orm.jdbc.bind" level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </logger>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE">
+            <AppenderRef ref="CONSOLE"/>
+        </logger>
         <!-- <Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
              <AppenderRef ref="FILE"/>
          </Logger>
