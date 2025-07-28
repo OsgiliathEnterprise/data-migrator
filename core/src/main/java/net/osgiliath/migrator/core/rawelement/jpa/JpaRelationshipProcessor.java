@@ -78,9 +78,9 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
 
     @Override
     public void setEdgeRawValue(String fieldName, Field metamodelField, MetamodelVertex target, ModelElement modelElement, Object value) {
-        jpaEntityProcessor.getId(modelElement).ifPresent(id -> {
-            log.debug("setting raw value for edge {} to modelElement {}", fieldName, id);
-        });
+        jpaEntityProcessor.getId(modelElement).ifPresent(id ->
+                log.debug("setting raw value for edge {} to modelElement {}", fieldName, id)
+        );
         jpaEntityProcessor.setFieldValue(modelElement, fieldName, value);
         jpaEntityProcessor.getterMethod(modelElement.vertex(), metamodelField).flatMap(
                 method -> inverseRelationshipField(method, target)
@@ -394,7 +394,6 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
      */
     public boolean isFkIgnored(Class<?> entityClass, String attributeName) {
         try {
-
             return Arrays.stream(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
                     .filter(pd -> attributeName.equals(pd.getName()))
                     .map(PropertyDescriptor::getReadMethod)
