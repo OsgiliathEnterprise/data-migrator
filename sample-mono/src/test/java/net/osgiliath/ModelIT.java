@@ -90,7 +90,7 @@ class ModelIT {
             liquibase.setDataSource(ds);
             liquibase.afterPropertiesSet();
         } catch (LiquibaseException e) {
-            logger.error("Failed to import liquibase datasource", e.getMessage(), e);
+            logger.error("Failed to import liquibase datasource {}", e.getMessage(), e);
         }
     }
 
@@ -151,7 +151,7 @@ class ModelIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Employee> employees = employeeRepository.findAll();
-            assertThat(employees.size()).isLessThan(13);
+            assertThat(employees).hasSizeLessThan(13);
         }
     }
 }

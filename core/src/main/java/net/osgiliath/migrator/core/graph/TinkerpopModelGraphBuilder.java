@@ -27,6 +27,7 @@ import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvi
 import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElementAndModelElementId;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +76,8 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        GraphTraversal metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                .flatMap(mv -> modelVertexInformationRetriever.getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(mv))
+        GraphTraversal<Vertex, Vertex> metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
+                .flatMap(modelVertexInformationRetriever::getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex)
                 .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
                             String name = elt.metamodelVertex().getTypeName();
                             log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
@@ -88,7 +89,7 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
         metamodelVertexAndModelElementAndModelElementIds.iterate();
     }
 
-    private GraphTraversal addVertexProperties(GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
+    private GraphTraversal<Vertex, Vertex> addVertexProperties(GraphTraversal<Vertex, Vertex> traversal, MetamodelVertexAndModelElementAndModelElementId eln) {
         log.debug("Adding id to vertex {}", eln.id());
         traversal = vertexResolver.setVertexModelElementId(traversal, eln.id());
         log.debug("Adding metamodelveertex to vertex {}", eln.metamodelVertex().getTypeName());

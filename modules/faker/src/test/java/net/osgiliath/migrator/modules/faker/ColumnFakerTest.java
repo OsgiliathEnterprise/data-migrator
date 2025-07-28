@@ -44,7 +44,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ColumnFakerTest {
+class ColumnFakerTest {
 
     private ColumnFaker columnFaker;
 
@@ -58,7 +58,7 @@ public class ColumnFakerTest {
     private MetamodelVertex metamodelVertex;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
 
         metamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
 

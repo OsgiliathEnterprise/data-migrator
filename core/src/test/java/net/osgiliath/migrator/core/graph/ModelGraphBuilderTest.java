@@ -43,8 +43,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +72,7 @@ class ModelGraphBuilderTest {
     private TinkerpopModelGraphEdgeBuilder modelGraphEdgeBuilder;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         jpaEntityHelper = new JpaEntityProcessor(txMgr);
         RelationshipProcessor relationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);
@@ -82,7 +80,7 @@ class ModelGraphBuilderTest {
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, relationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor, txMgr);
-        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(relationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, modelElementProcessor, txMgr);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaEntityHelper, metamodelGraphRequester, resolver, modelElementProcessor, txMgr);
         modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
     }
 
@@ -104,7 +102,6 @@ class ModelGraphBuilderTest {
         // Arrange
         MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class);
         FieldEdge<MetamodelVertex> fieldEdge = new FieldEdge(null);
-        Collection<FieldEdge<MetamodelVertex>> edges = Arrays.asList(fieldEdge);
         Set<MetamodelVertex> metaVertex = new HashSet<>();
         metaVertex.add(metamodelVertex);
         GraphTraversal g = new DefaultGraphTraversal();

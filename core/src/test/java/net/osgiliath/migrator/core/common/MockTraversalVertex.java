@@ -38,8 +38,8 @@ public class MockTraversalVertex extends DefaultGraphTraversal<Vertex, Vertex> i
 
     private Iterator<Vertex> vertexIterator;
 
-    public static int ENTITY_ID_1 = 0;
-    public static int ENTITY_ID_2 = 1;
+    public static final int ENTITY_ID_1 = 0;
+    public static final int ENTITY_ID_2 = 1;
 
     public MockTraversalVertex(JpaEntityProcessor jpaEntityHelper) {
         FakeEntity fe1 = new FakeEntity(ENTITY_ID_1, this);

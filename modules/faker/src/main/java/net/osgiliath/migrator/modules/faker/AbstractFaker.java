@@ -110,7 +110,7 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
     }
 
     private Optional<String> getRandomInteger(String value) {
-        if (value.length() > 0) {
+        if (!value.isBlank()) {
             try {
                 Integer inputAsInteger = Integer.parseInt(value); // i.e. 10
                 Integer randomizerFactor = (inputAsInteger * 2) * 10; // i.e. 1110

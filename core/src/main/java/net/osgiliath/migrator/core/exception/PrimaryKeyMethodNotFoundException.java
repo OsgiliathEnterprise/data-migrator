@@ -2,9 +2,9 @@ package net.osgiliath.migrator.core.exception;
 
 /*-
  * #%L
- * data-migrator-core
+ * datamigrator-core
  * %%
- * Copyright (C) 2024 Osgiliath Inc.
+ * Copyright (C) 2024 - 2025 Osgiliath Inc.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,8 @@ package net.osgiliath.migrator.core.exception;
  * #L%
  */
 
-public class ErrorCallingRawElementMethodException extends RuntimeException {
-    public ErrorCallingRawElementMethodException(String message) {
-        super(message);
+public class PrimaryKeyMethodNotFoundException extends RawElementFieldOrMethodNotFoundException {
+    public PrimaryKeyMethodNotFoundException(Exception e) {
+        super(e);
     }
-
-    public ErrorCallingRawElementMethodException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ErrorCallingRawElementMethodException(Throwable cause) {
-        super(cause);
-    }
-
 }

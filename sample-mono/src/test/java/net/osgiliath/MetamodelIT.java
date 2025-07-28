@@ -31,7 +31,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static net.osgiliath.Constants.mysqlTimeoutInSecond;
 import static net.osgiliath.Constants.mysqlVersion;
@@ -87,7 +86,7 @@ class MetamodelIT {
             liquibase.setDataSource(ds);
             liquibase.afterPropertiesSet();
         } catch (LiquibaseException e) {
-            logger.error("Failed to import liquibase datasource", e.getMessage(), e);
+            logger.error("Failed to import liquibase datasource {}", e.getMessage(), e);
         }
     }
 
@@ -132,16 +131,16 @@ class MetamodelIT {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         Collection<Graph<MetamodelVertex, FieldEdge<MetamodelVertex>>> clusteredEntityMetamodelGraph = metamodelGraphBuilder.clusterGraphs(graph);
-        assertThat(clusteredEntityMetamodelGraph.size()).isEqualTo(3);
+        assertThat(clusteredEntityMetamodelGraph).hasSize(3);
     }
 
     @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     @Test
-    public void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
+    void givenFedModelWhenEntityImporterIsCalledThenEntityResultSetIsNotEmpty() {
         Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
         Graph<MetamodelVertex, FieldEdge> graph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
         MetamodelVertex entityVertex = graph.vertexSet().stream().filter(v -> v.getTypeName().equals(Employee.class.getName())).findFirst().get();
-        List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>()).collect(Collectors.toUnmodifiableList());
+        List<ModelElement> entities = entityImporter.importEntities(entityVertex, new ArrayList<>()).toList();
         assertThat(entities).isNotEmpty();
     }
 }

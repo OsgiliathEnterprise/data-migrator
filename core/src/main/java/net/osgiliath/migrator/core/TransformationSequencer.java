@@ -26,6 +26,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
+import net.osgiliath.migrator.core.exception.SequenceExecutionFailException;
 import net.osgiliath.migrator.core.graph.ModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
@@ -89,7 +90,7 @@ public class TransformationSequencer implements CommandLineRunner {
                             sequenceProcessor.process(modelGraph, metamodelGraph);
                             sinkEntityInjector.persist(modelGraph, metamodelGraph);
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
+                            throw new SequenceExecutionFailException(e);
                         }
                     }
                 }

@@ -23,8 +23,9 @@ package net.osgiliath.migrator.core.rawelement.jpa;
 import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
+import net.osgiliath.migrator.core.exception.PrimaryKeyMethodNotFoundException;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
+import net.osgiliath.migrator.core.exception.RawElementMethodCallException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 import org.hibernate.Hibernate;
@@ -78,7 +79,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                     m -> m.getAnnotation(Id.class) != null || m.getAnnotation(EmbeddedId.class) != null
             ).findAny();
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new PrimaryKeyMethodNotFoundException(e);
         }
     }
 
@@ -141,10 +142,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
             return true;
         }
         UniqueConstraint uniqueConstraint = getterMethod.getAnnotation(UniqueConstraint.class);
-        if (null != uniqueConstraint && Arrays.asList(uniqueConstraint.columnNames()).contains(columnName)) {
-            return true;
-        }
-        return false;
+        return null != uniqueConstraint && Arrays.asList(uniqueConstraint.columnNames()).contains(columnName);
     }
 
     private String getColumnNameFromField(JpaMetamodelVertex metamodelVertex, Field field) {
@@ -189,7 +187,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             return primaryKeyGetterMethod.invoke(entity);
                         }
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new ErrorCallingRawElementMethodException(e);
+                        throw new RawElementMethodCallException(e);
                     }
                     return Optional.empty();
                 }
@@ -213,7 +211,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
         try {
             return getPropertyDescriptor(entityClass, attribute).map(PropertyDescriptor::getReadMethod);
         } catch (Exception e) {
-            throw new RuntimeException("No getter for field " + attribute.getName() + " in class " + entityClass.getName());
+            throw new RawElementFieldOrMethodNotFoundException("No getter for field " + attribute.getName() + " in class " + entityClass.getName());
         }
     }
 
@@ -281,12 +279,12 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             return result;
                         } catch (Exception e) {
                             log.error("error while getting value for entity");
-                            throw new ErrorCallingRawElementMethodException(e);
+                            throw new RawElementMethodCallException(e);
                         }
                     }).findAny()
                     .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityToUse.getClass().getName()));
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new RawElementMethodCallException(e);
         }
     }
 
@@ -303,10 +301,10 @@ public class JpaEntityProcessor implements RawElementProcessor {
         EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
 
         Optional<Object> idValue = internalGetRawId(entityClass, entity);
-        return idValue.map(id -> {
-            return !em.contains(entity)  // must not be managed now
-                    && em.find(entityClass, id) != null; // must not have been removed
-        }).orElse(false);
+        return idValue.map(id ->
+                !em.contains(entity)  // must not be managed now
+                        && em.find(entityClass, id) != null // must not have been removed
+        ).orElse(false);
     }
 
     @Override
@@ -323,17 +321,15 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             m -> {
                                 try {
                                     m.invoke(entity, value);
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException(e);
-                                } catch (InvocationTargetException e) {
-                                    throw new RuntimeException(e);
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    throw new RawElementFieldOrMethodNotFoundException(e);
                                 }
                             }, () -> {
                                 throw new RawElementFieldOrMethodNotFoundException("No setter for field name " + attributeName + " in class " + entity.getClass().getSimpleName());
                             }
                     );
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new RawElementMethodCallException(e);
         }
     }
 }
