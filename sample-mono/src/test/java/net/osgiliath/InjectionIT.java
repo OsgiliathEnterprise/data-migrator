@@ -50,7 +50,6 @@ class InjectionIT {
     @Container
     static MySQLContainer mySQLSourceContainer = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql:" + mysqlVersion))
             .withConnectTimeoutSeconds(mysqlTimeoutInSecond.intValue());
-    ;
     // .withExposedPorts(64449);
 
     @Container
@@ -117,7 +116,7 @@ class InjectionIT {
         try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
             sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
             List<Employee> employees = employeeRepository.findAll();
-            assertThat(employees.size()).isLessThan(13); // Two employees has a cycle
+            assertThat(employees).hasSizeLessThan(13); // Two employees has a cycle
             List<Job> jobs = jobRepository.findAll();
             assertThat(jobs).hasSize(10); // has not been limited because intermediairy employee should have been removed
 

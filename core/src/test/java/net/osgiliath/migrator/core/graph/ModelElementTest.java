@@ -95,7 +95,7 @@ class ModelElementTest {
         Optional<EdgeTargetVertexOrVertices> result = modelGraphEdgeBuilder.getEdgeValueFromVertexGraph(modelElement, fieldEdge, graphTraversalSource);
         // Assert
         assertTrue(result.isPresent());
-        Assertions.assertEquals(((UnitaryEdgeTarget) result.get()).target().id(), MockTraversalVertex.ENTITY_ID_1);
+        Assertions.assertEquals(MockTraversalVertex.ENTITY_ID_1, ((UnitaryEdgeTarget) result.get()).target().id());
     }
 
     @Transactional

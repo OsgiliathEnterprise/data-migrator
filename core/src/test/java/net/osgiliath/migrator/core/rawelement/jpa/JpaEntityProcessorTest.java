@@ -54,7 +54,7 @@ class JpaEntityProcessorTest {
         TestEntity ent = new TestEntity();
         JpaMetamodelVertex jpaMetamodelVertex = new JpaMetamodelVertex(null, TestEntity.class);
         Optional<Object> ret = jpaEntityProcessor.getId(jpaMetamodelVertex, ent);
-        assertThat(ret.get()).isEqualTo(1L);
+        assertThat(ret).contains(1L);
     }
 
     @Test

@@ -25,9 +25,7 @@ import net.osgiliath.migrator.core.configuration.model.GraphDatasourceType;
 import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.io.IoRegistry;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3;
 import org.springframework.stereotype.Component;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
@@ -62,20 +60,18 @@ public class GraphTraversalSourceProvider {
             Graph graph = TinkerGraph.open();
             return traversal().withEmbedded(graph);
         } else if (dataMigratorConfiguration.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE)) {
-            IoRegistry registry = TinkerIoRegistryV3.instance();
-/*            TypeSerializerRegistry typeSerializerRegistry = TypeSerializerRegistry.build().addRegistry(registry)
-                    .create();*/
-
-/*            GraphSONMapper.Builder builder = GraphSONMapper.build().
+/*            IoRegistry registry = TinkerIoRegistryV3.instance();
+            TypeSerializerRegistry typeSerializerRegistry = TypeSerializerRegistry.build().addRegistry(registry)
+                    .create();
+            GraphSONMapper.Builder builder = GraphSONMapper.build().
                     typeInfo(TypeInfo.PARTIAL_TYPES)
                     // .addCustomModule(new JpaMetamodelSerializationModule())
                     .addCustomModule(GraphSONXModuleV3.build())
                     .version(GraphSONVersion.V3_0);
-            MessageSerializer serializer = new GraphSONMessageSerializerV3(builder); //typeSerializerRegistry);*/
-/*            Cluster cluster = Cluster.build(dataMigratorConfiguration.getGraphDatasource().getHost()).port(dataMigratorConfiguration.getGraphDatasource().getPort()).
+            MessageSerializer serializer = new GraphSONMessageSerializerV3(builder); //typeSerializerRegistry);
+            Cluster cluster = Cluster.build(dataMigratorConfiguration.getGraphDatasource().getHost()).port(dataMigratorConfiguration.getGraphDatasource().getPort()).
                     serializer(new GraphBinaryMessageSerializerV1(typeSerializerRegistry)).
                     create();
-
             Client client = cluster.connect();*/
             return traversal().withRemote(DriverRemoteConnection.using(dataMigratorConfiguration.getGraphDatasource().getHost(), dataMigratorConfiguration.getGraphDatasource().getPort()));
         } else {

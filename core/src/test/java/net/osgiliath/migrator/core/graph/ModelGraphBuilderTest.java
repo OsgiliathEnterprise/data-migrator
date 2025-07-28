@@ -101,7 +101,6 @@ class ModelGraphBuilderTest {
     void testCreateEdges() {
         // Arrange
         MetamodelVertex metamodelVertex = new JpaMetamodelVertex(MetamodelClass.class, FakeEntity.class);
-        FieldEdge<MetamodelVertex> fieldEdge = new FieldEdge(null);
         Set<MetamodelVertex> metaVertex = new HashSet<>();
         metaVertex.add(metamodelVertex);
         GraphTraversal g = new DefaultGraphTraversal();
