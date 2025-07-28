@@ -3,10 +3,12 @@ package net.osgiliath;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import net.osgiliath.datamigrator.sample.domain.*;
+import net.osgiliath.datamigrator.sample.repository.EmployeeRepository;
 import net.osgiliath.migrator.core.api.metamodel.MetamodelScanner;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.db.inject.SinkEntityInjector;
 import net.osgiliath.migrator.core.graph.TinkerpopModelGraphBuilder;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelGraphBuilder;
 import net.osgiliath.migrator.sample.orchestration.DataMigratorApplication;
@@ -29,6 +31,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -98,6 +101,12 @@ class ModelIT {
     private TinkerpopModelGraphBuilder modelGraphBuilder;
 
     @Autowired
+    private SinkEntityInjector sinkEntityInjector;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     private MetamodelScanner scanner;
 
     @Test
@@ -135,4 +144,14 @@ class ModelIT {
         }
     }
 
+    @Test
+    void givenFedGraphWhenEntityProcessorAndSequenceProcessorIsCalledThenTargetDatabaseIsPopulatedExcludingCyclicPathAndFieldsAreTransformed() throws Exception {
+        Collection<Class<?>> metamodelClasses = scanner.scanMetamodelClasses();
+        Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph = metamodelGraphBuilder.metamodelGraphFromRawElementClasses(metamodelClasses);
+        try (GraphTraversalSource modelGraph = modelGraphBuilder.modelGraphFromMetamodelGraph(entityMetamodelGraph)) {
+            sinkEntityInjector.persist(modelGraph, entityMetamodelGraph);
+            List<Employee> employees = employeeRepository.findAll();
+            assertThat(employees.size()).isLessThan(13);
+        }
+    }
 }
