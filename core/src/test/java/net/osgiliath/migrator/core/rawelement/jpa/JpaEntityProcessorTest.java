@@ -45,7 +45,7 @@ class JpaEntityProcessorTest {
     private PlatformTransactionManager txMgr;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         jpaEntityProcessor = new JpaEntityProcessor(txMgr);
     }
 

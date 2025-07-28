@@ -88,7 +88,7 @@ class InjectionIT {
             liquibase.setDataSource(ds);
             liquibase.afterPropertiesSet();
         } catch (LiquibaseException e) {
-            logger.error("Failed to import liquibase datasource", e.getMessage(), e);
+            logger.error("Failed to import liquibase datasource {}", e.getMessage(), e);
         }
     }
 

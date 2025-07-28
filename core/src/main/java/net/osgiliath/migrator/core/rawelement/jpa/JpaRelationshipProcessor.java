@@ -24,8 +24,9 @@ import jakarta.persistence.*;
 import net.osgiliath.migrator.core.api.metamodel.RelationshipType;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
-import net.osgiliath.migrator.core.exception.ErrorCallingRawElementMethodException;
+import net.osgiliath.migrator.core.exception.PropertyDescriptorNotFoundException;
 import net.osgiliath.migrator.core.exception.RawElementFieldOrMethodNotFoundException;
+import net.osgiliath.migrator.core.exception.RawElementMethodCallException;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.RelationshipProcessor;
 import org.slf4j.Logger;
@@ -71,31 +72,32 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
         try {
             return getterMethod.invoke(modelElement.rawElement());
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ErrorCallingRawElementMethodException(e);
+            throw new RawElementMethodCallException(e);
         }
     }
 
     @Override
     public void setEdgeRawValue(String fieldName, Field metamodelField, MetamodelVertex target, ModelElement modelElement, Object value) {
-        log.debug("setting raw value for edge {} to modelElement {}", fieldName, jpaEntityProcessor.getId(modelElement).get());
+        jpaEntityProcessor.getId(modelElement).ifPresent(id -> {
+            log.debug("setting raw value for edge {} to modelElement {}", fieldName, id);
+        });
         jpaEntityProcessor.setFieldValue(modelElement, fieldName, value);
         jpaEntityProcessor.getterMethod(modelElement.vertex(), metamodelField).flatMap(
                 method -> inverseRelationshipField(method, target)
-        ).ifPresent(inverseField -> {
-                    jpaEntityProcessor.getterMethod(target, inverseField).ifPresent(
-                            inverseRelationshipMethod -> {
-                                RelationshipType type = relationshipType(inverseRelationshipMethod);
-                                log.debug("setting raw value for type {}", type);
-                                if (value instanceof Collection<?> c) {
-                                    for (Object o : c) {
-                                        inverseSetRelationship(target, modelElement, inverseField, inverseRelationshipMethod, type, o);
-                                    }
-                                } else if (value != null) {
-                                    inverseSetRelationship(target, modelElement, inverseField, inverseRelationshipMethod, type, value);
+        ).ifPresent(inverseField ->
+                jpaEntityProcessor.getterMethod(target, inverseField).ifPresent(
+                        inverseRelationshipMethod -> {
+                            RelationshipType type = relationshipType(inverseRelationshipMethod);
+                            log.debug("setting raw value for type {}", type);
+                            if (value instanceof Collection<?> c) {
+                                for (Object o : c) {
+                                    inverseSetRelationship(target, modelElement, inverseField, inverseRelationshipMethod, type, o);
                                 }
+                            } else if (value != null) {
+                                inverseSetRelationship(target, modelElement, inverseField, inverseRelationshipMethod, type, value);
                             }
-                    );
-                }
+                        }
+                )
         );
     }
 
@@ -107,10 +109,8 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
                     Collection set = (Collection) inverseRelationshipMethod.invoke(o);
                     set.add(modelElement.rawElement());
                     jpaEntityProcessor.setFieldValue(elt, inverseField.getName(), set);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new RawElementFieldOrMethodNotFoundException(e);
                 }
             } else {
                 jpaEntityProcessor.setFieldValue(elt, inverseField.getName(), modelElement.rawElement());
@@ -135,7 +135,7 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
                 }
             });
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new RawElementMethodCallException(e);
         }
         return elt;
     }
@@ -146,7 +146,7 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
         try {
             propertyDescriptors = Introspector.getBeanInfo(elt.rawElement().getClass()).getPropertyDescriptors();
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new PropertyDescriptorNotFoundException(e);
         }
         if (null != propertyDescriptors) {
             Arrays.stream(propertyDescriptors)
@@ -214,11 +214,10 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
                                                 .getPropertyDescriptors()).map(PropertyDescriptor::getReadMethod)
                                         .filter(method -> Collection.class.isAssignableFrom(method.getReturnType()) && ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0].equals(getterMethod.getGenericReturnType()))
                                         .flatMap(targetEntityClassMethod -> Stream.of(targetEntityClassMethod.getDeclaredAnnotations()))
-                                        .filter(annotation -> annotation instanceof ManyToMany && !((ManyToMany) annotation).mappedBy().isEmpty())
-                                        .filter(tcmtm -> ((ManyToMany) tcmtm).mappedBy().equals(jpaEntityProcessor.fieldNameOfGetter(getterMethod)))
+                                        .filter(annotation -> annotation instanceof ManyToMany annot && !annot.mappedBy().isEmpty() && annot.mappedBy().equals(jpaEntityProcessor.fieldNameOfGetter(getterMethod)))
                                         .count() > 0;
                             } catch (IntrospectionException e) {
-                                throw new RuntimeException(e);
+                                throw new PropertyDescriptorNotFoundException(e);
                             }
                             if (mappedByFound) {
                                 yield "";
@@ -265,14 +264,12 @@ public class JpaRelationshipProcessor implements RelationshipProcessor {
                     .flatMap(method -> Arrays.stream(method.getDeclaredAnnotations()))
                     .filter(a -> a instanceof ManyToMany mtm && mtm.mappedBy().isEmpty())
                     .forEach(annotation -> {
-                        if (!randomManyToManyOwningSide.contains(targetEntityClass)) {
-                            if (entityClass.getName().compareToIgnoreCase(targetEntityClass.getName()) < 1) {
-                                randomManyToManyOwningSide.add(entityClass);
-                            }
+                        if (!randomManyToManyOwningSide.contains(targetEntityClass) && entityClass.getName().compareToIgnoreCase(targetEntityClass.getName()) < 1) {
+                            randomManyToManyOwningSide.add(entityClass);
                         }
                     });
         } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
+            throw new PropertyDescriptorNotFoundException(e);
         }
     }
 

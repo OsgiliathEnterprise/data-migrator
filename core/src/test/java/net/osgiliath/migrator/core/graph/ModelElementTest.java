@@ -74,7 +74,7 @@ class ModelElementTest {
     private PlatformTransactionManager txMgr;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         jpaEntityHelper = new JpaEntityProcessor(txMgr);
         traversal = new MockTraversalVertex(jpaEntityHelper);
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);
@@ -113,8 +113,8 @@ class ModelElementTest {
         // Assert
         assertTrue(result.isPresent());
         Collection<Vertex> target = ((ManyEdgeTarget) result.get()).target().collect(Collectors.toSet());
-        Assertions.assertEquals(target.size(), 1);
-        assertEquals(((MockVertex) target.iterator().next()).getFe().getId(), MockTraversalVertex.ENTITY_ID_1);
+        Assertions.assertEquals(1, target.size());
+        assertEquals(MockTraversalVertex.ENTITY_ID_1, ((MockVertex) target.iterator().next()).getFe().getId());
 
     }
 }

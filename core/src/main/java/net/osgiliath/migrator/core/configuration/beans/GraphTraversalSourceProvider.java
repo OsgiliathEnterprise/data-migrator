@@ -26,7 +26,6 @@ import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoRegistry;
-import org.apache.tinkerpop.gremlin.structure.io.binary.TypeSerializerRegistry;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3;
 import org.springframework.stereotype.Component;
@@ -64,8 +63,8 @@ public class GraphTraversalSourceProvider {
             return traversal().withEmbedded(graph);
         } else if (dataMigratorConfiguration.getGraphDatasource().getType().equals(GraphDatasourceType.REMOTE)) {
             IoRegistry registry = TinkerIoRegistryV3.instance();
-            TypeSerializerRegistry typeSerializerRegistry = TypeSerializerRegistry.build().addRegistry(registry)
-                    .create();
+/*            TypeSerializerRegistry typeSerializerRegistry = TypeSerializerRegistry.build().addRegistry(registry)
+                    .create();*/
 
 /*            GraphSONMapper.Builder builder = GraphSONMapper.build().
                     typeInfo(TypeInfo.PARTIAL_TYPES)

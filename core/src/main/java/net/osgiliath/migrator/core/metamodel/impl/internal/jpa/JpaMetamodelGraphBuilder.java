@@ -49,15 +49,26 @@ public class JpaMetamodelGraphBuilder extends MetamodelGraphBuilder<JpaMetamodel
         this.metamodelVertexFactory = metamodelVertexFactory;
     }
 
-    private record VertexMetamodelClassAndEntityClass(FieldAndTargetType fieldAndTargetType, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
+    private record VertexMetamodelClassAndEntityClass(FieldAndTargetType fieldAndTargetType, Class<?> entityClass,
+                                                      Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected Stream<OutboundEdge<JpaMetamodelVertex>> computeOutboundEdges(JpaMetamodelVertex sourceVertex, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
-        record VertexMetamodelClassDeclaredFieldsAndEntityClass(Field[] fields, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
-        record VertexMetamodelClassDeclaredFieldAndEntityClass(Field field, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
-        record VertexMetamodelClassAndEntityClass(Class<?> metamodelClass, Class<?> entityClass, Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph){};
+        record VertexMetamodelClassDeclaredFieldsAndEntityClass(Field[] fields, Class<?> entityClass,
+                                                                Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
+        }
+
+        record VertexMetamodelClassDeclaredFieldAndEntityClass(Field field, Class<?> entityClass,
+                                                               Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
+        }
+
+        record VertexMetamodelClassAndEntityClass(Class<?> metamodelClass, Class<?> entityClass,
+                                                  Graph<JpaMetamodelVertex, FieldEdge<JpaMetamodelVertex>> graph) {
+        }
 
         VertexMetamodelClassAndEntityClass streamInput = new VertexMetamodelClassAndEntityClass(sourceVertex.metamodelClass(), sourceVertex.entityClass(), graph);
         return Stream

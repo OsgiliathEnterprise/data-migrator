@@ -47,7 +47,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Spliterators;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -122,18 +121,18 @@ public class SinkEntityInjector {
                                 me -> {
                                     Optional<Object> id = modelElementProcessor.getId(me);
                                     return id.isPresent() && id.get() != null &&
-                                            ((id.get() instanceof Long && 0L != (Long) id.get()) ||
-                                                    (id.get() instanceof String && !((String) id.get()).isEmpty()) ||
+                                            ((id.get() instanceof Long presentId && 0L != presentId) ||
+                                                    (id.get() instanceof String presentIdAsString && !presentIdAsString.isEmpty()) ||
                                                     id.get().getClass().getAnnotation(jakarta.persistence.Embeddable.class) != null);
                                 }
-                        ).peek(me -> {
-                            log.info("Persisting vertex of type {} with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get());
-                        });
+                        ).peek(me ->
+                                log.info("Persisting vertex of type {} with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get())
+                        );
         TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         try {
             tpl.executeWithoutResult(
                     act ->
-                            vertexPersister.persistVertices(res, sinkPlatformTxManager).collect(Collectors.toList())
+                            vertexPersister.persistVertices(res, sinkPlatformTxManager).toList()
             );
         } catch (Exception e) {
             log.error("Unable to save one element", e);
@@ -196,8 +195,11 @@ public class SinkEntityInjector {
             Vertex v = cycle.next();
             ObjectMapper mapper = new ObjectMapper();
             try {
-                log.warn("Cyclic element of type {} : {}", v.label(), mapper.writer().writeValueAsString(modelElementProcessor.unproxy(vertexResolver.getModelElement(v)).rawElement()));
+                if (log.isWarnEnabled()) {
+                    log.warn("Cyclic element of type {} : {}", v.label(), mapper.writer().writeValueAsString(modelElementProcessor.unproxy(vertexResolver.getModelElement(v)).rawElement()));
+                }
             } catch (JsonProcessingException e) {
+                log.error("Error while serializing cyclic element for logs", e);
             }
             modelGraph.V(v).drop().iterate();
             removeCyclicElements(modelGraph);

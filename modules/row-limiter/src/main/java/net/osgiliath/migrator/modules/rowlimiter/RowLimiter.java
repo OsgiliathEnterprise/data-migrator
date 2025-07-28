@@ -69,27 +69,27 @@ public class RowLimiter implements GraphTransformer {
 
     private void processEntities(MetamodelVertex studiedVertex, GraphTraversalSource modelGraph, Integer limit, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
 
-        GraphTraversal elementsOfStudiedVertex = modelGraph.V()
+        GraphTraversal<Vertex, Vertex> elementsOfStudiedVertex = modelGraph.V()
                 .hasLabel(studiedVertex.getTypeName());
-        if (limit >= (Long) elementsOfStudiedVertex.asAdmin().clone().count().next()) {
+        if (limit >= elementsOfStudiedVertex.asAdmin().clone().count().next()) {
             return;
         }
-        GraphTraversal noOut = elementsOfStudiedVertex.asAdmin().clone()
+        GraphTraversal<Vertex, Vertex> noOut = elementsOfStudiedVertex.asAdmin().clone()
                 .filter(
                         __.not(
-                                __.out())).order().by(__.in().count()).by(Order.desc).limit(((Long) elementsOfStudiedVertex.asAdmin().clone().count().next()) - limit);
+                                __.out())).order().by(__.in().count()).by(Order.desc).limit((elementsOfStudiedVertex.asAdmin().clone().count().next()) - limit);
         removeRelationshipFromInboundModelElements(modelGraph, entityMetamodelGraph, noOut.asAdmin().clone());
         noOut.drop().iterate();
 
-        if (limit >= (Long) elementsOfStudiedVertex.asAdmin().clone().count().next()) {
+        if (limit >= elementsOfStudiedVertex.asAdmin().clone().count().next()) {
             return;
         }
-        GraphTraversal leafElements = elementsOfStudiedVertex.asAdmin().clone()
+        GraphTraversal<Vertex, Vertex> leafElements = elementsOfStudiedVertex.asAdmin().clone()
                 .repeat(out())
                 .until(out()
                         .filter(
                                 __.count().is(0).or().loops().is(10)))
-                .order().by(__.in().count()).by(Order.desc).limit(((Long) elementsOfStudiedVertex.asAdmin().clone().count().next()) - limit);
+                .order().by(__.in().count()).by(Order.desc).limit((elementsOfStudiedVertex.asAdmin().clone().count().next()) - limit);
         removeRelationshipFromInboundModelElements(modelGraph, entityMetamodelGraph, leafElements.asAdmin().clone());
         leafElements.drop().iterate();
         // remove off-limit elements

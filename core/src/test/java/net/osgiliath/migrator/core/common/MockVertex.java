@@ -73,6 +73,7 @@ public class MockVertex implements Vertex {
 
     @Override
     public void remove() {
+        // No operation for mock
     }
 
     @Override

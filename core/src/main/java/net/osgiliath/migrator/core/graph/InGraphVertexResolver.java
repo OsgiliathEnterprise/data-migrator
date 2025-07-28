@@ -69,7 +69,7 @@ public class InGraphVertexResolver implements VertexResolver {
 
     @Override
     public void clear() {
-
+        // No-op
     }
 
 }

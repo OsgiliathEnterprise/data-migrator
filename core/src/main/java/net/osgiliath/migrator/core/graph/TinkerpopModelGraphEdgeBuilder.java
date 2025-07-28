@@ -25,7 +25,6 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.graph.model.*;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
-import net.osgiliath.migrator.core.rawelement.RelationshipProcessor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -51,12 +50,10 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
     private final MetamodelRequester metamodelGraphRequester;
     private final VertexResolver vertexResolver;
     private final PlatformTransactionManager sourcePlatformTxManager;
-    private final RelationshipProcessor relationshipProcessor;
     private final RawElementProcessor elementHelper;
     private final ModelElementProcessor modelElementProcessor;
 
-    public TinkerpopModelGraphEdgeBuilder(RelationshipProcessor relationshipProcessor, RawElementProcessor rawElementProcessor, MetamodelRequester metamodelGraphRequester, VertexResolver vertexResolver, ModelElementProcessor modelElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
-        this.relationshipProcessor = relationshipProcessor;
+    public TinkerpopModelGraphEdgeBuilder(RawElementProcessor rawElementProcessor, MetamodelRequester metamodelGraphRequester, VertexResolver vertexResolver, ModelElementProcessor modelElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.elementHelper = rawElementProcessor;
         this.modelElementProcessor = modelElementProcessor;
         this.metamodelGraphRequester = metamodelGraphRequester;
@@ -69,18 +66,18 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
     public void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
         tpl.setReadOnly(true);
-        GraphTraversal sourceVertexEdgeAndTargetVertexList = tpl.execute(status -> { // TODO refine
-            return computeEdgesOfVertices(modelGraph, entityMetamodelGraph)
-                    .reduce(modelGraph.inject(0), (
-                                    GraphTraversal t1, SourceVertexFieldEdgeAndTargetVertex elt
-                            ) ->
-                                    t1.V(elt
-                                                    .sourceVertex())
-                                            .addE(elt.edge().getFieldName())
-                                            .to(elt.targetVertex())
-                                            .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName())
-                            , (t1, t2) -> t1.concat(t2));
-        });
+        GraphTraversal sourceVertexEdgeAndTargetVertexList = tpl.execute(status ->  // TODO refine
+                computeEdgesOfVertices(modelGraph, entityMetamodelGraph)
+                        .reduce(modelGraph.inject(0), (
+                                        GraphTraversal t1, SourceVertexFieldEdgeAndTargetVertex elt
+                                ) ->
+                                        t1.V(elt
+                                                        .sourceVertex())
+                                                .addE(elt.edge().getFieldName())
+                                                .to(elt.targetVertex())
+                                                .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName())
+                                , GraphTraversal::concat)
+        );
         sourceVertexEdgeAndTargetVertexList.iterate();
     }
 
@@ -116,6 +113,7 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
      * @param modelGraph the model graph
      * @return the target Vertex or Vertices corresponding to the entities referenced by the outboundEdge
      */
+    @SuppressWarnings("java:S3864")
     Optional<EdgeTargetVertexOrVertices> getEdgeValueFromVertexGraph(Vertex sourceVertex, FieldEdge<MetamodelVertex> fieldEdge, GraphTraversalSource modelGraph) {
         MetamodelVertex targetVertex = fieldEdge.getTarget();
         log.debug("Getting Edge value from model element relationship. Relationship getter: {}, target of the edge: {}",

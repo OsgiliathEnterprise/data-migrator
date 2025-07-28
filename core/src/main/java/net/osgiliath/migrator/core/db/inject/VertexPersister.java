@@ -53,6 +53,7 @@ public class VertexPersister {
         this.sinkPlatformTxManager = sinkPlatformTxManager;
     }
 
+    @SuppressWarnings("java:S3864")
     public Stream<ModelElement> persistVertices(Stream<ModelElement> entities, PlatformTransactionManager sinkTxManager) {
         EntityManagerFactory emf = ((JpaTransactionManager) sinkTxManager).getEntityManagerFactory();
         log.info("******************** Persisting a batch of entities ****************");
@@ -66,6 +67,7 @@ public class VertexPersister {
                             try {
                                 log.info("Object passed to persist: {}", mapper.writer().writeValueAsString(me.rawElement()));
                             } catch (JsonProcessingException e) {
+                                log.warn("Unable to serialize entity for logging", e);
                             }
                         }
                     })
