@@ -80,7 +80,7 @@ class ModelElementTest {
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);
         VertexResolver resolver = new InGraphVertexResolver();
         ModelElementProcessor processor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, jpaRelationshipProcessor);
-        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaRelationshipProcessor, jpaEntityHelper, metamodelGraphRequester, resolver, processor, txMgr);
+        modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaEntityHelper, metamodelGraphRequester, resolver, processor, txMgr);
     }
 
     @Test
