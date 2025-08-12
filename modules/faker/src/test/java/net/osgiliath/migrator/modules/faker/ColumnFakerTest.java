@@ -22,6 +22,7 @@ package net.osgiliath.migrator.modules.faker;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
+import net.datafaker.Faker;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
@@ -67,7 +68,7 @@ class ColumnFakerTest {
     @Test
     void testFieldIsFaked() {
         when(columnTransformationDefinition.getColumnName()).thenReturn("columnToFake");
-        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor);
+        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor, new Faker().getFaker());
         String fieldValue = "originalValue";
         ModelElement modelElement = createModelElement(fieldValue, false);
 
@@ -85,7 +86,7 @@ class ColumnFakerTest {
     void testFieldIsFakedConsistently() {
         when(columnTransformationDefinition.getColumnName()).thenReturn("columnToFake");
         when(columnTransformationDefinition.getConsistentKey()).thenReturn(true);
-        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor);
+        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor, new Faker().getFaker());
 
         String fieldValue = "originalValue";
         ModelElement modelElement = createModelElement(fieldValue, false);
@@ -108,7 +109,7 @@ class ColumnFakerTest {
     void testFieldIsFakedUnique() {
         when(columnTransformationDefinition.getColumnName()).thenReturn("columnToFake");
         when(columnTransformationDefinition.getConsistentKey()).thenReturn(false);
-        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor);
+        columnFaker = new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor, new Faker().getFaker());
 
         String fieldValue = "originalValue";
         List<ModelElement> modelElements = new ArrayList<>();
