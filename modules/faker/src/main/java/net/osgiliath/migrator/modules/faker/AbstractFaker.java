@@ -55,11 +55,13 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
     private static final Random RANDOM = new Random();
     private static Map<String, String> fakedKeys = new HashMap<>();
     private static final Collection<String> alreadyFakedValues = new ArrayList<>();
+    private final Faker faker;
 
-    protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition, RawElementProcessor rawElementProcessor) {
+    protected AbstractFaker(ModelElementProcessor modelElementProcessor, MetamodelVertex metamodel, ColumnTransformationDefinition columnTransformationDefinition, RawElementProcessor rawElementProcessor, Faker faker) {
         super(modelElementProcessor, metamodel, columnTransformationDefinition.getColumnName());
         this.columnTransformationDefinition = columnTransformationDefinition;
         this.rawElementProcessor = rawElementProcessor;
+        this.faker = faker;
     }
 
     protected String fake(String value) {
@@ -83,7 +85,6 @@ public abstract class AbstractFaker<T> extends ModelElementColumnTransformer<T> 
     }
 
     private String getRandomString() {
-        Faker faker = new Faker().getFaker();
         String fakerAlg = columnTransformationDefinition.getOptions().getOrDefault(FAKER, "dragon_ball.characters");
         if (rawElementProcessor.isUnique(getMetamodel(), columnTransformationDefinition.getColumnName())) {
             log.debug("Using unique faker algorithm: {}", fakerAlg);

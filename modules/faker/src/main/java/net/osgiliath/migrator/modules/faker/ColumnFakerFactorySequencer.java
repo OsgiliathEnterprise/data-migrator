@@ -20,6 +20,7 @@ package net.osgiliath.migrator.modules.faker;
  * #L%
  */
 
+import net.datafaker.Faker;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
@@ -36,11 +37,13 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     private final ModelElementProcessor modelElementProcessor;
     private final RawElementProcessor rawElementProcessor;
+    private final Faker faker;
 
-    public ColumnFakerFactorySequencer(ModelElementProcessor modelElementProcessor, RawElementProcessor rawElementProcessor) {
+    public ColumnFakerFactorySequencer(ModelElementProcessor modelElementProcessor, RawElementProcessor rawElementProcessor, Faker faker) {
 
         this.modelElementProcessor = modelElementProcessor;
         this.rawElementProcessor = rawElementProcessor;
+        this.faker = faker;
     }
 
     @Override
@@ -50,6 +53,6 @@ public class ColumnFakerFactorySequencer implements FactorySequencer {
 
     @Override
     public Object createSequencerBean(Class beanClass, SequencerDefinition definition, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> graph, MetamodelVertex metamodelVertex, ModelElement entity, ColumnTransformationDefinition columnTransformationDefinition) {
-        return new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor);
+        return new ColumnFaker(modelElementProcessor, metamodelVertex, columnTransformationDefinition, rawElementProcessor, faker);
     }
 }
