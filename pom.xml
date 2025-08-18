@@ -80,7 +80,7 @@
         <jdbc.h2.version>2.3.232</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
         <jdbc.mysql.version>9.3.0</jdbc.mysql.version>
-        <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
+        <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
         <jdbc.mssql.version>12.10.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.4</jdbc.mariadb-java-client.version>
         <hibernate.version>6.6.22.Final</hibernate.version>
