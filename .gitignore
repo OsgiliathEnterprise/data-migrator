@@ -1,6 +1,7 @@
 target
 .idea
 .env
+gex
 src/main/java
 docs
 site

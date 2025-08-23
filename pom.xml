@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -64,6 +65,7 @@
         <module>modules</module>
         <module>core</module>
         <module>datamigrator-archetype</module>
+        <module>gex</module>
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -168,7 +170,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -267,13 +269,13 @@
                 </plugin>
                 <plugin>
                     <!--start with basic information to get Liquibase plugin:
-                           include <groupId>, <artifactID>, and <version> elements-->
+                                     include <groupId>, <artifactID>, and <version> elements-->
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
                     <version>${liquibase.version}</version>
                     <configuration>
                         <!--set values for Liquibase properties and settings
-                                     for example, the location of a properties file to use-->
+                                                 for example, the location of a properties file to use-->
                         <changeLogFile>/config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>
                             ${project.build.directory}/config/liquibase/changelog/${maven.build.timestamp}_diff.xml
@@ -380,13 +382,14 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>
@@ -413,16 +416,16 @@
                     </executions>
                 </plugin>
                 <!--<plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.7.0</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://central.sonatype.com</nexusUrl>
-                        <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
-                    </configuration>
-                </plugin>-->
+                            <groupId>org.sonatype.plugins</groupId>
+                            <artifactId>nexus-staging-maven-plugin</artifactId>
+                            <version>1.7.0</version>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <serverId>ossrh</serverId>
+                                <nexusUrl>https://central.sonatype.com</nexusUrl>
+                                <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+                            </configuration>
+                        </plugin>-->
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
