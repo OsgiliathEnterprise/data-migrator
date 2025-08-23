@@ -17,6 +17,11 @@
         <replace token='@Version' value='// @Version' dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>
+        <replace token='@Table(name="request"' value='@Table(name="\"request\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+
         <replace token='@Column(name="TO"' value='@Column(name="\"TO\""'
                  dir="${maven.project.build.directory}">
             <include name="**/*.java"/>

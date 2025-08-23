@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -80,7 +81,7 @@
         <jdbc.h2.version>2.3.232</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
         <jdbc.mysql.version>9.3.0</jdbc.mysql.version>
-        <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
+        <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
         <jdbc.mssql.version>12.10.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.4</jdbc.mariadb-java-client.version>
         <hibernate.version>6.6.22.Final</hibernate.version>
@@ -168,7 +169,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -267,13 +268,13 @@
                 </plugin>
                 <plugin>
                     <!--start with basic information to get Liquibase plugin:
-                           include <groupId>, <artifactID>, and <version> elements-->
+                                     include <groupId>, <artifactID>, and <version> elements-->
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
                     <version>${liquibase.version}</version>
                     <configuration>
                         <!--set values for Liquibase properties and settings
-                                     for example, the location of a properties file to use-->
+                                                 for example, the location of a properties file to use-->
                         <changeLogFile>/config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>
                             ${project.build.directory}/config/liquibase/changelog/${maven.build.timestamp}_diff.xml
@@ -348,7 +349,7 @@
                 <plugin>
                     <groupId>org.hibernate.tool</groupId>
                     <artifactId>hibernate-tools-maven</artifactId>
-                    <version>${hibernate.version}</version>
+                    <version>${hibernate-tools.version}</version>
                     <configuration>
                         <ejb3>true</ejb3>
                         <jdk5>true</jdk5>
@@ -380,13 +381,14 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>
@@ -413,16 +415,16 @@
                     </executions>
                 </plugin>
                 <!--<plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.7.0</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://central.sonatype.com</nexusUrl>
-                        <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
-                    </configuration>
-                </plugin>-->
+                            <groupId>org.sonatype.plugins</groupId>
+                            <artifactId>nexus-staging-maven-plugin</artifactId>
+                            <version>1.7.0</version>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <serverId>ossrh</serverId>
+                                <nexusUrl>https://central.sonatype.com</nexusUrl>
+                                <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+                            </configuration>
+                        </plugin>-->
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
@@ -497,7 +499,7 @@
         <profile>
             <id>coverage</id>
             <properties>
-                <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+                <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
                 <sonar.organization>osgiliathenterprise</sonar.organization>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.coverage.jacoco.xmlReportPaths>

@@ -22,6 +22,7 @@ package net.osgiliath.migrator.core.graph;
 
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
+import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.ModelVertexCustomizer;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.graph.model.MetamodelVertexAndModelElementAndModelElementId;
@@ -33,8 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
@@ -45,14 +48,16 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     private final VertexResolver vertexResolver;
     private final ModelVertexInformationRetriever modelVertexInformationRetriever;
     private final ModelGraphEdgeBuilder modelGraphEdgeBuilder;
+    private final DataSourceConfiguration dataSourceConfiguration;
 
 
-    public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder) {
+    public TinkerpopModelGraphBuilder(GraphTraversalSourceProvider graphTraversalSource, ModelVertexCustomizer modelVertexCustomizer, VertexResolver vertexResolver, ModelVertexInformationRetriever modelVertexInformationRetriever, ModelGraphEdgeBuilder modelGraphEdgeBuilder, DataSourceConfiguration dataSourceConfiguration) {
         this.graphTraversalSourceProvider = graphTraversalSource;
         this.modelVertexCustomizer = modelVertexCustomizer;
         this.vertexResolver = vertexResolver;
         this.modelVertexInformationRetriever = modelVertexInformationRetriever;
         this.modelGraphEdgeBuilder = modelGraphEdgeBuilder;
+        this.dataSourceConfiguration = dataSourceConfiguration;
     }
 
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
@@ -76,8 +81,21 @@ public class TinkerpopModelGraphBuilder implements ModelGraphBuilder {
     }
 
     private void createVertices(Set<MetamodelVertex> metamodelVertices, GraphTraversalSource modelGraph) {
-        GraphTraversal<Vertex, Vertex> metamodelVertexAndModelElementAndModelElementIds = metamodelVertices.stream()
-                .flatMap(modelVertexInformationRetriever::getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex)
+        Stream<MetamodelVertexAndModelElementAndModelElementId> stream = metamodelVertices.stream()
+                .flatMap(modelVertexInformationRetriever::getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex);
+        List<MetamodelVertexAndModelElementAndModelElementId> list = stream.toList();
+        long count = list.size();
+        log.info("There are {} Vertices in the graph", count);
+        int batchSize = Integer.valueOf(dataSourceConfiguration.sourcePerDsJpaProperties().getProperties().getOrDefault("hibernate.jdbc.fetch_size", "1000"));
+        for (int i = 0; i < count; i += batchSize) {
+            int end = Math.min(i + batchSize, (int) count);
+            log.info("Creating vertices from {} to {}", i, end - 1);
+            createVerticesFromStream(list.subList(i, end).stream(), modelGraph);
+        }
+    }
+
+    private void createVerticesFromStream(Stream<MetamodelVertexAndModelElementAndModelElementId> stream, GraphTraversalSource modelGraph) {
+        GraphTraversal<Vertex, Vertex> metamodelVertexAndModelElementAndModelElementIds = stream
                 .reduce(modelGraph.inject(0), (GraphTraversal traversal, MetamodelVertexAndModelElementAndModelElementId elt) -> {
                             String name = elt.metamodelVertex().getTypeName();
                             log.debug("Creating new vertex from MetamodelVertexAndModelElementAndModelElementId, Typename {}", name);
