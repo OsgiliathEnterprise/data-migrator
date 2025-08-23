@@ -5,6 +5,58 @@
                  dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>
+        <replace token=', nullable=false' value='' dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token=', updatable=false' value='' dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token=', insertable=false' value='' dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Version' value='// @Version' dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Table(name="request"' value='@Table(name="\"request\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+
+        <replace token='@Column(name="TO"' value='@Column(name="\"TO\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Column(name="LEFT"' value='@Column(name="\"LEFT\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Column(name="FROM"' value='@Column(name="\"FROM\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Column(name="USER"' value='@Column(name="\"USER\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replace token='@Column(name="GROUP"' value='@Column(name="\"GROUP\""'
+                 dir="${maven.project.build.directory}">
+            <include name="**/*.java"/>
+        </replace>
+        <replaceregexp byline="true">
+            <regexp pattern="@GenericGenerator\([^)]*\)"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@GeneratedValue\(.*\)"/>
+            <substitution expression="@GeneratedValue"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+
         <replaceregexp byline="true">
             <regexp pattern="@JoinColumn\(\n*\s*((?:(?!forei).)+)"/>
             <substitution
@@ -53,6 +105,7 @@
                 <include name="**/*.java"/>
             </fileset>
         </replaceregexp>
+
         <replaceregexp byline="true">
             <regexp pattern="@ManyToMany\(\n*\s*((?:(?!cascade).)+)"/>
             <substitution
