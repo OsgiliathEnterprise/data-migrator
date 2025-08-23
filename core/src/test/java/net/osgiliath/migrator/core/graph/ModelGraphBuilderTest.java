@@ -25,7 +25,9 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
 import net.osgiliath.migrator.core.common.FakeEntity;
 import net.osgiliath.migrator.core.common.MetamodelClass;
+import net.osgiliath.migrator.core.configuration.DataSourceConfiguration;
 import net.osgiliath.migrator.core.configuration.ModelVertexCustomizer;
+import net.osgiliath.migrator.core.configuration.PerDSJpaProperties;
 import net.osgiliath.migrator.core.configuration.beans.GraphTraversalSourceProvider;
 import net.osgiliath.migrator.core.metamodel.impl.MetamodelRequester;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
@@ -43,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,6 +66,9 @@ class ModelGraphBuilderTest {
     @Mock
     private GraphTraversalSource graphTraversalSource;
 
+    @Mock
+    private DataSourceConfiguration dataSourceConfiguration;
+
     private TinkerpopModelGraphBuilder modelGraphBuilder;
 
     @Mock
@@ -79,9 +85,12 @@ class ModelGraphBuilderTest {
         metamodelGraphRequester = new MetamodelRequester(jpaEntityHelper, relationshipProcessor);
         ModelElementProcessor modelElementProcessor = new ModelElementProcessor(jpaEntityHelper, metamodelGraphRequester, relationshipProcessor);
         VertexResolver resolver = new InGraphVertexResolver();
+        PerDSJpaProperties jpaProperties = new PerDSJpaProperties();
+        jpaProperties.setProperties(new HashMap<>());
+        when(dataSourceConfiguration.sourcePerDsJpaProperties()).thenReturn(jpaProperties);
         ModelVertexInformationRetriever modelVertexInformationRetriever = new ModelVertexInformationRetriever(entityImporter, modelElementProcessor, txMgr);
         modelGraphEdgeBuilder = new TinkerpopModelGraphEdgeBuilder(jpaEntityHelper, metamodelGraphRequester, resolver, modelElementProcessor, txMgr);
-        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder);
+        modelGraphBuilder = new TinkerpopModelGraphBuilder(graphTraversalSourceProvider, new ModelVertexCustomizer(), resolver, modelVertexInformationRetriever, modelGraphEdgeBuilder, dataSourceConfiguration);
     }
 
     @Test
