@@ -26,6 +26,8 @@ import net.osgiliath.migrator.core.configuration.ColumnTransformationDefinition;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.rawelement.RawElementProcessor;
 
+import java.util.Optional;
+
 public class ColumnFaker extends AbstractFaker<Object> {
 
 
@@ -44,6 +46,12 @@ public class ColumnFaker extends AbstractFaker<Object> {
      */
     @Override
     protected Object evaluateField(Object fieldValue) {
-        return super.fake(fieldValue.toString());
+        if (fieldValue == null || (fieldValue instanceof Optional o && o.isEmpty())) {
+            return null;
+        } else if (fieldValue instanceof Optional o && o.isPresent()) {
+            return super.fake(o.get().toString());
+        } else {
+            return super.fake(fieldValue.toString());
+        }
     }
 }

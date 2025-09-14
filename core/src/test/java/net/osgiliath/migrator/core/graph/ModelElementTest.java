@@ -20,6 +20,7 @@ package net.osgiliath.migrator.core.graph;
  * #L%
  */
 
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.common.FakeEntity;
@@ -41,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,10 +72,14 @@ class ModelElementTest {
 
     private TinkerpopModelGraphEdgeBuilder modelGraphEdgeBuilder;
     @Mock
-    private PlatformTransactionManager txMgr;
+    private JpaTransactionManager txMgr;
+
+    @Mock
+    private EntityManagerFactory emf;
 
     @BeforeEach
     void setup() {
+        when(txMgr.getEntityManagerFactory()).thenReturn(emf);
         jpaEntityHelper = new JpaEntityProcessor(txMgr);
         traversal = new MockTraversalVertex(jpaEntityHelper);
         JpaRelationshipProcessor jpaRelationshipProcessor = new JpaRelationshipProcessor(jpaEntityHelper);

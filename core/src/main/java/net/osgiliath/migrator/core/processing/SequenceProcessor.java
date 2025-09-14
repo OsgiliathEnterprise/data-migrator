@@ -57,7 +57,7 @@ public class SequenceProcessor {
     private final SequencerFactory sequencerFactory;
     private final ModelElementProcessor modelElementProcessor;
     private final VertexResolver vertexResolver;
-    private final PlatformTransactionManager sourcePlatformTxManager;
+    private final TransactionTemplate sourceTxTeamplate;
 
     public SequenceProcessor(DataMigratorConfiguration dataMigratorConfiguration, ApplicationContext context, SequencerFactory sequencerFactory, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.dataMigratorConfiguration = dataMigratorConfiguration;
@@ -65,13 +65,13 @@ public class SequenceProcessor {
         this.sequencerFactory = sequencerFactory;
         this.modelElementProcessor = modelElementProcessor;
         this.vertexResolver = vertexResolver;
-        this.sourcePlatformTxManager = sourcePlatformTxManager;
+        this.sourceTxTeamplate = new TransactionTemplate(sourcePlatformTxManager);
+        sourceTxTeamplate.setReadOnly(true);
+
     }
 
     public void process(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> metamodelGraph) {
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        tpl.executeWithoutResult(status -> // TODO refine
+        sourceTxTeamplate.executeWithoutResult(status -> // TODO refine
                 dataMigratorConfiguration.getSequence().stream()
                         .flatMap(sequenceName -> dataMigratorConfiguration.getSequencers().stream().filter(seq -> seq.getName().equals(sequenceName)))
                         .map(seq -> {

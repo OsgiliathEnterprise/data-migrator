@@ -33,15 +33,20 @@ import net.osgiliath.migrator.core.graph.ModelElementFactory;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import net.osgiliath.migrator.core.rawelement.jpa.JpaEntityProcessor;
+import org.apache.tinkerpop.shaded.jackson.core.JsonProcessingException;
+import org.apache.tinkerpop.shaded.jackson.databind.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,6 +70,7 @@ public class JpaEntityImporter implements EntityImporter {
     private final JpaEntityProcessor elementProcessor;
     private final ModelElementProcessor modelElementProcessor;
     private final PlatformTransactionManager sourcePlatformTxManager;
+    private final TransactionTemplate sourceTxTpl;
 
     /**
      * Constructor.
@@ -76,6 +82,24 @@ public class JpaEntityImporter implements EntityImporter {
         this.elementProcessor = elementProcessor;
         this.modelElementProcessor = modelElementProcessor;
         this.sourcePlatformTxManager = sourcePlatformTxManager;
+        this.sourceTxTpl = new TransactionTemplate(sourcePlatformTxManager);
+        sourceTxTpl.setReadOnly(true);
+    }
+
+    @Override
+    public List<ModelElement> hydrateElements(Stream<ModelElement> source) {
+        ObjectMapper mapper = new ObjectMapper();
+        return sourceTxTpl.execute(status -> source.map(me -> {
+                    try {
+                        Hibernate.unproxy(me.rawElement());
+                        mapper.writer().writeValueAsString(me.rawElement());
+                        return me;
+                    } catch (JsonProcessingException e) {
+                        log.warn("Unable to serialize entity for logging", e);
+                    }
+                    return me;
+                }
+        ).toList());
     }
 
     /**
@@ -85,6 +109,7 @@ public class JpaEntityImporter implements EntityImporter {
      * @param objectToExclude objects to exclude
      * @return list of model elements
      */
+    @Override
     public Stream<ModelElement> importEntities(MetamodelVertex entityVertex, Collection<ModelElement> objectToExclude) {
         JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
         EntityManagerFactory emf = tm.getEntityManagerFactory();

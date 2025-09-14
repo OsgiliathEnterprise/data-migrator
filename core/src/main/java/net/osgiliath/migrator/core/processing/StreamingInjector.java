@@ -43,18 +43,19 @@ import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.
 @Component
 public class StreamingInjector {
 
-    private final PlatformTransactionManager sourcePlatformTxManager;
     private final EntityImporter entityImporter;
     private final VertexPersister vertexPersister;
     private final PerDSJpaProperties jpaPropertiesWrapper;
-    private final PlatformTransactionManager sinkPlatformTxManager;
+    private final TransactionTemplate sourceTxTemplate;
+    private final TransactionTemplate sinkTxTemplate;
 
     public StreamingInjector(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, EntityImporter entityImporter, VertexPersister vertexPersister, @Qualifier(SINK_JPA_PROPERTIES) PerDSJpaProperties jpaPropertiesWrapper) {
-        this.sourcePlatformTxManager = sourcePlatformTxManager;
         this.entityImporter = entityImporter;
         this.vertexPersister = vertexPersister;
         this.jpaPropertiesWrapper = jpaPropertiesWrapper;
-        this.sinkPlatformTxManager = sinkPlatformTxManager;
+        this.sourceTxTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        sourceTxTemplate.setReadOnly(true);
+        this.sinkTxTemplate = new TransactionTemplate(sinkPlatformTxManager);
     }
 
     public void injectVerticesInTargetDb(Set<MetamodelVertex> metamodelVertices) {
@@ -64,15 +65,13 @@ public class StreamingInjector {
     }
 
     private void injectVertexInTargetDb(MetamodelVertex vertex) {
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        Collection<List<ModelElement>> streamToInsert = tpl.execute(status -> {
+        Collection<List<ModelElement>> streamToInsert = sourceTxTemplate.execute(status -> {
             Stream<ModelElement> queried = entityImporter.importEntities(vertex, new HashSet<>());
             return BatchIterator.batchStreamOf(queried, Integer.parseInt(jpaPropertiesWrapper.getProperties().get("hibernate.jdbc.batch_size"))).collect(Collectors.toSet());
         });
         streamToInsert.forEach(batch -> {
-            TransactionTemplate sinkTx = new TransactionTemplate(sinkPlatformTxManager);
-            sinkTx.executeWithoutResult(status -> vertexPersister.persistVertices(batch.stream(), sinkPlatformTxManager));
+            List<ModelElement> hydratedElements = entityImporter.hydrateElements(batch.stream());
+            sinkTxTemplate.executeWithoutResult(status -> vertexPersister.persistVertices(hydratedElements.stream()));
         });
     }
 }

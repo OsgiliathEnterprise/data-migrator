@@ -43,12 +43,14 @@ public class ModelVertexInformationRetriever {
 
     private final EntityImporter entityImporter;
     private final ModelElementProcessor modelElementProcessor;
-    private final PlatformTransactionManager sourcePlatformTxManager;
+    private final TransactionTemplate sourceTxTemplate;
 
     public ModelVertexInformationRetriever(EntityImporter entityImporter, ModelElementProcessor modelElementProcessor, @Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.entityImporter = entityImporter;
         this.modelElementProcessor = modelElementProcessor;
-        this.sourcePlatformTxManager = sourcePlatformTxManager;
+        this.sourceTxTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        sourceTxTemplate.setReadOnly(true);
+
     }
 
     public Stream<MetamodelVertexAndModelElementAndModelElementId> getMetamodelVertexAndModelElementAndModelElementIdStreamForMetamodelVertex(MetamodelVertex mv) {
@@ -63,9 +65,7 @@ public class ModelVertexInformationRetriever {
     }
 
     private Collection<ModelElement> getModelElementsOfVertex(MetamodelVertex mv) {
-        TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
-        tpl.setReadOnly(true);
-        return tpl.execute(status -> entityImporter.importEntities(mv, new ArrayList<>()).collect(Collectors.toSet())
+        return sourceTxTemplate.execute(status -> entityImporter.importEntities(mv, new ArrayList<>()).collect(Collectors.toSet())
         );
     }
 }

@@ -20,60 +20,46 @@ package net.osgiliath.migrator.core.db.inject;
  * #L%
  */
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
-import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
-import org.apache.tinkerpop.shaded.jackson.core.JsonProcessingException;
-import org.apache.tinkerpop.shaded.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
-import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.Optional;
 import java.util.stream.Stream;
-
-import static net.osgiliath.migrator.core.configuration.DataSourceConfiguration.SINK_TRANSACTION_MANAGER;
 
 @Component
 public class VertexPersister {
 
-    private final PlatformTransactionManager sinkPlatformTxManager;
     private final ModelElementProcessor modelElementProcessor;
+    private final ApplicationContext context;
     private static Logger log = LoggerFactory.getLogger(VertexPersister.class);
 
-    public VertexPersister(ModelElementProcessor modelElementProcessor, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager) {
+    public VertexPersister(ModelElementProcessor modelElementProcessor, ApplicationContext context) {
         this.modelElementProcessor = modelElementProcessor;
-        this.sinkPlatformTxManager = sinkPlatformTxManager;
+        this.context = context;
     }
 
     @SuppressWarnings("java:S3864")
-    public Stream<ModelElement> persistVertices(Stream<ModelElement> entities, PlatformTransactionManager sinkTxManager) {
-        EntityManagerFactory emf = ((JpaTransactionManager) sinkTxManager).getEntityManagerFactory();
+    public Stream<ModelElement> persistVertices(Stream<ModelElement> entities) {
         log.info("******************** Persisting a batch of entities ****************");
+
         try {
-            EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
             return entities
                     .peek((ModelElement me) -> {
-                        log.debug("Persisting entity of type {}, with id {}", me.rawElement(), modelElementProcessor.getId(me).get());
                         if (log.isInfoEnabled()) {
-                            ObjectMapper mapper = new ObjectMapper();
-                            try {
-                                log.info("Object passed to persist: {}", mapper.writer().writeValueAsString(me.rawElement()));
-                            } catch (JsonProcessingException e) {
-                                log.warn("Unable to serialize entity for logging", e);
-                            }
+                            log.info("Persisting entity of type {}", me.vertex().getTypeName());
+                        }
+                        if (log.isDebugEnabled()) {
+                            log.debug("Persisting with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get());
                         }
                     })
                     .map((ModelElement me) -> {
-                        //em.merge(me.rawElement());
-                        me.setRawElement(em.merge(me.rawElement()));
+                        CrudRepository elementRepo = getCrudRepositoryForVertex(me);
+                        elementRepo.save(me.rawElement());
+                        //  me.setRawElement(em.merge(me.rawElement()));
                         return me;
                     });
         } catch (Exception e) {
@@ -84,15 +70,11 @@ public class VertexPersister {
         return Stream.empty();
     }
 
-    Optional<ModelElement> reattachEntityInSink(ModelElement entity) {
-        JpaTransactionManager tm = (JpaTransactionManager) sinkPlatformTxManager;
-        EntityManagerFactory emf = tm.getEntityManagerFactory();
-        TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
-        tpl.setReadOnly(true);
-        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
-        return
-                modelElementProcessor.getId(entity).map(
-                        id -> new ModelElement(entity.vertex(), em.find(((JpaMetamodelVertex) entity.vertex()).entityClass(), id))
-                );
+    private CrudRepository getCrudRepositoryForVertex(ModelElement me) {
+        String[] typeDotSplitted = me.vertex().getTypeName().split("\\.");
+        String typeName = typeDotSplitted[typeDotSplitted.length - 1];
+        String typeToBean = Character.toLowerCase(typeName.charAt(0)) + typeName.substring(1);
+        CrudRepository elementRepo = ((CrudRepository) context.getBean(typeToBean + "Repository"));
+        return elementRepo;
     }
 }

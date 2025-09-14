@@ -23,6 +23,8 @@ package net.osgiliath.migrator.core.db.inject;
 import net.osgiliath.migrator.core.api.metamodel.model.FieldEdge;
 import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
+import net.osgiliath.migrator.core.api.sourcedb.EntityImporter;
+import net.osgiliath.migrator.core.configuration.DataMigratorConfiguration;
 import net.osgiliath.migrator.core.db.inject.model.ModelEdgeAndMetamodelEdge;
 import net.osgiliath.migrator.core.db.inject.model.ModelEdgeMetamodelEdgeAndTargetModelElement;
 import net.osgiliath.migrator.core.graph.ModelElementProcessor;
@@ -45,6 +47,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -63,16 +66,23 @@ public class SinkEntityInjector {
     private final MetamodelRequester metamodelGraphRequester;
     private final ModelElementProcessor modelElementProcessor;
     private final VertexResolver vertexResolver;
+    private final DataMigratorConfiguration dataMigratorConfiguration;
+    private final EntityImporter entityImporter;
     private final PlatformTransactionManager sinkPlatformTxManager;
+    private final TransactionTemplate sinktemplate;
 
 
-    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelRequester metamodelGraphRequester, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager) {
+    public SinkEntityInjector(VertexPersister vertexPersister, MetamodelRequester metamodelGraphRequester, ModelElementProcessor modelElementProcessor, VertexResolver vertexResolver, @Qualifier(SINK_TRANSACTION_MANAGER) PlatformTransactionManager sinkPlatformTxManager, DataMigratorConfiguration dataMigratorConfiguration, EntityImporter entityImporter) {
         super();
         this.sinkPlatformTxManager = sinkPlatformTxManager;
         this.vertexPersister = vertexPersister;
         this.metamodelGraphRequester = metamodelGraphRequester;
         this.modelElementProcessor = modelElementProcessor;
         this.vertexResolver = vertexResolver;
+        this.dataMigratorConfiguration = dataMigratorConfiguration;
+        this.entityImporter = entityImporter;
+        this.sinktemplate = new TransactionTemplate(sinkPlatformTxManager);
+
     }
 
     public void persist(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
@@ -84,7 +94,7 @@ public class SinkEntityInjector {
     private void processEntitiesWithoutCycles(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
 
         GraphTraversal<Vertex, Vertex> orphansElements = modelGraph.V().hasNot(PROCESSED).
-                not(outE()).property(PROCESSED, true);
+                or(not(outE()), not(out().hasNot(PROCESSED))).property(PROCESSED, true); // FIXME Triple check it's correct
         if (orphansElements.hasNext()) {
             log.info("Persisting leaf elements");
             persistTraversal(entityMetamodelGraph, orphansElements);
@@ -113,26 +123,34 @@ public class SinkEntityInjector {
     }
 
     private void persistTraversal(Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph, GraphTraversal<Vertex, Vertex> traversal) {
+        List<Vertex> vx = traversal
+                .toStream().toList();
+        Stream<ModelElement> streamToHydrate = vx.stream().map(ve -> vertexResolver.getModelElement(ve));
+        entityImporter.hydrateElements(streamToHydrate);
         Stream<ModelElement> res =
-                traversal
-                        .toStream()
+                vx.stream()
                         .map(modelVertex -> updateRawElementRelationshipsAccordingToGraphEdges(modelVertex, entityMetamodelGraph)
                         ).filter(
                                 me -> {
-                                    Optional<Object> id = modelElementProcessor.getId(me);
-                                    return id.isPresent() && id.get() != null &&
-                                            ((id.get() instanceof Long presentId && 0L != presentId) ||
-                                                    (id.get() instanceof String presentIdAsString && !presentIdAsString.isEmpty()) ||
-                                                    id.get().getClass().getAnnotation(jakarta.persistence.Embeddable.class) != null);
+                                    if (dataMigratorConfiguration.isEnsureNonNullPrimaryKey()) {
+                                        Optional<Object> id = modelElementProcessor.getId(me);
+                                        return id.map(
+                                                rawId -> rawId instanceof Long presentId && 0L != presentId
+                                                        || rawId instanceof String presentIdAsString && !presentIdAsString.isEmpty()
+                                                        || rawId.getClass().getAnnotation(jakarta.persistence.Embeddable.class) != null
+                                        ).orElse(false);
+                                    } else return true;
                                 }
-                        ).peek(me ->
-                                log.info("Persisting vertex of type {} with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get())
+                        ).peek(me -> {
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Persisting vertex of type {} with id {}", me.vertex().getTypeName(), modelElementProcessor.getId(me).get());
+                                    }
+                                }
                         );
-        TransactionTemplate tpl = new TransactionTemplate(sinkPlatformTxManager);
         try {
-            tpl.executeWithoutResult(
+            sinktemplate.executeWithoutResult(
                     act ->
-                            vertexPersister.persistVertices(res, sinkPlatformTxManager).toList()
+                            vertexPersister.persistVertices(res).toList()
             );
         } catch (Exception e) {
             log.error("Unable to save one element", e);
@@ -163,7 +181,7 @@ public class SinkEntityInjector {
 
     @java.lang.SuppressWarnings("java:S3864")
     ModelElement updateRawElementRelationshipsAccordingToGraphEdges(Vertex sourceVertex, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        ModelElement sourceModelElement = modelElementProcessor.unproxy(vertexResolver.getModelElement(sourceVertex));
+        ModelElement sourceModelElement = vertexResolver.getModelElement(sourceVertex);
         ModelElement sourceModelElementWithRelationshipsReset = modelElementProcessor.resetModelElementEdge(sourceModelElement);
         MetamodelVertex sourceMetamodelVertex = vertexResolver.getMetamodelVertex(sourceVertex);
         Collection<FieldEdge<MetamodelVertex>> fieldEdges = metamodelGraphRequester.getOutboundFieldEdges(sourceMetamodelVertex, entityMetamodelGraph);

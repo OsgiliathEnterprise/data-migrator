@@ -59,8 +59,17 @@ public class JpaEntityProcessor implements RawElementProcessor {
     private static final Logger log = LoggerFactory.getLogger(JpaEntityProcessor.class);
     private final PlatformTransactionManager sourcePlatformTxManager;
 
+    private final PersistenceUnitUtil unitUtil;
+    private final TransactionTemplate sourceTxTemplate;
+
     public JpaEntityProcessor(@Qualifier(SOURCE_TRANSACTION_MANAGER) PlatformTransactionManager sourcePlatformTxManager) {
         this.sourcePlatformTxManager = sourcePlatformTxManager;
+        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
+        var emf = tm.getEntityManagerFactory();
+        this.unitUtil =
+                emf.getPersistenceUnitUtil();
+        this.sourceTxTemplate = new TransactionTemplate(sourcePlatformTxManager);
+        sourceTxTemplate.setReadOnly(true);
     }
 
 
@@ -85,12 +94,9 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     @Override
     public Object unproxy(Object o) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
-        transactionTemplate.setReadOnly(true);
-        return transactionTemplate.execute(status -> {
+        return sourceTxTemplate.execute(status -> {
             Object ret = Hibernate.unproxy(o);
-            EntityManagerFactory emf = ((JpaTransactionManager) sourcePlatformTxManager).getEntityManagerFactory();
-            EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+            var em = EntityManagerFactoryUtils.getTransactionalEntityManager(((JpaTransactionManager) sourcePlatformTxManager).getEntityManagerFactory());
             em.detach(ret);
             return ret;
         });
@@ -164,17 +170,20 @@ public class JpaEntityProcessor implements RawElementProcessor {
 
     /**
      * Gets the primary key value.
+     * warning Source transaction manager and transaction should be started or log debug enabled.
      *
      * @param metamodelVertex the metamodel vertex.
      * @param entity          the entity.
      * @return the primary key value.
+     *
      */
     @Override
     // @Transactional(transactionManager = SOURCE_TRANSACTION_MANAGER, readOnly = true)
     public Optional<Object> getId(MetamodelVertex metamodelVertex, Object entity) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
-        transactionTemplate.setReadOnly(true);
-        return transactionTemplate.execute(status -> internalGetRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity));
+        if (log.isDebugEnabled()) {
+            return sourceTxTemplate.execute(status -> internalGetRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity));
+        }
+        return internalGetRawId(null != metamodelVertex ? ((JpaMetamodelVertex) metamodelVertex).entityClass() : entity.getClass(), entity);
     }
 
     private Optional<Object> internalGetRawId(Class entityClass, Object entity) {
@@ -247,33 +256,26 @@ public class JpaEntityProcessor implements RawElementProcessor {
     }
 
     private Object getRawElementFieldValue(Object entity, String attributeName) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
-        transactionTemplate.setReadOnly(true);
-        return transactionTemplate.execute(status -> internalGetRawElementValue(entity, attributeName));
+        return sourceTxTemplate.execute(status -> internalGetRawElementValue(entity, attributeName));
     }
 
     private Object internalGetRawElementValue(Object entity, String attributeName) {
-        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
-        EntityManagerFactory emf = tm.getEntityManagerFactory();
-        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+        var em = EntityManagerFactoryUtils.getTransactionalEntityManager(((JpaTransactionManager) sourcePlatformTxManager).getEntityManagerFactory());
         try {
-            if (null != em && isDetached(entity.getClass(), entity)) {
+            if (null != em && isDetached(em, entity.getClass(), entity)) {
                 entity = em.merge(entity);
                 em.refresh(entity);
             }
             Object entityToUse = entity;
             return Arrays.stream(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).filter(
                             pd -> pd.getName().equals(attributeName)
-                    ).map(PropertyDescriptor::getReadMethod).map(getterMethod -> {
+                    ).findAny()
+                    .map(PropertyDescriptor::getReadMethod).map(getterMethod -> {
                         try {
                             Object result = getterMethod.invoke(entityToUse);
                             if (null != em && null != result && result instanceof Collection results) {
-                                PersistenceUnitUtil unitUtil =
-                                        emf.getPersistenceUnitUtil();
                                 if (!unitUtil.isLoaded(entityToUse, attributeName)) { // TODO performance issue here, hack due to nofk
-                                    TransactionTemplate transactionTemplate = new TransactionTemplate(sourcePlatformTxManager);
-                                    transactionTemplate.setReadOnly(true);
-                                    transactionTemplate.execute(status -> results.iterator().hasNext());
+                                    sourceTxTemplate.execute(status -> results.iterator().hasNext());
                                 }
                             }
                             return result;
@@ -281,10 +283,9 @@ public class JpaEntityProcessor implements RawElementProcessor {
                             log.error("error while getting value for entity");
                             throw new RawElementMethodCallException(e);
                         }
-                    }).findAny()
-                    .orElseThrow(() -> new RuntimeException("No field named " + attributeName + " in " + entityToUse.getClass().getName()));
+                    }).orElse(null);
         } catch (IntrospectionException e) {
-            throw new RawElementMethodCallException(e);
+            throw new RawElementMethodCallException("No field named " + attributeName + " in " + entity.getClass().getName(), e);
         }
     }
 
@@ -295,11 +296,7 @@ public class JpaEntityProcessor implements RawElementProcessor {
      * @param entity      the entity.
      * @return the field value.
      */
-    private boolean isDetached(Class entityClass, Object entity) {
-        JpaTransactionManager tm = (JpaTransactionManager) sourcePlatformTxManager;
-        EntityManagerFactory emf = tm.getEntityManagerFactory();
-        EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
-
+    private boolean isDetached(EntityManager em, Class entityClass, Object entity) {
         Optional<Object> idValue = internalGetRawId(entityClass, entity);
         return idValue.map(id ->
                 !em.contains(entity)  // must not be managed now
