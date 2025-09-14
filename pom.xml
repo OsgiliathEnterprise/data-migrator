@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.5</version>
     </parent>
     <groupId>net.osgiliath.datamigrator</groupId>
     <artifactId>data-migrator</artifactId>
@@ -75,16 +76,16 @@
         <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
-        <liquibase.version>4.33.0</liquibase.version>
-        <spring-boot.version>3.5.4</spring-boot.version>
+        <liquibase.version>4.31.1</liquibase.version>
+        <spring-boot.version>3.5.5</spring-boot.version>
         <jdbc.h2.version>2.3.232</jdbc.h2.version>
         <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
         <jdbc.mysql.version>9.3.0</jdbc.mysql.version>
         <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
         <jdbc.mssql.version>12.10.1.jre11</jdbc.mssql.version>
         <jdbc.mariadb-java-client.version>3.5.4</jdbc.mariadb-java-client.version>
-        <hibernate.version>6.6.22.Final</hibernate.version>
-        <hibernate-tools.version>6.6.22.Final</hibernate-tools.version>
+        <hibernate.version>6.6.26.Final</hibernate.version>
+        <hibernate-tools.version>${hibernate.version}</hibernate-tools.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
@@ -168,7 +169,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -380,13 +381,14 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>

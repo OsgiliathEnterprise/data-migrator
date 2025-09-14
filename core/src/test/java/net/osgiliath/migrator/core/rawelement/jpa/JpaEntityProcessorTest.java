@@ -20,21 +20,19 @@ package net.osgiliath.migrator.core.rawelement.jpa;
  * #L%
  */
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import net.osgiliath.migrator.core.metamodel.impl.internal.jpa.model.JpaMetamodelVertex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -42,10 +40,13 @@ class JpaEntityProcessorTest {
 
     private JpaEntityProcessor jpaEntityProcessor;
     @Mock
-    private PlatformTransactionManager txMgr;
+    private JpaTransactionManager txMgr;
+    @Mock
+    private EntityManagerFactory emf;
 
     @BeforeEach
     void setup() {
+        when(txMgr.getEntityManagerFactory()).thenReturn(emf);
         jpaEntityProcessor = new JpaEntityProcessor(txMgr);
     }
 

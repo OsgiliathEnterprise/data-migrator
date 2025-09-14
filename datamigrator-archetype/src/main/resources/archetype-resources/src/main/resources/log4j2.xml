@@ -17,12 +17,13 @@
   limitations under the License.
   #L%
   -->
-#set( $symbol_pound = '#' )
-#set( $symbol_dollar = '$' )
-#set( $symbol_escape = '\' )
 <Configuration status="info">
     <Appenders>
-        <RandomAccessFile name="RandomAccessFile" fileName="target/exec.log" immediateFlush="false" append="false">
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable"/>
+        </Console>
+        <RandomAccessFile name="RandomAccessFile" fileName="target/exec.log" immediateFlush="false" append="true">
             <PatternLayout>
                 <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
             </PatternLayout>
@@ -30,15 +31,15 @@
     </Appenders>
     <Loggers>
         <!--<Logger name="org.hibernate.SQL" level="DEBUG">
-            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="RandomAccessFile"/>
         </Logger>
         <Logger name="org.hibernate.type.descriptor.sql" level="TRACE">
-            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="RandomAccessFile"/>
         </Logger> -->
         <!--<Logger name="${package}" level="TRACE">
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Logger> -->
-        <Root level="info">
+        <Root level="info"> <!-- Log level to debug or trace on net.osgiliath will drastically reduce the performances-->
             <AppenderRef ref="RandomAccessFile"/>
         </Root>
     </Loggers>

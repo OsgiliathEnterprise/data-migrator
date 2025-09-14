@@ -39,6 +39,7 @@ data-migrator:
       entity-class: net.osgiliath.datamigrator.sample.domain.Country
   graph-datasource:
     type: embedded
+  ensure-non-null-primary-key: true
 spring:
   #  threads:
   #    virtual:

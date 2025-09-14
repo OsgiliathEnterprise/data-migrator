@@ -24,6 +24,7 @@ import net.osgiliath.migrator.core.api.metamodel.model.MetamodelVertex;
 import net.osgiliath.migrator.core.api.model.ModelElement;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -39,4 +40,12 @@ public interface EntityImporter {
      * @return the list of imported entities from the DB.
      */
     Stream<ModelElement> importEntities(MetamodelVertex entityVertex, Collection<ModelElement> objectToExclude);
+
+    /**
+     * Hydrates every elements by calling toString on every field of the object to trigger persistence proxies
+     *
+     * @param source the stream of elements to hydrate.
+     * @return a list of hydrated elements.
+     */
+    List<ModelElement> hydrateElements(Stream<ModelElement> source);
 }

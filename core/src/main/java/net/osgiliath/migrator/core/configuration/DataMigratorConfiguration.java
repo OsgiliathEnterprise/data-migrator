@@ -46,6 +46,17 @@ public class DataMigratorConfiguration {
      */
     private List<String> sequence;
 
+
+    public boolean isEnsureNonNullPrimaryKey() {
+        return ensureNonNullPrimaryKey;
+    }
+
+    public void setEnsureNonNullPrimaryKey(boolean ensureNonNullPrimaryKey) {
+        this.ensureNonNullPrimaryKey = ensureNonNullPrimaryKey;
+    }
+
+    private boolean ensureNonNullPrimaryKey = false;
+
     /**
      * List of sequencers being able to handle the sequence.
      */

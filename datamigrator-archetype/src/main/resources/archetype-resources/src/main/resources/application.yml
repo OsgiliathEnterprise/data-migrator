@@ -6,9 +6,11 @@ data-migrator:
   #    - column-anonymize-2
   #    - anonymizer-custom-1
   sequencers:
-  # TODO    - name: rows-minimize-1
-  #      type: rows-minimize
-  #      rows-to-keep: 10
+  #    - name: rows-minimize-1
+  #      type: bean
+  #      transformer-class: net.osgiliath.migrator.modules.rowlimiter.RowLimiter
+  #      sequencer-options:
+  #        - rows-to-keep: 10
   # Included   - name: column-anonymize-1
   #      type: factory
   #      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
@@ -17,9 +19,7 @@ data-migrator:
   #        - column-name: firstName
   #          options:
   #            - faker: dragon_ball.characters # https://www.datafaker.net/documentation/getting-started/ for options, will default to a dragonball character if not set
-
-
-  #    - name: anonymizer-custom-1
+  #    - name: anonymizer-custom-1 # Cutsom bean
   #      type: bean
   #      transformer-class: net.osgiliath.migrator.sample.transformers.CountryTransformer
   #      entity-class: Country
@@ -28,6 +28,7 @@ data-migrator:
     #    type: remote
     #    port: 8182
     #    host: 127.0.0.1
+  ensure-non-null-primary-key: false # setting to true will decrease performance
 spring:
   #  threads:
   #    virtual:
@@ -66,7 +67,7 @@ spring:
           generate_statistics: false
           # modify batch size as necessary
           jdbc:
-            batch_size: 100 # tweak it to improve the perf
+            batch_size: 30 # tweak it to improve the perf, also configures the graph injection size (cannot be more than 3000-4000)
             time_zone: UTC
           order_inserts: true
           order_updates: true
@@ -80,7 +81,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    show-sql: true
+    # show-sql: true
   datasource:
     source:
       type: com.zaxxer.hikari.HikariDataSource
@@ -90,6 +91,8 @@ spring:
       hikari:
         poolName: HikariCPSource
         auto-commit: false
+        connection-test-query: "SELECT 1" # deactivate for database with ping
+        leak-detection-threshold: 60000
     sink:
       type: com.zaxxer.hikari.HikariDataSource
       url: @target.database.url@
@@ -98,5 +101,7 @@ spring:
       hikari:
         poolName: HikariCPSink
         auto-commit: false
+        connection-test-query: "SELECT 1" # deactivate for database with ping
+        leak-detection-threshold: 60000
   liquibase:
     enabled: false

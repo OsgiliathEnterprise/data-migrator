@@ -66,7 +66,8 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
     public void createEdges(GraphTraversalSource modelGraph, org.jgrapht.Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
         TransactionTemplate tpl = new TransactionTemplate(sourcePlatformTxManager);
         tpl.setReadOnly(true);
-        GraphTraversal sourceVertexEdgeAndTargetVertexList = tpl.execute(status ->  // TODO refine
+        //GraphTraversal sourceVertexEdgeAndTargetVertexList =
+        tpl.execute(status ->  // TODO refine
                 computeEdgesOfVertices(modelGraph, entityMetamodelGraph)
                         .reduce(modelGraph.inject(0), (
                                         GraphTraversal t1, SourceVertexFieldEdgeAndTargetVertex elt
@@ -76,17 +77,19 @@ public class TinkerpopModelGraphEdgeBuilder implements ModelGraphEdgeBuilder {
                                                 .addE(elt.edge().getFieldName())
                                                 .to(elt.targetVertex())
                                                 .property(MODEL_GRAPH_EDGE_METAMODEL_FIELD, elt.edge().getMetamodelField().getName())
-                                , GraphTraversal::concat)
+                                , GraphTraversal::concat).iterate()
         );
-        sourceVertexEdgeAndTargetVertexList.iterate();
+        //sourceVertexEdgeAndTargetVertexList.iterate();
     }
 
     private Stream<SourceVertexFieldEdgeAndTargetVertex> computeEdgesOfVertices(GraphTraversalSource modelGraph, Graph<MetamodelVertex, FieldEdge<MetamodelVertex>> entityMetamodelGraph) {
-        // ATTENTION : modelGraph.V().toStream() peut charger tous les sommets en mémoire selon l'implémentation.
-        // Privilégiez une itération paresseuse ou paginée si le graphe est volumineux.
+        // ATTENTION : modelGraph.V().toStream() can load every vertices into memory.
+        // Prefer lazy loading.
         return modelGraph.V().toStream().flatMap(v -> {
                     MetamodelVertex metamodelVertex = vertexResolver.getMetamodelVertex(v);
-                    log.info("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), vertexResolver.getVertexModelElementId(v));
+                    if (log.isDebugEnabled()) {
+                        log.debug("looking for edges for vertex of type {} with id {}", metamodelVertex.getTypeName(), vertexResolver.getVertexModelElementId(v));
+                    }
                     Collection<FieldEdge<MetamodelVertex>> edges = metamodelGraphRequester.getOutboundFieldEdges(metamodelVertex, entityMetamodelGraph);
                     return edges.stream().map(edge ->
                             new FieldEdgeTargetVertices(edge, relatedVerticesOfOutgoingEdgeFromModelElementRelationship(v, edge, modelGraph))
