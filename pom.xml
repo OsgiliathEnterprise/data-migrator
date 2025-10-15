@@ -188,7 +188,7 @@
                             <requireJavaVersion>
                                 <message>You are running an incompatible version of Java. Data migrator supports JDK 21.
                                 </message>
-                                <version>[21,22)</version>
+                                <version>[21,26)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
@@ -471,6 +471,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

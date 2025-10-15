@@ -68,6 +68,10 @@ spring:
           # modify batch size as necessary
           jdbc:
             batch_size: 30 # tweak it to improve the perf, also configures the graph injection size (cannot be more than 3000-4000)
+            # Mysql 500
+            # A large batch of inserts can create a very large SQL statement. Make sure the max_allowed_packet variable in your MySQL server configuration is large enough to handle the batches. If you see
+            #  errors related to packet size, you will need to increase this value in your MySQL server's my.cnf or my.ini file.
+            # Oracle 50
             time_zone: UTC
           order_inserts: true
           order_updates: true
