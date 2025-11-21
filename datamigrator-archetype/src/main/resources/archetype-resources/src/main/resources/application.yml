@@ -30,11 +30,12 @@ data-migrator:
     #    host: 127.0.0.1
   ensure-non-null-primary-key: false # setting to true will decrease performance
 spring:
-  #  threads:
-  #    virtual:
-  #      enabled: true
+  threads:
+    virtual:
+      enabled: true
   main:
     lazy-initialization: true
+    web-application-type: none
   jpa:
     source:
       properties:
@@ -97,6 +98,10 @@ spring:
         auto-commit: false
         connection-test-query: "SELECT 1" # deactivate for database with ping
         leak-detection-threshold: 60000
+        maximum-pool-size: 10
+        minimum-idle: 2
+        idle-timeout: 30000
+        max-lifetime: 1800000
     sink:
       type: com.zaxxer.hikari.HikariDataSource
       url: @target.database.url@
@@ -107,5 +112,9 @@ spring:
         auto-commit: false
         connection-test-query: "SELECT 1" # deactivate for database with ping
         leak-detection-threshold: 60000
+        maximum-pool-size: 10
+        minimum-idle: 2
+        idle-timeout: 30000
+        max-lifetime: 1800000
   liquibase:
     enabled: false

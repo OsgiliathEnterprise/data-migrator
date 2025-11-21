@@ -27,6 +27,20 @@
                 <include name="**/*.java"/>
             </fileset>
         </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern=",\slength=\d{4}\d+"/>
+            <substitution expression=", length=600"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@GeneratedValue\(.*\)"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
         <replace token=', nullable=false' value='' dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>

@@ -118,11 +118,76 @@ public class DataSourceConfiguration {
     private static DataSource createHikariDatasource(DataSourceProperties dataSourceProperties, HikariConfig hikariConfigProperties) {
         CustomHikariDatasource ds = dataSourceProperties.initializeDataSourceBuilder().type(CustomHikariDatasource.class)
                 .build();
+        if (null != hikariConfigProperties.getCatalog()) {
+            ds.setCatalog(hikariConfigProperties.getCatalog());
+        }
+        ds.setConnectionTimeout(hikariConfigProperties.getConnectionTimeout());
+        ds.setValidationTimeout(hikariConfigProperties.getValidationTimeout());
+        ds.setIdleTimeout(hikariConfigProperties.getIdleTimeout());
+        ds.setLeakDetectionThreshold(hikariConfigProperties.getLeakDetectionThreshold());
+        ds.setMaxLifetime(hikariConfigProperties.getMaxLifetime());
+        ds.setMaximumPoolSize(hikariConfigProperties.getMaximumPoolSize());
+        if (null != ds.getCredentials()) {
+            ds.setCredentials(ds.getCredentials());
+        }
+        ds.setInitializationFailTimeout(hikariConfigProperties.getInitializationFailTimeout());
+        if (null != hikariConfigProperties.getConnectionInitSql()) {
+            ds.setConnectionInitSql(hikariConfigProperties.getConnectionInitSql());
+        }
+        if (null != hikariConfigProperties.getConnectionTestQuery()) {
+            ds.setConnectionTestQuery(hikariConfigProperties.getConnectionTestQuery());
+        }
         if (null != hikariConfigProperties.getDataSourceClassName()) {
             ds.setDataSourceClassName(hikariConfigProperties.getDataSourceClassName());
         }
+        if (null != hikariConfigProperties.getDataSourceJNDI()) {
+            ds.setDataSourceJNDI(hikariConfigProperties.getDataSourceJNDI());
+        }
+        if (null != hikariConfigProperties.getDriverClassName()) {
+            ds.setDriverClassName(hikariConfigProperties.getDriverClassName());
+        }
+        if (null != hikariConfigProperties.getExceptionOverrideClassName()) {
+            hikariConfigProperties.setExceptionOverrideClassName(hikariConfigProperties.getExceptionOverrideClassName());
+        }
+        if (null != hikariConfigProperties.getExceptionOverride()) {
+            ds.setExceptionOverride(hikariConfigProperties.getExceptionOverride());
+        }
+        if (null != hikariConfigProperties.getJdbcUrl()) {
+            ds.setJdbcUrl(hikariConfigProperties.getJdbcUrl());
+        }
+        if (null != hikariConfigProperties.getPoolName()) {
+            ds.setPoolName(hikariConfigProperties.getPoolName());
+        }
+        if (null != hikariConfigProperties.getSchema()) {
+            ds.setSchema(hikariConfigProperties.getSchema());
+        }
+        if (null != hikariConfigProperties.getTransactionIsolation()) {
+            ds.setTransactionIsolation(hikariConfigProperties.getTransactionIsolation());
+        }
         ds.setAutoCommit(hikariConfigProperties.isAutoCommit());
-        ds.setPoolName(hikariConfigProperties.getPoolName());
+        ds.setReadOnly(hikariConfigProperties.isReadOnly());
+        ds.setIsolateInternalQueries(hikariConfigProperties.isIsolateInternalQueries());
+        ds.setRegisterMbeans(hikariConfigProperties.isRegisterMbeans());
+        ds.setAllowPoolSuspension(hikariConfigProperties.isAllowPoolSuspension());
+        if (null != hikariConfigProperties.getThreadFactory()) {
+            ds.setThreadFactory(hikariConfigProperties.getThreadFactory());
+        }
+        if (null != hikariConfigProperties.getScheduledExecutor()) {
+            ds.setScheduledExecutor(hikariConfigProperties.getScheduledExecutor());
+        }
+        if (null != hikariConfigProperties.getMetricsTrackerFactory()) {
+            ds.setMetricsTrackerFactory(hikariConfigProperties.getMetricsTrackerFactory());
+        }
+        if (null != hikariConfigProperties.getMetricRegistry()) {
+            ds.setMetricRegistry(hikariConfigProperties.getMetricRegistry());
+        }
+        if (null != hikariConfigProperties.getHealthCheckRegistry()) {
+            ds.setHealthCheckRegistry(hikariConfigProperties.getHealthCheckRegistry());
+        }
+        if (null != hikariConfigProperties.getHealthCheckProperties()) {
+            ds.setHealthCheckProperties(hikariConfigProperties.getHealthCheckProperties());
+        }
+        ds.setKeepaliveTime(hikariConfigProperties.getKeepaliveTime());
         return ds;
     }
 
