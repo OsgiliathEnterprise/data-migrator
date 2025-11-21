@@ -36,9 +36,9 @@ data-migrator:
 #    port: 8182
 #    host: 127.0.0.1
 spring:
-  #  threads:
-  #    virtual:
-  #      enabled: true
+  threads:
+    virtual:
+      enabled: true
   main:
     lazy-initialization: true
   jpa:

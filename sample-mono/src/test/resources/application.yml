@@ -41,13 +41,14 @@ data-migrator:
     type: embedded
   ensure-non-null-primary-key: true
 spring:
-  #  threads:
-  #    virtual:
-  #      enabled: true
+  threads:
+    virtual:
+      enabled: true
   profiles:
     active: test
   main:
     lazy-initialization: true
+    web-application-type: none
   jpa:
     source:
       properties:

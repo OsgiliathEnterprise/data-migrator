@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -72,7 +73,7 @@
         <maven.version>3.3.9</maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
+        <license-maven-plugin.version>2.7.0</license-maven-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.7</asciidoctor-maven-plugin.version>
         <asciidoctor.skip>false</asciidoctor.skip>
         <liquibase.version>4.31.1</liquibase.version>
@@ -88,6 +89,8 @@
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
     <build>
@@ -126,7 +129,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>${maven-javadoc-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -168,7 +171,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -188,7 +191,7 @@
                             <requireJavaVersion>
                                 <message>You are running an incompatible version of Java. Data migrator supports JDK 21.
                                 </message>
-                                <version>[21,22)</version>
+                                <version>[21,26)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
@@ -267,13 +270,13 @@
                 </plugin>
                 <plugin>
                     <!--start with basic information to get Liquibase plugin:
-                                     include <groupId>, <artifactID>, and <version> elements-->
+                                                         include <groupId>, <artifactID>, and <version> elements-->
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
                     <version>${liquibase.version}</version>
                     <configuration>
                         <!--set values for Liquibase properties and settings
-                                                 for example, the location of a properties file to use-->
+                                                                         for example, the location of a properties file to use-->
                         <changeLogFile>/config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>
                             ${project.build.directory}/config/liquibase/changelog/${maven.build.timestamp}_diff.xml
@@ -380,13 +383,14 @@
                             <phase>generate-sources</phase>
                             <configuration>
                                 <target>
-                                    <mkdir dir="${project.build.directory}/generated-sources/repositories" />
+                                    <mkdir dir="${project.build.directory}/generated-sources/repositories"/>
                                     <move todir="${project.build.directory}/generated-sources/repositories">
-                                        <fileset dir="${project.basedir}/src/main/java" includes="**/repository/*.java" />
+                                        <fileset dir="${project.basedir}/src/main/java"
+                                                 includes="**/repository/*.java"/>
                                     </move>
-                                    <property name="maven.project.build.directory" value="${project.build.directory}" />
-                                    <property name="maven.project.basedir" value="${project.basedir}" />
-                                    <ant antfile="build.xml" target="amendEntities" />
+                                    <property name="maven.project.build.directory" value="${project.build.directory}"/>
+                                    <property name="maven.project.basedir" value="${project.basedir}"/>
+                                    <ant antfile="build.xml" target="amendEntities"/>
                                 </target>
                             </configuration>
                             <goals>
@@ -413,16 +417,16 @@
                     </executions>
                 </plugin>
                 <!--<plugin>
-                            <groupId>org.sonatype.plugins</groupId>
-                            <artifactId>nexus-staging-maven-plugin</artifactId>
-                            <version>1.7.0</version>
-                            <extensions>true</extensions>
-                            <configuration>
-                                <serverId>ossrh</serverId>
-                                <nexusUrl>https://central.sonatype.com</nexusUrl>
-                                <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
-                            </configuration>
-                        </plugin>-->
+                                            <groupId>org.sonatype.plugins</groupId>
+                                            <artifactId>nexus-staging-maven-plugin</artifactId>
+                                            <version>1.7.0</version>
+                                            <extensions>true</extensions>
+                                            <configuration>
+                                                <serverId>ossrh</serverId>
+                                                <nexusUrl>https://central.sonatype.com</nexusUrl>
+                                                <autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+                                            </configuration>
+                                        </plugin>-->
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
@@ -443,7 +447,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.2.7</version>
+                    <version>${maven-gpg-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
@@ -471,6 +475,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

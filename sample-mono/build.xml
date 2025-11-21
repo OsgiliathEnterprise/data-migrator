@@ -1,10 +1,27 @@
 <project name="EntityPostProcessor" default="dist" basedir=".">
     <description>Post process the entities</description>
     <target name="amendEntities">
-        <replace token='precision=19' value='precision=9'
-                 dir="${maven.project.build.directory}">
-            <include name="**/*.java"/>
-        </replace>
+        <replaceregexp byline="true">
+            <regexp pattern=",\sprecision=\d(\d+)"/>
+            <substitution expression=", precision=9"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern=",\slength=\d{4}\d+"/>
+            <substitution expression=", length=600"/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="@GeneratedValue\(.*\)"/>
+            <substitution expression=""/>
+            <fileset dir="${maven.project.build.directory}">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
         <replace token=', nullable=false' value='' dir="${maven.project.build.directory}">
             <include name="**/*.java"/>
         </replace>
