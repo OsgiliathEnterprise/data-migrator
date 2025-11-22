@@ -75,7 +75,7 @@ Here's how you can configure the fake data generation (will replace all the valu
     - name: column-anonymize-1
       type: factory
       transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
-      entity-class: Employee
+      entity-class: com.mypackage.Employee
       column-transformation-definitions:
         - column-name: firstName
           consistent-key: True # will reuse value of a previously faked entry
