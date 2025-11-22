@@ -529,6 +529,7 @@
                 <module>modules</module>
                 <module>core</module>
                 <module>datamigrator-archetype</module>
+                <module>sample-mono</module>
                 <module>report-aggregate</module>
             </modules>
         </profile>
