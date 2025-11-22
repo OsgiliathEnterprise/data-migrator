@@ -90,7 +90,7 @@
         <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <querydsl.version>5.1.0</querydsl.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
-        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <jpa.domain.package>${project.groupId}.${project.artifactId}.domain</jpa.domain.package>
     </properties>
     <build>
