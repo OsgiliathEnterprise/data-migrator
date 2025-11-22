@@ -39,6 +39,8 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      - name: List keys
+        run: gpg -K
       - name: Build, test and report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -50,8 +52,6 @@ jobs:
           cd .. 
           ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pentities-from-changelog,coverage -Dsonar.projectKey=OsgiliathEnterprise_data-migrator
           rm -rf src/main/java
-      - name: List keys
-        run: gpg -K
       - name: Verify Whether a Release is Ready
         id: release
         shell: bash
