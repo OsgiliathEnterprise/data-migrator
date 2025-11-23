@@ -1,0 +1,784 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] datamigrator-parent                                                [pom]
+[INFO] datamigrator-bom                                                   [pom]
+[INFO] datamigrator-core                                                  [jar]
+[INFO] datamigrator-modules-parent                                        [pom]
+[INFO] datamigrator-modules-faker                                         [jar]
+[INFO] datamigrator-modules-row-limiter                                   [jar]
+[INFO] datamigrator-archetype                                 [maven-archetype]
+[INFO] 
+[INFO] --------------< net.osgiliath.datamigrator:data-migrator >--------------
+[INFO] Building datamigrator-parent 1.115-SNAPSHOT                        [1/7]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ data-migrator ---
+[INFO] net.osgiliath.datamigrator:data-migrator:pom:1.115-SNAPSHOT
+[INFO] 
+[INFO] ------------< net.osgiliath.datamigrator:data-migrator-bom >------------
+[INFO] Building datamigrator-bom 1.115-SNAPSHOT                           [2/7]
+[INFO]   from bom/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ data-migrator-bom ---
+[INFO] net.osgiliath.datamigrator:data-migrator-bom:pom:1.115-SNAPSHOT
+[INFO] 
+[INFO] -----------< net.osgiliath.datamigrator:data-migrator-core >------------
+[INFO] Building datamigrator-core 1.115-SNAPSHOT                          [3/7]
+[INFO]   from core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ data-migrator-core ---
+[INFO] net.osgiliath.datamigrator:data-migrator-core:jar:1.115-SNAPSHOT
+[INFO] +- jakarta.persistence:jakarta.persistence-api:jar:3.2.0:compile
+[INFO] +- org.apache.camel:camel-api:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel:camel-util:jar:4.9.0:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:2.0.17:compile
+[INFO] |  \- jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.4:compile
+[INFO] |     \- jakarta.activation:jakarta.activation-api:jar:2.1.4:compile
+[INFO] +- org.springframework.boot:spring-boot:jar:4.0.0:compile
+[INFO] |  +- org.springframework:spring-core:jar:7.0.1:compile
+[INFO] |  |  +- commons-logging:commons-logging:jar:1.3.5:compile
+[INFO] |  |  \- org.jspecify:jspecify:jar:1.0.0:compile
+[INFO] |  \- org.springframework:spring-context:jar:7.0.1:compile
+[INFO] |     +- org.springframework:spring-aop:jar:7.0.1:compile
+[INFO] |     +- org.springframework:spring-beans:jar:7.0.1:compile
+[INFO] |     +- org.springframework:spring-expression:jar:7.0.1:compile
+[INFO] |     \- io.micrometer:micrometer-observation:jar:1.16.0:compile
+[INFO] |        \- io.micrometer:micrometer-commons:jar:1.16.0:compile
+[INFO] +- org.springframework.boot:spring-boot-configuration-processor:jar:4.0.0:provided
+[INFO] +- org.springframework.boot:spring-boot-starter-log4j2:jar:4.0.0:compile
+[INFO] |  +- org.apache.logging.log4j:log4j-slf4j2-impl:jar:2.25.2:compile
+[INFO] |  |  \- org.apache.logging.log4j:log4j-api:jar:2.25.2:compile
+[INFO] |  +- org.apache.logging.log4j:log4j-core:jar:2.25.2:compile
+[INFO] |  \- org.apache.logging.log4j:log4j-jul:jar:2.25.2:compile
+[INFO] +- org.apache.camel.springboot:camel-spring-boot-starter:jar:4.9.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-autoconfigure:jar:4.0.0:compile
+[INFO] |  |  +- jakarta.annotation:jakarta.annotation-api:jar:3.0.0:compile
+[INFO] |  |  \- org.yaml:snakeyaml:jar:2.5:compile
+[INFO] |  +- org.apache.camel.springboot:camel-spring-boot:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel:camel-spring:jar:4.9.0:compile
+[INFO] |  |  |  +- org.apache.camel:camel-management-api:jar:4.9.0:compile
+[INFO] |  |  |  \- org.springframework:spring-tx:jar:7.0.1:compile
+[INFO] |  |  +- org.apache.camel:camel-spring-main:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-main:jar:4.9.0:compile
+[INFO] |  |  |     +- org.apache.camel:camel-base:jar:4.9.0:compile
+[INFO] |  |  |     \- org.apache.camel:camel-core-languages:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel:camel-util-json:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel:camel-cloud:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-core-model:jar:4.9.0:compile
+[INFO] |  |  |     \- org.apache.camel:camel-core-processor:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel:camel-cluster:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-base-engine:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-health:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-core-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-core-engine:jar:4.9.0:compile
+[INFO] |  |     +- org.apache.camel:camel-core-reifier:jar:4.9.0:compile
+[INFO] |  |     \- org.apache.camel:camel-support:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-bean-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-bean:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-browse-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-browse:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-controlbus-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-controlbus:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-dataformat-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-dataformat:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-dataset-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-dataset:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-direct-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-direct:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-file-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-file:jar:4.9.0:compile
+[INFO] |  |     \- commons-codec:commons-codec:jar:1.19.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-language-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-language:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-log-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-log:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-mock-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-mock:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-ref-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-ref:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-rest-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-rest:jar:4.9.0:compile
+[INFO] |  |     \- org.apache.camel:camel-tooling-model:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-saga-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-saga:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-scheduler-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-scheduler:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-seda-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-seda:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-stub-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-stub:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-timer-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-timer:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-validator-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-validator:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-xpath-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-xpath:jar:4.9.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-xslt-starter:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel:camel-xslt:jar:4.9.0:compile
+[INFO] |  \- org.apache.camel.springboot:camel-xml-jaxp-starter:jar:4.9.0:compile
+[INFO] |     \- org.apache.camel:camel-xml-jaxp:jar:4.9.0:compile
+[INFO] |        +- org.apache.camel:camel-xml-jaxp-util:jar:4.9.0:compile
+[INFO] |        \- org.apache.camel:camel-xml-io-util:jar:4.9.0:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-test:jar:4.0.0:test
+[INFO] |  +- org.springframework.boot:spring-boot-test:jar:4.0.0:test
+[INFO] |  +- org.springframework.boot:spring-boot-test-autoconfigure:jar:4.0.0:test
+[INFO] |  +- com.jayway.jsonpath:json-path:jar:2.9.0:test
+[INFO] |  +- net.minidev:json-smart:jar:2.6.0:test
+[INFO] |  |  \- net.minidev:accessors-smart:jar:2.6.0:test
+[INFO] |  |     \- org.ow2.asm:asm:jar:9.7.1:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.27.6:test
+[INFO] |  |  \- net.bytebuddy:byte-buddy:jar:1.17.8:runtime
+[INFO] |  +- org.awaitility:awaitility:jar:4.3.0:test
+[INFO] |  +- org.hamcrest:hamcrest:jar:3.0:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter:jar:6.0.1:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-api:jar:6.0.1:test
+[INFO] |  |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  |  +- org.junit.platform:junit-platform-commons:jar:6.0.1:test
+[INFO] |  |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-params:jar:6.0.1:test
+[INFO] |  |  \- org.junit.jupiter:junit-jupiter-engine:jar:6.0.1:test
+[INFO] |  |     \- org.junit.platform:junit-platform-engine:jar:6.0.1:test
+[INFO] |  +- org.mockito:mockito-core:jar:5.20.0:test
+[INFO] |  |  +- net.bytebuddy:byte-buddy-agent:jar:1.17.8:test
+[INFO] |  |  \- org.objenesis:objenesis:jar:3.3:test
+[INFO] |  +- org.mockito:mockito-junit-jupiter:jar:5.20.0:test
+[INFO] |  +- org.skyscreamer:jsonassert:jar:1.5.3:test
+[INFO] |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
+[INFO] |  +- org.springframework:spring-test:jar:7.0.1:test
+[INFO] |  \- org.xmlunit:xmlunit-core:jar:2.10.4:test
+[INFO] +- org.jgrapht:jgrapht-core:jar:1.5.2:compile
+[INFO] |  +- org.jheaps:jheaps:jar:0.14:compile
+[INFO] |  \- org.apfloat:apfloat:jar:1.10.1:compile
+[INFO] +- org.jgrapht:jgrapht-io:jar:1.5.2:compile
+[INFO] |  +- org.antlr:antlr4-runtime:jar:4.12.0:compile
+[INFO] |  \- org.apache.commons:commons-text:jar:1.10.0:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-data-jpa:jar:4.0.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-jdbc:jar:4.0.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-data-jpa:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-data-commons:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-persistence:jar:4.0.0:compile
+[INFO] |  |  |  \- org.springframework.data:spring-data-commons:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-hibernate:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-jpa:jar:4.0.0:compile
+[INFO] |  |  |  \- org.springframework:spring-orm:jar:7.0.1:compile
+[INFO] |  |  +- org.springframework.data:spring-data-jpa:jar:4.0.0:compile
+[INFO] |  |  \- org.springframework:spring-aspects:jar:7.0.1:compile
+[INFO] |  |     \- org.aspectj:aspectjweaver:jar:1.9.25:compile
+[INFO] |  \- org.springframework.boot:spring-boot-jdbc:jar:4.0.0:compile
+[INFO] |     +- org.springframework.boot:spring-boot-sql:jar:4.0.0:compile
+[INFO] |     +- org.springframework.boot:spring-boot-transaction:jar:4.0.0:compile
+[INFO] |     \- org.springframework:spring-jdbc:jar:7.0.1:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:4.0.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-jackson:jar:4.0.0:compile
+[INFO] |  |  \- org.springframework.boot:spring-boot-jackson:jar:4.0.0:compile
+[INFO] |  |     \- tools.jackson.core:jackson-databind:jar:3.0.2:compile
+[INFO] |  |        +- com.fasterxml.jackson.core:jackson-annotations:jar:2.20:compile
+[INFO] |  |        \- tools.jackson.core:jackson-core:jar:3.0.2:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-tomcat-runtime:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-web-server:jar:4.0.0:compile
+[INFO] |  |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:11.0.14:compile
+[INFO] |  |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:11.0.14:compile
+[INFO] |  |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:11.0.14:compile
+[INFO] |  |  \- org.springframework.boot:spring-boot-tomcat:jar:4.0.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-http-converter:jar:4.0.0:compile
+[INFO] |  |  \- org.springframework:spring-web:jar:7.0.1:compile
+[INFO] |  \- org.springframework.boot:spring-boot-webmvc:jar:4.0.0:compile
+[INFO] |     +- org.springframework.boot:spring-boot-servlet:jar:4.0.0:compile
+[INFO] |     \- org.springframework:spring-webmvc:jar:7.0.1:compile
+[INFO] +- org.apache.tinkerpop:gremlin-driver:jar:3.7.4:compile
+[INFO] |  +- org.apache.tinkerpop:gremlin-core:jar:3.7.4:compile
+[INFO] |  |  +- org.apache.tinkerpop:gremlin-shaded:jar:3.7.4:compile
+[INFO] |  |  +- org.apache.tinkerpop:gremlin-language:jar:3.7.4:compile
+[INFO] |  |  |  \- org.javatuples:javatuples:jar:1.2:compile
+[INFO] |  |  +- org.slf4j:jcl-over-slf4j:jar:2.0.17:compile
+[INFO] |  |  +- org.apache.commons:commons-configuration2:jar:2.9.0:compile
+[INFO] |  |  +- commons-beanutils:commons-beanutils:jar:1.9.4:compile
+[INFO] |  |  +- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  |  +- com.carrotsearch:hppc:jar:0.7.1:compile
+[INFO] |  |  +- com.squareup:javapoet:jar:1.13.0:compile
+[INFO] |  |  \- net.objecthunter:exp4j:jar:0.4.8:compile
+[INFO] |  +- org.apache.tinkerpop:gremlin-util:jar:3.7.4:compile
+[INFO] |  +- io.netty:netty-all:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-buffer:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-base:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-dns:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-haproxy:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-compression:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-http:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-http2:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-http3:jar:4.2.7.Final:compile
+[INFO] |  |  +- org.jctools:jctools-core:jar:4.0.5:compile
+[INFO] |  |  +- io.netty:netty-transport-native-unix-common:jar:4.2.7.Final:compile
+[INFO] |  |  +- org.bouncycastle:bcprov-jdk18on:jar:1.80:compile
+[INFO] |  |  +- io.netty:netty-codec-memcache:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-mqtt:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-redis:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-smtp:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-socks:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-stomp:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-xml:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-protobuf:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-marshalling:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-common:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-handler:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-handler-proxy:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-handler-ssl-ocsp:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-resolver:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-resolver-dns:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-rxtx:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-sctp:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-udt:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-classes-epoll:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-classes-kqueue:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-resolver-dns-classes-macos:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-classes-io_uring:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-classes-quic:jar:4.2.7.Final:compile
+[INFO] |  |  +- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-epoll:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-epoll:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-codec-native-quic:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-codec-native-quic:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-codec-native-quic:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  +- io.netty:netty-codec-native-quic:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  \- io.netty:netty-codec-native-quic:jar:windows-x86_64:4.2.7.Final:runtime
+[INFO] |  \- org.apache.commons:commons-lang3:jar:3.19.0:compile
+[INFO] +- org.apache.tinkerpop:tinkergraph-gremlin:jar:3.7.4:compile
+[INFO] \- org.hibernate.orm:hibernate-hikaricp:jar:6.6.26.Final:compile
+[INFO]    +- org.jboss.logging:jboss-logging:jar:3.6.1.Final:runtime
+[INFO]    +- org.hibernate.orm:hibernate-core:jar:6.6.26.Final:compile
+[INFO]    |  +- jakarta.transaction:jakarta.transaction-api:jar:2.0.1:compile
+[INFO]    |  +- org.hibernate.common:hibernate-commons-annotations:jar:7.0.3.Final:runtime
+[INFO]    |  +- io.smallrye:jandex:jar:3.2.0:runtime
+[INFO]    |  +- com.fasterxml:classmate:jar:1.7.1:runtime
+[INFO]    |  +- org.glassfish.jaxb:jaxb-runtime:jar:4.0.6:runtime
+[INFO]    |  |  \- org.glassfish.jaxb:jaxb-core:jar:4.0.6:runtime
+[INFO]    |  |     +- org.eclipse.angus:angus-activation:jar:2.0.3:runtime
+[INFO]    |  |     +- org.glassfish.jaxb:txw2:jar:4.0.6:runtime
+[INFO]    |  |     \- com.sun.istack:istack-commons-runtime:jar:4.1.2:runtime
+[INFO]    |  \- jakarta.inject:jakarta.inject-api:jar:2.0.1:runtime
+[INFO]    \- com.zaxxer:HikariCP:jar:7.0.2:compile
+[INFO] 
+[INFO] ------< net.osgiliath.datamigrator.modules:data-migrator-modules >------
+[INFO] Building datamigrator-modules-parent 1.115-SNAPSHOT                [4/7]
+[INFO]   from modules/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ data-migrator-modules ---
+[INFO] net.osgiliath.datamigrator.modules:data-migrator-modules:pom:1.115-SNAPSHOT
+[INFO] 
+[INFO] --------------< net.osgiliath.datamigrator.modules:faker >--------------
+[INFO] Building datamigrator-modules-faker 1.115-SNAPSHOT                 [5/7]
+[INFO]   from modules/faker/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ faker ---
+[INFO] net.osgiliath.datamigrator.modules:faker:jar:1.115-SNAPSHOT
+[INFO] +- net.datafaker:datafaker:jar:2.4.4:compile
+[INFO] |  +- org.yaml:snakeyaml:jar:2.5:compile
+[INFO] |  +- com.github.curious-odd-man:rgxgen:jar:3.0:compile
+[INFO] |  \- com.googlecode.libphonenumber:libphonenumber:jar:9.0.9:compile
+[INFO] +- net.osgiliath.datamigrator:data-migrator-core:jar:1.115-SNAPSHOT:compile
+[INFO] |  +- jakarta.persistence:jakarta.persistence-api:jar:3.2.0:compile
+[INFO] |  +- org.apache.camel:camel-api:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel:camel-util:jar:4.9.0:compile
+[INFO] |  |  \- org.slf4j:slf4j-api:jar:2.0.17:compile
+[INFO] |  +- org.springframework.boot:spring-boot:jar:4.0.0:compile
+[INFO] |  |  \- org.springframework:spring-context:jar:7.0.1:compile
+[INFO] |  |     +- org.springframework:spring-aop:jar:7.0.1:compile
+[INFO] |  |     +- org.springframework:spring-beans:jar:7.0.1:compile
+[INFO] |  |     +- org.springframework:spring-expression:jar:7.0.1:compile
+[INFO] |  |     \- io.micrometer:micrometer-observation:jar:1.16.0:compile
+[INFO] |  |        \- io.micrometer:micrometer-commons:jar:1.16.0:compile
+[INFO] |  +- org.apache.camel.springboot:camel-spring-boot-starter:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-spring-boot:jar:4.9.0:compile
+[INFO] |  |  |  +- org.apache.camel:camel-spring:jar:4.9.0:compile
+[INFO] |  |  |  |  +- org.apache.camel:camel-management-api:jar:4.9.0:compile
+[INFO] |  |  |  |  \- org.springframework:spring-tx:jar:7.0.1:compile
+[INFO] |  |  |  +- org.apache.camel:camel-spring-main:jar:4.9.0:compile
+[INFO] |  |  |  |  \- org.apache.camel:camel-main:jar:4.9.0:compile
+[INFO] |  |  |  |     +- org.apache.camel:camel-base:jar:4.9.0:compile
+[INFO] |  |  |  |     \- org.apache.camel:camel-core-languages:jar:4.9.0:compile
+[INFO] |  |  |  +- org.apache.camel:camel-util-json:jar:4.9.0:compile
+[INFO] |  |  |  +- org.apache.camel:camel-cloud:jar:4.9.0:compile
+[INFO] |  |  |  |  \- org.apache.camel:camel-core-model:jar:4.9.0:compile
+[INFO] |  |  |  |     \- org.apache.camel:camel-core-processor:jar:4.9.0:compile
+[INFO] |  |  |  +- org.apache.camel:camel-cluster:jar:4.9.0:compile
+[INFO] |  |  |  |  \- org.apache.camel:camel-base-engine:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-health:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-core-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-core-engine:jar:4.9.0:compile
+[INFO] |  |  |     +- org.apache.camel:camel-core-reifier:jar:4.9.0:compile
+[INFO] |  |  |     \- org.apache.camel:camel-support:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-bean-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-bean:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-browse-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-browse:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-controlbus-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-controlbus:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-dataformat-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-dataformat:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-dataset-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-dataset:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-direct-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-direct:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-file-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-file:jar:4.9.0:compile
+[INFO] |  |  |     \- commons-codec:commons-codec:jar:1.19.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-language-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-language:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-log-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-log:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-mock-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-mock:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-ref-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-ref:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-rest-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-rest:jar:4.9.0:compile
+[INFO] |  |  |     \- org.apache.camel:camel-tooling-model:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-saga-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-saga:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-scheduler-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-scheduler:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-seda-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-seda:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-stub-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-stub:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-timer-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-timer:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-validator-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-validator:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-xpath-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-xpath:jar:4.9.0:compile
+[INFO] |  |  +- org.apache.camel.springboot:camel-xslt-starter:jar:4.9.0:compile
+[INFO] |  |  |  \- org.apache.camel:camel-xslt:jar:4.9.0:compile
+[INFO] |  |  \- org.apache.camel.springboot:camel-xml-jaxp-starter:jar:4.9.0:compile
+[INFO] |  |     \- org.apache.camel:camel-xml-jaxp:jar:4.9.0:compile
+[INFO] |  |        +- org.apache.camel:camel-xml-jaxp-util:jar:4.9.0:compile
+[INFO] |  |        \- org.apache.camel:camel-xml-io-util:jar:4.9.0:compile
+[INFO] |  +- org.jgrapht:jgrapht-core:jar:1.5.2:compile
+[INFO] |  |  +- org.jheaps:jheaps:jar:0.14:compile
+[INFO] |  |  \- org.apfloat:apfloat:jar:1.10.1:compile
+[INFO] |  +- org.jgrapht:jgrapht-io:jar:1.5.2:compile
+[INFO] |  |  +- org.antlr:antlr4-runtime:jar:4.12.0:compile
+[INFO] |  |  \- org.apache.commons:commons-text:jar:1.10.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-data-jpa:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-jdbc:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-data-jpa:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-data-commons:jar:4.0.0:compile
+[INFO] |  |  |  |  +- org.springframework.boot:spring-boot-persistence:jar:4.0.0:compile
+[INFO] |  |  |  |  \- org.springframework.data:spring-data-commons:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-hibernate:jar:4.0.0:compile
+[INFO] |  |  |  |  +- org.springframework.boot:spring-boot-jpa:jar:4.0.0:compile
+[INFO] |  |  |  |  \- org.springframework:spring-orm:jar:7.0.1:compile
+[INFO] |  |  |  +- org.springframework.data:spring-data-jpa:jar:4.0.0:compile
+[INFO] |  |  |  \- org.springframework:spring-aspects:jar:7.0.1:compile
+[INFO] |  |  |     \- org.aspectj:aspectjweaver:jar:1.9.25:compile
+[INFO] |  |  \- org.springframework.boot:spring-boot-jdbc:jar:4.0.0:compile
+[INFO] |  |     +- org.springframework.boot:spring-boot-sql:jar:4.0.0:compile
+[INFO] |  |     +- org.springframework.boot:spring-boot-transaction:jar:4.0.0:compile
+[INFO] |  |     \- org.springframework:spring-jdbc:jar:7.0.1:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-web:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-jackson:jar:4.0.0:compile
+[INFO] |  |  |  \- org.springframework.boot:spring-boot-jackson:jar:4.0.0:compile
+[INFO] |  |  |     \- tools.jackson.core:jackson-databind:jar:3.0.2:compile
+[INFO] |  |  |        +- com.fasterxml.jackson.core:jackson-annotations:jar:2.20:compile
+[INFO] |  |  |        \- tools.jackson.core:jackson-core:jar:3.0.2:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:4.0.0:compile
+[INFO] |  |  |  +- org.springframework.boot:spring-boot-starter-tomcat-runtime:jar:4.0.0:compile
+[INFO] |  |  |  |  +- org.springframework.boot:spring-boot-web-server:jar:4.0.0:compile
+[INFO] |  |  |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:11.0.14:compile
+[INFO] |  |  |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:11.0.14:compile
+[INFO] |  |  |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:11.0.14:compile
+[INFO] |  |  |  \- org.springframework.boot:spring-boot-tomcat:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-http-converter:jar:4.0.0:compile
+[INFO] |  |  |  \- org.springframework:spring-web:jar:7.0.1:compile
+[INFO] |  |  \- org.springframework.boot:spring-boot-webmvc:jar:4.0.0:compile
+[INFO] |  |     +- org.springframework.boot:spring-boot-servlet:jar:4.0.0:compile
+[INFO] |  |     \- org.springframework:spring-webmvc:jar:7.0.1:compile
+[INFO] |  +- org.apache.tinkerpop:gremlin-driver:jar:3.7.4:compile
+[INFO] |  |  +- org.apache.tinkerpop:gremlin-core:jar:3.7.4:compile
+[INFO] |  |  |  +- org.apache.tinkerpop:gremlin-shaded:jar:3.7.4:compile
+[INFO] |  |  |  +- org.apache.tinkerpop:gremlin-language:jar:3.7.4:compile
+[INFO] |  |  |  |  \- org.javatuples:javatuples:jar:1.2:compile
+[INFO] |  |  |  +- org.slf4j:jcl-over-slf4j:jar:2.0.17:compile
+[INFO] |  |  |  +- org.apache.commons:commons-configuration2:jar:2.9.0:compile
+[INFO] |  |  |  +- commons-beanutils:commons-beanutils:jar:1.9.4:compile
+[INFO] |  |  |  +- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  |  |  +- com.carrotsearch:hppc:jar:0.7.1:compile
+[INFO] |  |  |  +- com.squareup:javapoet:jar:1.13.0:compile
+[INFO] |  |  |  \- net.objecthunter:exp4j:jar:0.4.8:compile
+[INFO] |  |  +- org.apache.tinkerpop:gremlin-util:jar:3.7.4:compile
+[INFO] |  |  +- io.netty:netty-all:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-buffer:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-base:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-dns:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-haproxy:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-compression:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-http:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-http2:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-http3:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- org.jctools:jctools-core:jar:4.0.5:compile
+[INFO] |  |  |  +- io.netty:netty-transport-native-unix-common:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- org.bouncycastle:bcprov-jdk18on:jar:1.80:compile
+[INFO] |  |  |  +- io.netty:netty-codec-memcache:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-mqtt:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-redis:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-smtp:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-socks:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-stomp:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-xml:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-protobuf:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-marshalling:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-common:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-handler:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-handler-proxy:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-handler-ssl-ocsp:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-resolver:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-resolver-dns:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-rxtx:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-sctp:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-udt:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-classes-epoll:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-classes-kqueue:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-resolver-dns-classes-macos:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-classes-io_uring:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-codec-classes-quic:jar:4.2.7.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-epoll:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-epoll:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-codec-native-quic:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-codec-native-quic:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-codec-native-quic:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO] |  |  |  +- io.netty:netty-codec-native-quic:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO] |  |  |  \- io.netty:netty-codec-native-quic:jar:windows-x86_64:4.2.7.Final:runtime
+[INFO] |  |  \- org.apache.commons:commons-lang3:jar:3.19.0:compile
+[INFO] |  +- org.apache.tinkerpop:tinkergraph-gremlin:jar:3.7.4:compile
+[INFO] |  \- org.hibernate.orm:hibernate-hikaricp:jar:6.6.26.Final:compile
+[INFO] |     +- org.jboss.logging:jboss-logging:jar:3.6.1.Final:runtime
+[INFO] |     +- org.hibernate.orm:hibernate-core:jar:6.6.26.Final:compile
+[INFO] |     |  +- jakarta.transaction:jakarta.transaction-api:jar:2.0.1:compile
+[INFO] |     |  +- org.hibernate.common:hibernate-commons-annotations:jar:7.0.3.Final:runtime
+[INFO] |     |  +- io.smallrye:jandex:jar:3.2.0:runtime
+[INFO] |     |  +- com.fasterxml:classmate:jar:1.7.1:runtime
+[INFO] |     |  +- org.glassfish.jaxb:jaxb-runtime:jar:4.0.6:runtime
+[INFO] |     |  |  \- org.glassfish.jaxb:jaxb-core:jar:4.0.6:runtime
+[INFO] |     |  |     +- org.eclipse.angus:angus-activation:jar:2.0.3:runtime
+[INFO] |     |  |     +- org.glassfish.jaxb:txw2:jar:4.0.6:runtime
+[INFO] |     |  |     \- com.sun.istack:istack-commons-runtime:jar:4.1.2:runtime
+[INFO] |     |  \- jakarta.inject:jakarta.inject-api:jar:2.0.1:runtime
+[INFO] |     \- com.zaxxer:HikariCP:jar:7.0.2:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-test:jar:4.0.0:test
+[INFO] |  +- org.springframework.boot:spring-boot-starter:jar:4.0.0:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-logging:jar:4.0.0:compile
+[INFO] |  |  |  +- ch.qos.logback:logback-classic:jar:1.5.21:compile
+[INFO] |  |  |  |  \- ch.qos.logback:logback-core:jar:1.5.21:compile
+[INFO] |  |  |  \- org.slf4j:jul-to-slf4j:jar:2.0.17:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-autoconfigure:jar:4.0.0:compile
+[INFO] |  |  \- jakarta.annotation:jakarta.annotation-api:jar:3.0.0:compile
+[INFO] |  +- org.springframework.boot:spring-boot-test:jar:4.0.0:test
+[INFO] |  +- org.springframework.boot:spring-boot-test-autoconfigure:jar:4.0.0:test
+[INFO] |  +- com.jayway.jsonpath:json-path:jar:2.9.0:test
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.4:compile
+[INFO] |  |  \- jakarta.activation:jakarta.activation-api:jar:2.1.4:compile
+[INFO] |  +- net.minidev:json-smart:jar:2.6.0:test
+[INFO] |  |  \- net.minidev:accessors-smart:jar:2.6.0:test
+[INFO] |  |     \- org.ow2.asm:asm:jar:9.7.1:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.27.6:test
+[INFO] |  |  \- net.bytebuddy:byte-buddy:jar:1.17.8:runtime
+[INFO] |  +- org.awaitility:awaitility:jar:4.3.0:test
+[INFO] |  +- org.hamcrest:hamcrest:jar:3.0:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter:jar:6.0.1:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-api:jar:6.0.1:test
+[INFO] |  |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  |  +- org.junit.platform:junit-platform-commons:jar:6.0.1:test
+[INFO] |  |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-params:jar:6.0.1:test
+[INFO] |  |  \- org.junit.jupiter:junit-jupiter-engine:jar:6.0.1:test
+[INFO] |  |     \- org.junit.platform:junit-platform-engine:jar:6.0.1:test
+[INFO] |  +- org.mockito:mockito-core:jar:5.20.0:test
+[INFO] |  |  +- net.bytebuddy:byte-buddy-agent:jar:1.17.8:test
+[INFO] |  |  \- org.objenesis:objenesis:jar:3.3:test
+[INFO] |  +- org.mockito:mockito-junit-jupiter:jar:5.20.0:test
+[INFO] |  +- org.skyscreamer:jsonassert:jar:1.5.3:test
+[INFO] |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
+[INFO] |  +- org.springframework:spring-core:jar:7.0.1:compile
+[INFO] |  |  +- commons-logging:commons-logging:jar:1.3.5:compile
+[INFO] |  |  \- org.jspecify:jspecify:jar:1.0.0:compile
+[INFO] |  +- org.springframework:spring-test:jar:7.0.1:test
+[INFO] |  \- org.xmlunit:xmlunit-core:jar:2.10.4:test
+[INFO] \- org.springframework.boot:spring-boot-starter-log4j2:jar:4.0.0:compile
+[INFO]    +- org.apache.logging.log4j:log4j-slf4j2-impl:jar:2.25.2:compile
+[INFO]    |  \- org.apache.logging.log4j:log4j-api:jar:2.25.2:compile
+[INFO]    +- org.apache.logging.log4j:log4j-core:jar:2.25.2:compile
+[INFO]    \- org.apache.logging.log4j:log4j-jul:jar:2.25.2:compile
+[INFO] 
+[INFO] -----------< net.osgiliath.datamigrator.modules:row-limiter >-----------
+[INFO] Building datamigrator-modules-row-limiter 1.115-SNAPSHOT           [6/7]
+[INFO]   from modules/row-limiter/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ row-limiter ---
+[INFO] net.osgiliath.datamigrator.modules:row-limiter:jar:1.115-SNAPSHOT
+[INFO] \- net.osgiliath.datamigrator:data-migrator-core:jar:1.115-SNAPSHOT:compile
+[INFO]    +- jakarta.persistence:jakarta.persistence-api:jar:3.2.0:compile
+[INFO]    +- org.apache.camel:camel-api:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel:camel-util:jar:4.9.0:compile
+[INFO]    |  +- org.slf4j:slf4j-api:jar:2.0.17:compile
+[INFO]    |  \- jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.4:compile
+[INFO]    |     \- jakarta.activation:jakarta.activation-api:jar:2.1.4:compile
+[INFO]    +- org.springframework.boot:spring-boot:jar:4.0.0:compile
+[INFO]    |  +- org.springframework:spring-core:jar:7.0.1:compile
+[INFO]    |  |  +- commons-logging:commons-logging:jar:1.3.5:compile
+[INFO]    |  |  \- org.jspecify:jspecify:jar:1.0.0:compile
+[INFO]    |  \- org.springframework:spring-context:jar:7.0.1:compile
+[INFO]    |     +- org.springframework:spring-aop:jar:7.0.1:compile
+[INFO]    |     +- org.springframework:spring-beans:jar:7.0.1:compile
+[INFO]    |     +- org.springframework:spring-expression:jar:7.0.1:compile
+[INFO]    |     \- io.micrometer:micrometer-observation:jar:1.16.0:compile
+[INFO]    |        \- io.micrometer:micrometer-commons:jar:1.16.0:compile
+[INFO]    +- org.springframework.boot:spring-boot-starter-log4j2:jar:4.0.0:compile
+[INFO]    |  +- org.apache.logging.log4j:log4j-slf4j2-impl:jar:2.25.2:compile
+[INFO]    |  |  \- org.apache.logging.log4j:log4j-api:jar:2.25.2:compile
+[INFO]    |  +- org.apache.logging.log4j:log4j-core:jar:2.25.2:compile
+[INFO]    |  \- org.apache.logging.log4j:log4j-jul:jar:2.25.2:compile
+[INFO]    +- org.apache.camel.springboot:camel-spring-boot-starter:jar:4.9.0:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-starter:jar:4.0.0:compile
+[INFO]    |  |  +- org.springframework.boot:spring-boot-autoconfigure:jar:4.0.0:compile
+[INFO]    |  |  +- jakarta.annotation:jakarta.annotation-api:jar:3.0.0:compile
+[INFO]    |  |  \- org.yaml:snakeyaml:jar:2.5:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-spring-boot:jar:4.9.0:compile
+[INFO]    |  |  +- org.apache.camel:camel-spring:jar:4.9.0:compile
+[INFO]    |  |  |  +- org.apache.camel:camel-management-api:jar:4.9.0:compile
+[INFO]    |  |  |  \- org.springframework:spring-tx:jar:7.0.1:compile
+[INFO]    |  |  +- org.apache.camel:camel-spring-main:jar:4.9.0:compile
+[INFO]    |  |  |  \- org.apache.camel:camel-main:jar:4.9.0:compile
+[INFO]    |  |  |     +- org.apache.camel:camel-base:jar:4.9.0:compile
+[INFO]    |  |  |     \- org.apache.camel:camel-core-languages:jar:4.9.0:compile
+[INFO]    |  |  +- org.apache.camel:camel-util-json:jar:4.9.0:compile
+[INFO]    |  |  +- org.apache.camel:camel-cloud:jar:4.9.0:compile
+[INFO]    |  |  |  \- org.apache.camel:camel-core-model:jar:4.9.0:compile
+[INFO]    |  |  |     \- org.apache.camel:camel-core-processor:jar:4.9.0:compile
+[INFO]    |  |  +- org.apache.camel:camel-cluster:jar:4.9.0:compile
+[INFO]    |  |  |  \- org.apache.camel:camel-base-engine:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-health:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-core-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-core-engine:jar:4.9.0:compile
+[INFO]    |  |     +- org.apache.camel:camel-core-reifier:jar:4.9.0:compile
+[INFO]    |  |     \- org.apache.camel:camel-support:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-bean-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-bean:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-browse-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-browse:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-controlbus-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-controlbus:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-dataformat-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-dataformat:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-dataset-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-dataset:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-direct-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-direct:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-file-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-file:jar:4.9.0:compile
+[INFO]    |  |     \- commons-codec:commons-codec:jar:1.19.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-language-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-language:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-log-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-log:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-mock-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-mock:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-ref-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-ref:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-rest-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-rest:jar:4.9.0:compile
+[INFO]    |  |     \- org.apache.camel:camel-tooling-model:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-saga-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-saga:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-scheduler-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-scheduler:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-seda-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-seda:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-stub-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-stub:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-timer-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-timer:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-validator-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-validator:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-xpath-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-xpath:jar:4.9.0:compile
+[INFO]    |  +- org.apache.camel.springboot:camel-xslt-starter:jar:4.9.0:compile
+[INFO]    |  |  \- org.apache.camel:camel-xslt:jar:4.9.0:compile
+[INFO]    |  \- org.apache.camel.springboot:camel-xml-jaxp-starter:jar:4.9.0:compile
+[INFO]    |     \- org.apache.camel:camel-xml-jaxp:jar:4.9.0:compile
+[INFO]    |        +- org.apache.camel:camel-xml-jaxp-util:jar:4.9.0:compile
+[INFO]    |        \- org.apache.camel:camel-xml-io-util:jar:4.9.0:compile
+[INFO]    +- org.jgrapht:jgrapht-core:jar:1.5.2:compile
+[INFO]    |  +- org.jheaps:jheaps:jar:0.14:compile
+[INFO]    |  \- org.apfloat:apfloat:jar:1.10.1:compile
+[INFO]    +- org.jgrapht:jgrapht-io:jar:1.5.2:compile
+[INFO]    |  +- org.antlr:antlr4-runtime:jar:4.12.0:compile
+[INFO]    |  \- org.apache.commons:commons-text:jar:1.10.0:compile
+[INFO]    +- org.springframework.boot:spring-boot-starter-data-jpa:jar:4.0.0:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-starter-jdbc:jar:4.0.0:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-data-jpa:jar:4.0.0:compile
+[INFO]    |  |  +- org.springframework.boot:spring-boot-data-commons:jar:4.0.0:compile
+[INFO]    |  |  |  +- org.springframework.boot:spring-boot-persistence:jar:4.0.0:compile
+[INFO]    |  |  |  \- org.springframework.data:spring-data-commons:jar:4.0.0:compile
+[INFO]    |  |  +- org.springframework.boot:spring-boot-hibernate:jar:4.0.0:compile
+[INFO]    |  |  |  +- org.springframework.boot:spring-boot-jpa:jar:4.0.0:compile
+[INFO]    |  |  |  \- org.springframework:spring-orm:jar:7.0.1:compile
+[INFO]    |  |  +- org.springframework.data:spring-data-jpa:jar:4.0.0:compile
+[INFO]    |  |  \- org.springframework:spring-aspects:jar:7.0.1:compile
+[INFO]    |  |     \- org.aspectj:aspectjweaver:jar:1.9.25:compile
+[INFO]    |  \- org.springframework.boot:spring-boot-jdbc:jar:4.0.0:compile
+[INFO]    |     +- org.springframework.boot:spring-boot-sql:jar:4.0.0:compile
+[INFO]    |     +- org.springframework.boot:spring-boot-transaction:jar:4.0.0:compile
+[INFO]    |     \- org.springframework:spring-jdbc:jar:7.0.1:compile
+[INFO]    +- org.springframework.boot:spring-boot-starter-web:jar:4.0.0:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-starter-jackson:jar:4.0.0:compile
+[INFO]    |  |  \- org.springframework.boot:spring-boot-jackson:jar:4.0.0:compile
+[INFO]    |  |     \- tools.jackson.core:jackson-databind:jar:3.0.2:compile
+[INFO]    |  |        +- com.fasterxml.jackson.core:jackson-annotations:jar:2.20:compile
+[INFO]    |  |        \- tools.jackson.core:jackson-core:jar:3.0.2:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:4.0.0:compile
+[INFO]    |  |  +- org.springframework.boot:spring-boot-starter-tomcat-runtime:jar:4.0.0:compile
+[INFO]    |  |  |  +- org.springframework.boot:spring-boot-web-server:jar:4.0.0:compile
+[INFO]    |  |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:11.0.14:compile
+[INFO]    |  |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:11.0.14:compile
+[INFO]    |  |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:11.0.14:compile
+[INFO]    |  |  \- org.springframework.boot:spring-boot-tomcat:jar:4.0.0:compile
+[INFO]    |  +- org.springframework.boot:spring-boot-http-converter:jar:4.0.0:compile
+[INFO]    |  |  \- org.springframework:spring-web:jar:7.0.1:compile
+[INFO]    |  \- org.springframework.boot:spring-boot-webmvc:jar:4.0.0:compile
+[INFO]    |     +- org.springframework.boot:spring-boot-servlet:jar:4.0.0:compile
+[INFO]    |     \- org.springframework:spring-webmvc:jar:7.0.1:compile
+[INFO]    +- org.apache.tinkerpop:gremlin-driver:jar:3.7.4:compile
+[INFO]    |  +- org.apache.tinkerpop:gremlin-core:jar:3.7.4:compile
+[INFO]    |  |  +- org.apache.tinkerpop:gremlin-shaded:jar:3.7.4:compile
+[INFO]    |  |  +- org.apache.tinkerpop:gremlin-language:jar:3.7.4:compile
+[INFO]    |  |  |  \- org.javatuples:javatuples:jar:1.2:compile
+[INFO]    |  |  +- org.slf4j:jcl-over-slf4j:jar:2.0.17:compile
+[INFO]    |  |  +- org.apache.commons:commons-configuration2:jar:2.9.0:compile
+[INFO]    |  |  +- commons-beanutils:commons-beanutils:jar:1.9.4:compile
+[INFO]    |  |  +- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO]    |  |  +- com.carrotsearch:hppc:jar:0.7.1:compile
+[INFO]    |  |  +- com.squareup:javapoet:jar:1.13.0:compile
+[INFO]    |  |  \- net.objecthunter:exp4j:jar:0.4.8:compile
+[INFO]    |  +- org.apache.tinkerpop:gremlin-util:jar:3.7.4:compile
+[INFO]    |  +- io.netty:netty-all:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-buffer:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-base:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-dns:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-haproxy:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-compression:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-http:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-http2:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-http3:jar:4.2.7.Final:compile
+[INFO]    |  |  +- org.jctools:jctools-core:jar:4.0.5:compile
+[INFO]    |  |  +- io.netty:netty-transport-native-unix-common:jar:4.2.7.Final:compile
+[INFO]    |  |  +- org.bouncycastle:bcprov-jdk18on:jar:1.80:compile
+[INFO]    |  |  +- io.netty:netty-codec-memcache:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-mqtt:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-redis:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-smtp:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-socks:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-stomp:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-xml:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-protobuf:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-marshalling:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-common:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-handler:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-handler-proxy:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-handler-ssl-ocsp:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-resolver:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-resolver-dns:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-rxtx:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-sctp:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-udt:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-classes-epoll:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-classes-kqueue:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-resolver-dns-classes-macos:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-classes-io_uring:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-codec-classes-quic:jar:4.2.7.Final:compile
+[INFO]    |  |  +- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-epoll:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-epoll:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-io_uring:jar:linux-riscv64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-transport-native-kqueue:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-codec-native-quic:jar:linux-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-codec-native-quic:jar:linux-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-codec-native-quic:jar:osx-x86_64:4.2.7.Final:runtime
+[INFO]    |  |  +- io.netty:netty-codec-native-quic:jar:osx-aarch_64:4.2.7.Final:runtime
+[INFO]    |  |  \- io.netty:netty-codec-native-quic:jar:windows-x86_64:4.2.7.Final:runtime
+[INFO]    |  \- org.apache.commons:commons-lang3:jar:3.19.0:compile
+[INFO]    +- org.apache.tinkerpop:tinkergraph-gremlin:jar:3.7.4:compile
+[INFO]    \- org.hibernate.orm:hibernate-hikaricp:jar:6.6.26.Final:compile
+[INFO]       +- org.jboss.logging:jboss-logging:jar:3.6.1.Final:runtime
+[INFO]       +- org.hibernate.orm:hibernate-core:jar:6.6.26.Final:compile
+[INFO]       |  +- jakarta.transaction:jakarta.transaction-api:jar:2.0.1:compile
+[INFO]       |  +- org.hibernate.common:hibernate-commons-annotations:jar:7.0.3.Final:runtime
+[INFO]       |  +- io.smallrye:jandex:jar:3.2.0:runtime
+[INFO]       |  +- com.fasterxml:classmate:jar:1.7.1:runtime
+[INFO]       |  +- net.bytebuddy:byte-buddy:jar:1.17.8:runtime
+[INFO]       |  +- org.glassfish.jaxb:jaxb-runtime:jar:4.0.6:runtime
+[INFO]       |  |  \- org.glassfish.jaxb:jaxb-core:jar:4.0.6:runtime
+[INFO]       |  |     +- org.eclipse.angus:angus-activation:jar:2.0.3:runtime
+[INFO]       |  |     +- org.glassfish.jaxb:txw2:jar:4.0.6:runtime
+[INFO]       |  |     \- com.sun.istack:istack-commons-runtime:jar:4.1.2:runtime
+[INFO]       |  \- jakarta.inject:jakarta.inject-api:jar:2.0.1:runtime
+[INFO]       \- com.zaxxer:HikariCP:jar:7.0.2:compile
+[INFO] 
+[INFO] ----< net.osgiliath.datamigrator.archetype:datamigrator-archetype >-----
+[INFO] Building datamigrator-archetype 1.115-SNAPSHOT                     [7/7]
+[INFO]   from datamigrator-archetype/pom.xml
+[INFO] --------------------------[ maven-archetype ]---------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ datamigrator-archetype ---
+[INFO] net.osgiliath.datamigrator.archetype:datamigrator-archetype:maven-archetype:1.115-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for datamigrator-parent 1.115-SNAPSHOT:
+[INFO] 
+[INFO] datamigrator-parent ................................ SUCCESS [  0.455 s]
+[INFO] datamigrator-bom ................................... SUCCESS [  0.009 s]
+[INFO] datamigrator-core .................................. SUCCESS [  0.636 s]
+[INFO] datamigrator-modules-parent ........................ SUCCESS [  0.003 s]
+[INFO] datamigrator-modules-faker ......................... SUCCESS [  0.038 s]
+[INFO] datamigrator-modules-row-limiter ................... SUCCESS [  0.021 s]
+[INFO] datamigrator-archetype ............................. SUCCESS [  0.118 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.020 s
+[INFO] Finished at: 2025-11-23T15:22:56+01:00
+[INFO] ------------------------------------------------------------------------

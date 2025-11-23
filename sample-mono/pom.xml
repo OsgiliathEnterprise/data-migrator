@@ -132,7 +132,7 @@
                         </annotationProcessorPath>
                         <annotationProcessorPath>
                             <groupId>org.hibernate.orm</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <artifactId>hibernate-processor</artifactId>
                             <version>${hibernate.version}</version>
                         </annotationProcessorPath>
                         <annotationProcessorPath>
@@ -170,8 +170,8 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -260,7 +260,7 @@
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
                                     <groupId>org.hibernate.orm</groupId>
-                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <artifactId>hibernate-processor</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
@@ -273,8 +273,8 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.hibernate.orm.tooling</groupId>
-                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <groupId>org.hibernate.orm</groupId>
+                        <artifactId>hibernate-maven-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <groupId>com.cmeza</groupId>
@@ -438,7 +438,7 @@
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
                                     <groupId>org.hibernate.orm</groupId>
-                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <artifactId>hibernate-processor</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
@@ -627,8 +627,8 @@
                         </dependencies>
                     </plugin>
                     <plugin>
-                        <groupId>org.hibernate.orm.tooling</groupId>
-                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <groupId>org.hibernate.orm</groupId>
+                        <artifactId>hibernate-maven-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <groupId>com.cmeza</groupId>
@@ -890,7 +890,7 @@
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
                                     <groupId>org.hibernate.orm</groupId>
-                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <artifactId>hibernate-processor</artifactId>
                                     <version>${hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
@@ -903,8 +903,8 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.hibernate.orm.tooling</groupId>
-                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <groupId>org.hibernate.orm</groupId>
+                        <artifactId>hibernate-maven-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <groupId>com.cmeza</groupId>
@@ -1000,7 +1000,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-jpamodelgen</artifactId>
+            <artifactId>hibernate-processor</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
