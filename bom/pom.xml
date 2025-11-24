@@ -16,10 +16,10 @@
         <testcontainers.version>1.21.3</testcontainers.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <tinkerpop.version>3.8.0</tinkerpop.version>
-        <javax.transaction.jta.version>1.1</javax.transaction.jta.version>
+        <jakarta.transaction-api.version>2.0.1</jakarta.transaction-api.version>
         <net.datafaker.version>2.4.4</net.datafaker.version>
-        <jakarta.persistenceapi.version>3.1.0</jakarta.persistenceapi.version>
-        <ehcache.version>3.10.8</ehcache.version>
+        <jakarta.persistenceapi.version>3.2.0</jakarta.persistenceapi.version>
+        <ehcache.version>3.11.1</ehcache.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -139,9 +139,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.transaction</groupId>
-                <artifactId>jta</artifactId>
-                <version>${javax.transaction.jta.version}</version>
+                <groupId>jakarta.transaction</groupId>
+                <artifactId>jakarta.transaction-api</artifactId>
+                <version>${jakarta.transaction-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.persistence</groupId>
