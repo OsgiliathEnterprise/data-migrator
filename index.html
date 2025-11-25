@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Data Migrator</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/fontawesome.min.css" rel="stylesheet">
+        <link href="css/brands.min.css" rel="stylesheet">
+        <link href="css/solid.min.css" rel="stylesheet">
+        <link href="css/v4-font-face.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body class="homepage">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href=".">Data Migrator</a>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#welcome-anonymous" class="nav-link">Welcome anonymous!</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#data-migrator-tool" class="nav-link">Data Migrator tool</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#procedure" class="nav-link">Procedure</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#additional-useful-commands" class="nav-link">Additional useful commands</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#customization-of-the-anonymization" class="nav-link">Customization of the anonymization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#integration-testing-for-your-anonymization-sequence" class="nav-link">Integration testing for your anonymization sequence</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#standard-anonymization" class="nav-link">Standard anonymization</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#fake-data-generation" class="nav-link">Fake data generation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#row-limiting" class="nav-link">Row limiting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#tips-tricks" class="nav-link">TIPS &amp; TRICKS</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#remote-tinkergraph-server" class="nav-link">Remote Tinkergraph server</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#generated-entities" class="nav-link">Generated entities</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#mimicking-the-behavior-of-xx2pg" class="nav-link">Mimicking the behavior of XX2PG</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#developingcontributing-to-the-project" class="nav-link">Developing/Contributing to the project</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#running-the-test-see-sample-mono" class="nav-link">Running the test (see sample-mono)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#starting-sample-mono-locally-within-an-ide" class="nav-link">Starting sample mono locally (within an IDE)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#releasing" class="nav-link">Releasing</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p><img alt="tests and snapshot deployment" src="https://github.com/OsgiliathEnterprise/data-migrator/actions/workflows/release.yml/badge.svg" />
+<img alt="Maven Central" src="https://img.shields.io/maven-central/v/net.osgiliath.datamigrator/data-migrator" />
+<a href="https://sonarcloud.io/summary/new_code?id=OsgiliathEnterprise_data-migrator"><img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=OsgiliathEnterprise_data-migrator&amp;metric=alert_status" /></a></p>
+<h1 id="welcome-anonymous">Welcome anonymous!</h1>
+<h2 id="data-migrator-tool">Data Migrator tool</h2>
+<p>This tool aims to help the developer or business analyst to gather production data from a source datasource of any
+vendor, create the same structure in target database  (same technology or other vendor or version, thanks to orm) then
+to execute the data transfer with a data transformation sequence in between: standard anonymization (i.e.
+replacing column values with random values or limiting the amount or rows), or custom scripted anonymization, e.g.
+executing tailor-made java custom
+business on top of spring data repositories or <a href="https://tinkerpop.apache.org/docs/current/">Tinkerpop's graph queries</a>
+and even ai-driven.</p>
+<h2 id="procedure">Procedure</h2>
+<ol>
+<li>Configure your machine prerequisites: java 21, docker and maven.</li>
+<li>Create a new anonymization project for your context from the maven data-migrator maven
+   archetype (
+   <code>mvn archetype:generate -DarchetypeGroupId=net.osgiliath.datamigrator.archetype -DarchetypeArtifactId=datamigrator-archetype -DarchetypeVersion=&lt;current version of the archetype&gt;</code>),
+   ensure to choose a name without special characters (i.e. myanonymizationproject, without '-', '_', ...).</li>
+<li>Start a container of your using your source database technology (optional if you have access to the remote database).
+   You can tweak the <code>compose.yml</code> file at the root of the generated project.</li>
+<li>Import your production dump into your local database (optional if you have access to the remote database)</li>
+<li>Configure the project's <code>database.properties</code> with your databases information.</li>
+<li>Generate the java entities, java tables metamodel and repositories from the root of your generated project using
+   the <code>./mvnw clean process-classes -Pentities-from-source-schema</code> command: doing so, new classes will appear on
+   the <code>/target/generated-sources</code>directory.</li>
+<li>Create your custom business logic (java code) on top of the spring-data-repositories and queries (optional if you use
+   common modules that do ot need any customization).</li>
+<li>Configure your anonymization sequence using the <code>src/main/resources/application.yml</code> property file with
+   data-migrator sequence and sequencers.</li>
+<li>Start your target database container (optional if you have access to the remote database).</li>
+<li>Launch the sequencing: <code>./mvnw package &amp;&amp; cd target &amp;&amp; java -jar &lt;yourjar&gt;.jar</code>.</li>
+</ol>
+<h2 id="additional-useful-commands">Additional useful commands</h2>
+<ul>
+<li><code>./mvnw process-classes -Ptarget-data-changelog-target-db</code> a liquibase schema changelog (including data) from target
+  database for manual processing (unfortunately, the target/classes/config/liquibase-sink/changelog will have to be
+  modified manually to remove the absolute path part of the <loadData/> sections, i.e. <code>/config/liquibase-sink/data</code>,
+  and a master.xml file has to be
+  created referencing the changelog file)</li>
+<li>
+<p><code>./mvnw process-classes -Ptarget-db-from-target-data-changelog -Dliquibase.duplicateFileMode=WARN</code> a liquibase schema
+  changelog (including data) from target database for manual processing</p>
+</li>
+<li>
+<p><code>./mvnw clean verify -Pdata-changelog-from-source-db</code> to generate a liquibase changelog from source DATA</p>
+</li>
+<li><code>./mvnw clean verify -Pentities-from-changelog</code> to generate a source database and entities from a liquibase changelog</li>
+<li><code>./mvnw clean verify -Pschema-changelog-from-source-db</code> to generate a liquibase changelog from source SCHEMA</li>
+</ul>
+<h2 id="customization-of-the-anonymization">Customization of the anonymization</h2>
+<h3 id="creating-your-own-custom-business-logic">Creating your own custom business logic</h3>
+<p>You can create your own <code>sequencer</code> by extending <code>MetamodelColumnCellTransformer</code> (cell level)
+or <code>JpaEntityColumnTransformer</code> (entity level) and adding it to the <code>application.yml</code> file.</p>
+<p>For sequencers that needs some context (they can't be singleton beans), you'll need to create a <code>FactorySequencer</code>
+Factory bean that will create the sequencer instance.</p>
+<h2 id="integration-testing-for-your-anonymization-sequence">Integration testing for your anonymization sequence</h2>
+<p>In order to try this project, the simplest procedure is to setup a source database, inject the data into it, then
+generate the entities, and finally run the tests that will inject the data into the target database.
+the sample-mono project illustrates this procedure (see <code>pom.xml</code> test configuration, as well as the test classes).</p>
+<h1 id="standard-anonymization">Standard anonymization</h1>
+<h2 id="fake-data-generation">Fake data generation</h2>
+<p>Here's how you can configure the fake data generation (will replace all the values of the column with fake data):</p>
+<pre><code class="language-yaml">    - name: column-anonymize-1
+      type: factory
+      transformer-class: net.osgiliath.migrator.modules.faker.ColumnFaker
+      entity-class: com.mypackage.Employee
+      column-transformation-definitions:
+        - column-name: firstName
+          consistent-key: True # will reuse value of a previously faked entry
+          options:
+            - faker: dragon_ball.characters
+
+</code></pre>
+<p>There are a lot of options for the faker, see
+the <a href="https://www.datafaker.net/documentation/getting-started/">faker documentation</a>.</p>
+<h2 id="row-limiting">Row limiting</h2>
+<p>You can limit the number of rows to be injected in the target database using the <code>row-limit</code> sequencer:</p>
+<pre><code class="language-yaml">    - name: rows-minimize-1
+      type: bean
+      transformer-class: net.osgiliath.migrator.modules.rowlimiter.RowLimiter
+      sequencer-options:
+        rows-to-keep: 3
+</code></pre>
+<h1 id="tips-tricks">TIPS &amp; TRICKS</h1>
+<h2 id="remote-tinkergraph-server">Remote Tinkergraph server</h2>
+<p>This data migrator basically transforms the database schema into two graphs (metamodel and model) then reinject the data
+in the sink.
+By default, a 4gb inmemory graph is created, which could be limitating.
+Additionally, you may sometimes want to take a look at the entity graph to better understand the data model.</p>
+<p>Remote tinkerpop server is supported by changing
+the <code>src/main/resources/application.yml#data-migrator.graph-datasource.type</code>. Setting that property to 'remote' will
+then need a graph server to be started upfront (see compose.yml).</p>
+<h2 id="generated-entities">Generated entities</h2>
+<h3 id="incorrect-java-entity-generation-from-source-database-model">Incorrect java entity generation from source database model</h3>
+<p>Hibernates tools are quite good at reverse engineering entities, but are not perfect. You'll need to fix the entities
+manually. The most common issues are:</p>
+<ul>
+<li>(optional) adding the mappedBy (owning side id) annotation on <code>@ManyToMany</code> annotation to ensure reproducibility of
+  the
+  anonymization sequence (i.e. the same data will be generated for the same input data). Not doing so will result in a '
+  mappedBy' annotation added randomly on one or the other side of the relationship, leading to a different entity graph
+  to process at each run.</li>
+<li>(optional) add <code>@Basic(fetch = FetchType.LAZY)</code> on blobs and clobs attributes (to avoid heavy memory overload).</li>
+<li>Remove <code>@Version</code> annotation if it's not an hibernate version column (i.e. it's a business version column)</li>
+<li>Escape the column names that are reserved words in the target database (e.g. <code>@Column(name = "\"schema\"")</code> in
+  postgresql)</li>
+<li>To batch some entity processing, you can edit the <code>build.xml</code> and add your own Ant tasks.</li>
+</ul>
+<h3 id="clob-datatype">Clob datatype</h3>
+<p>This framework heavily relies on Hibernate tools for entity retro-engineering. This tool has some weird behavior when
+It sometimes generate <code>Clob</code> type instead of a standard String: prefer replacing the generated entity's field and
+methods with the
+proper <a href="https://docs.jboss.org/hibernate/stable/orm/userguide/html_single/Hibernate_User_Guide.html#basic-String">
+<code>@JdbcTypeCode</code></a></p>
+<h3 id="composites-ids-with-including-foreign-key">Composites Ids with including foreign key</h3>
+<p>Some databases are using some keys as a primary + foreign key.
+Unfortunately, <a href="https://hibernate.atlassian.net/jira/software/c/projects/HBX/issues/HBX-2848?filter=reportedbyme&amp;jql=project%20%3D%20%22HBX%22%20AND%20reporter%20IN%20%28currentUser%28%29%29%20ORDER%20BY%20created%20DESC">Hibernate does not generate a proper Mapping</a>
+yet.</p>
+<p>To fix that bad behavior, you have to add a <code>@MapsId("name of the field in the composite key")"</code> on your Entity
+relationship.</p>
+<p>The build.xml containing the hack only contains 5 entries rewritten, If you need more you'll have to add
+new <code>&lt;replaceregexp</code> entries.</p>
+<h2 id="mimicking-the-behavior-of-xx2pg">Mimicking the behavior of XX2PG</h2>
+<p>Ora2PG and Mssql2PG are popular tools to migrate data.
+The procedure of these tools is quite simple:</p>
+<ol>
+<li>It first creates the target db schema without any foreign key constraints.</li>
+<li>It selects data from the source db and injects into the foreignkey-less target db.</li>
+<li>Once all tables' content are migrated, the constraints on the target db are set.</li>
+</ol>
+<p>The same procedure using datamigrator would be the following:</p>
+<ol>
+<li>Configure database.properties with source &amp; target information, also configure application.yml without any sequence.</li>
+<li>Generate entity from source schema using <code>./mvnw package -pentities-from-source-schema-nofk</code>.</li>
+<li>Execute the data migration with <code>java -jar target/&lt;thejar&gt;</code></li>
+<li>Regenerate the entities with foreign keys this time: Generate entity from source schema
+   using <code>./mvnw clean package -pentities-from-source-schema</code>.</li>
+<li>Execute the data migration with <code>java -jar target/&lt;thejar&gt;</code>, you can stop it just after the hibernate schema update.</li>
+<li>Transfer the 'many to many' intermediate table by hand as they won't have been created (due to the first nofk
+   migration).</li>
+</ol>
+<h1 id="developingcontributing-to-the-project">Developing/Contributing to the project</h1>
+<h2 id="running-the-test-see-sample-mono">Running the test (see sample-mono)</h2>
+<p>The source and target database are started using test-containers when executing the integration
+tests from the sample-mono project (<code>./mvnw clean verify -Pentities-from-changelog</code>).</p>
+<h2 id="starting-sample-mono-locally-within-an-ide">Starting sample mono locally (within an IDE)</h2>
+<ol>
+<li>Start the services in the docker compose file of sample mono</li>
+<li>Populate the source database <code>./mvnw process-classes -Pdata-changelog-from-source-db</code></li>
+</ol>
+<h2 id="releasing">Releasing</h2>
+<ol>
+<li>Bump the version of sample-mono and report-aggregate modules poms according to parent version</li>
+<li>Merge to main branch.</li>
+<li>Call the sonatype staging api to get the list of staging repositories: a Bruno API collection is available
+   <a href="./report-aggregate/src/main/bruno">here</a></li>
+<li>Call the sonatype staging api with a post to close the staging repository</li>
+</ol></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js"></script>
+        <script src="search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-11-25 19:47:13.111009+00:00
+-->
