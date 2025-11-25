@@ -813,6 +813,15 @@
                     <plugin>
                         <groupId>org.hibernate.orm</groupId>
                         <artifactId>hibernate-maven-plugin</artifactId>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>
+                                        ${project.build.directory}/generated-sources/entities
+                                    </directory>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>com.cmeza</groupId>
